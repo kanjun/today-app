@@ -43,6 +43,7 @@ members = [
     "system-interface",
     "terminal-app",
     "tk-command-parsing",
+    "today",
     "workspace-layout",
 ]
 
@@ -3648,6 +3649,31 @@ dev = [
 ]
 
 [package.metadata]
+
+[package.metadata.requires-dev]
+dev = [{ name = "ty", specifier = "==0.0.85" }]
+
+[[package]]
+name = "today"
+version = "0.1.0"
+source = { editable = "system/apps/today" }
+dependencies = [
+    { name = "flask" },
+    { name = "flask-sock" },
+    { name = "werkzeug" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "ty" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "flask", specifier = ">=3.0" },
+    { name = "flask-sock", specifier = ">=0.7" },
+    { name = "werkzeug", specifier = ">=3.0" },
+]
 
 [package.metadata.requires-dev]
 dev = [{ name = "ty", specifier = "==0.0.85" }]

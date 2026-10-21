@@ -96,6 +96,21 @@ def test_references_are_read_off_mcp_config_and_supervisord_programs(
     }
 
 
+def test_a_supervisord_comment_naming_an_env_file_is_not_a_reference(
+    tmp_path: Path,
+) -> None:
+    root = _tree(tmp_path)
+    (root / "system/supervisord.conf.d/host-backup.conf").write_text(
+        "# data/.secrets/restic.env is injected by the desktop app.\n"
+        "  ; and data/.secrets/share.env too\n"
+        "[program:host-backup]\n"
+        "command=host-backup\n"
+    )
+    assert writer.collect_references(root) == {
+        "widget": ["system/supervisord.conf.d/widget-app.conf"],
+    }
+
+
 def test_an_undeclared_reference_and_a_missing_variable_stop_the_publish(
     tmp_path: Path,
 ) -> None:

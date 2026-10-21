@@ -727,3 +727,18 @@ def test_a_program_running_under_an_undeclared_secret_file_is_flagged(
         tmp_path / "declared",
     )
     assert check_secret_references(tmp_path, declared) == ()
+
+
+def test_a_supervisord_comment_naming_a_secret_file_is_not_flagged(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "system/supervisord.conf.d").mkdir(parents=True)
+    (tmp_path / "system/supervisord.conf.d/host-backup.conf").write_text(
+        "# data/.secrets/restic.env is injected by the desktop app.\n"
+        "  ; data/.secrets/share.env too\n"
+        "[program:host-backup]\ncommand=host-backup\n"
+    )
+    (tmp_path / "manifest").mkdir()
+    manifest = _manifest(_MINIMAL_TOML, tmp_path / "manifest")
+
+    assert check_secret_references(tmp_path, manifest) == ()

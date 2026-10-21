@@ -687,6 +687,13 @@ def check_secret_references(
         if not path.is_file():
             continue
         text = path.read_text(encoding="utf-8", errors="replace")
+        if path.suffix == ".conf":
+            # A supervisord comment line is prose, not a program running under the
+            # file: the stock host-backup and share-gateway drop-ins name their env
+            # files in their headers. Same rule as the publish-time manifest writer.
+            text = "\n".join(
+                line for line in text.splitlines() if not line.lstrip().startswith(("#", ";"))
+            )
         for file in sorted(set(SECRET_REFERENCE_PATTERN.findall(text))):
             if file not in declared:
                 problems.append(

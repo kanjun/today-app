@@ -1,0 +1,365 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Today</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:15px/1.45 ui-sans-serif,system-ui,sans-serif;color:#1c1b19;background:#f6f4ef;padding:32px 24px 60px}
+.wrap{max-width:680px;margin:0 auto}
+.top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:22px}
+h1{font-size:22px;font-weight:600}
+.muted{color:#8a857c;font-size:13px}
+h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#8a857c;font-weight:600;margin:24px 0 8px}
+.row{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid #e7e3da;border-radius:10px;padding:12px 16px;margin-bottom:6px;cursor:pointer}
+.row:hover{border-color:#cfc9bc}
+.row .who{width:78px;color:#8a857c;font-size:13px;flex-shrink:0}
+.row .what{flex:1}
+.row .age{color:#b0aa9f;font-size:12px;width:26px;text-align:right}
+.row.dragging{opacity:.4}
+.today-row .grip{cursor:grab;color:#c9c3b6;font-size:14px;user-select:none}
+.next{border:1.5px solid #1c1b19}
+.nextlabel{font-size:11px;font-weight:700;letter-spacing:.06em;width:38px;flex-shrink:0}
+.tag{font-size:12px;padding:3px 9px;border-radius:20px;white-space:nowrap}
+.ready{background:#e6f0e6;color:#2f6b35}
+.you{background:#fbeccd;color:#8a5a00}
+.mine{background:#eeebe4;color:#6b665d}
+.working{background:#e8eef6;color:#36597f}
+.btn{font:inherit;font-size:13px;border:1px solid #d9d4c8;background:#fff;border-radius:7px;padding:5px 11px;color:#1c1b19;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:#a9a397}
+.btn.primary{background:#1c1b19;color:#fff;border-color:#1c1b19}
+.btn.sel{background:#1c1b19;color:#fff;border-color:#1c1b19}
+.add{width:100%;font:inherit;border:1px dashed #d9d4c8;background:transparent;border-radius:10px;padding:11px 16px;margin-bottom:6px}
+.add:focus{outline:none;border-style:solid;background:#fff}
+.search{margin:-8px 0 18px}
+.empty{color:#8a857c;font-size:14px;padding:6px 2px 10px}
+.foot{margin-top:18px;font-size:13px;color:#8a857c}
+.foot a{color:#8a857c;cursor:pointer}
+.cleared{margin-top:10px}
+.cleared .row{cursor:default;color:#8a857c}
+.back{font-size:13px;color:#8a857c;margin-bottom:16px;display:inline-block;cursor:pointer}
+.card{background:#fff;border:1px solid #e7e3da;border-radius:12px;padding:26px 28px}
+.title{font-size:20px;font-weight:600;margin-bottom:4px}
+.quote{border-left:3px solid #e7e3da;padding:2px 0 2px 12px;color:#55514a;margin:14px 0 4px}
+.src{font-size:12px;color:#8a857c}
+.src a{color:#8a857c}
+.did{font-size:13px;color:#55514a;margin:18px 0 8px}
+.draft{width:100%;font:inherit;border:1px solid #e7e3da;border-radius:8px;padding:14px 16px;background:#fbfaf7;resize:vertical;min-height:70px}
+.draft[readonly]{resize:none}
+.fb{margin-top:18px;padding-top:14px;border-top:1px solid #efece5}
+.fbrem{display:flex;align-items:center;gap:6px;cursor:pointer}
+.actions{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+.q{margin:16px 0}.q p{margin-bottom:8px}
+.opt{display:flex;gap:8px;flex-wrap:wrap}
+input.text{font:inherit;width:100%;border:1px solid #d9d4c8;border-radius:7px;padding:8px 10px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#1c1b19;color:#fff;padding:9px 16px;border-radius:8px;font-size:14px;opacity:0;transition:opacity .2s}
+.toast.on{opacity:1}
+.mocknote{font-size:12px;color:#b0aa9f;margin-top:28px;text-align:center}
+.err{color:#a33;font-size:13px;margin-top:10px}
+.detail{font-size:12px;color:#8a857c;margin-top:8px}
+.searched{font-size:12px;color:#8a857c;margin-top:6px}
+.setup{margin:4px 0 14px}.setup p{margin-top:8px;font-size:14px}.setup ul{margin:8px 0 0 18px;font-size:13px}.setup code{font-size:12px;overflow-wrap:anywhere}
+.goal .what b{font-weight:600}
+.row .sub{display:block;font-size:12.5px;color:#55514a;margin-top:2px}
+.goalbadge{font-size:11px;font-weight:700;letter-spacing:.06em;color:#8a857c;width:44px;flex-shrink:0}
+.step{display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-top:1px solid #eeebe4}
+.step:first-of-type{border-top:none}
+.num{width:24px;height:24px;border-radius:50%;border:1.5px solid #cfc9bc;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#8a857c}
+.step.nextstep .num{border-color:#1c1b19;background:#1c1b19;color:#fff}
+.step.done .num{background:#e6f0e6;border-color:#e6f0e6;color:#2f6b35}
+.step.done .stitle{color:#8a857c;text-decoration:line-through}
+.step .body{flex:1;min-width:0}.stitle{font-weight:500}
+.step.later{opacity:.75}
+.member{display:flex;gap:10px;align-items:center;padding:7px 10px;margin-top:6px;border:1px solid #eeebe4;border-radius:8px;cursor:pointer;font-size:14px}
+.member:hover{border-color:#cfc9bc}.member .what{flex:1}
+.partof{font-size:12px;color:#8a857c;margin-bottom:10px}.partof a{color:#8a857c;cursor:pointer}
+.emailcard{border:1px solid #e7e3da;border-radius:10px;padding:12px 14px;margin-top:12px;background:#fbfaf7}
+.emailcard label{display:block;font-size:12px;color:#8a857c;margin:6px 0 3px}
+.emailcard input{font:inherit;width:100%;border:1px solid #d9d4c8;border-radius:7px;padding:6px 9px;background:#fff}
+.sent{color:#2f6b35;font-size:13px;margin-top:8px}
+select.btn{padding:5px 8px;max-width:100%}
+details summary{cursor:pointer;font-size:13px;color:#8a857c;margin:14px 0 6px}
+.herdraft{margin-top:16px}.hdlabel{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#7a5a1c;margin-bottom:4px}
+details.alt{margin-top:18px;border-top:1px solid #efece5;padding-top:4px}
+/* Phone: each row puts who it is from on top, the title on its own line, then its tag and buttons. */
+@media (max-width:600px){
+body{padding:18px 12px 48px}
+.top{flex-wrap:wrap;gap:4px 12px}
+.row{flex-wrap:wrap;gap:6px 10px;padding:12px 14px}
+.row .who,.goalbadge,.nextlabel{width:100%;order:-1}
+.nextlabel:empty,.today-row .grip{display:none}
+.row .what{flex:1 1 100%;min-width:0;overflow-wrap:anywhere}
+.row .age{width:auto;text-align:left;margin-right:auto}
+.row .tag+.btn,.row .tag:last-child{margin-right:auto}
+.btn{padding:8px 14px;font-size:14px}
+.card{padding:18px 16px}
+.emailcard{padding:12px}
+.member{flex-wrap:wrap}.member .who{width:100%!important}
+input,textarea,select{font-size:16px!important}
+.toast{left:12px;right:12px;transform:none;text-align:center}
+}
+</style></head>
+<body><div class="wrap" id="app"></div><div class="toast" id="toast"></div>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const TAGS = {ready:["ready","Draft ready"], you:["you","Needs you"], mine:["mine","Yours to do"], working:["working","Working on it"], waiting:["mine","Waiting on them"]};
+let S = null, view = {page:"list"}, showCleared = false, showRules = false, pollTimer = null, searchQ = "", searchRes = null, searchTimer = null;
+const api = async (path, body) => {
+  const r = await fetch(path, body === undefined ? {} : {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.error || ("Something went wrong (" + r.status + ")"));
+  return data;
+};
+function toast(t){const e=$("toast");e.textContent=t;e.classList.add("on");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("on"),2400)}
+function tag(state){const [c,l]=TAGS[state]||TAGS.mine;return `<span class="tag ${c}">${l}</span>`}
+function fmtTime(iso){ if(!iso) return "not yet"; return new Date(iso).toLocaleTimeString([], {hour:"numeric", minute:"2-digit"}).toLowerCase(); }
+function go(hash){ history.pushState({}, "", hash || location.pathname); route(); }
+function route(){
+  clearTimeout(pollTimer);
+  const h = decodeURIComponent(location.hash.slice(1));
+  if (h.startsWith("goal:")) { view = {page:"goal", id:h.slice(5)}; renderGoal(); }
+  else if (h) { view = {page:"item", key:h, from:(view.page==="goal"?view.id:view.from)}; renderItem(); }
+  else { view = {page:"list"}; loadList(); }
+  scrollTo(0,0);
+}
+window.onpopstate = route;
+
+async function runSearch(){
+  if(!searchQ.trim()){ searchRes=null; renderList(); $("search").focus(); return; }
+  const q=searchQ; const r=await api("/api/search?q="+encodeURIComponent(q));
+  if(q!==searchQ) return;
+  searchRes=r; renderSearch();
+}
+function renderSearch(){
+  const main=$("main"); if(!main) return;
+  if(!searchRes){ main.innerHTML=`<div class="empty">Searching…</div>`; return; }
+  const n=searchRes.items.length+searchRes.goals.length;
+  let h=`<h2>${n?`${n} found`:"Nothing found"}</h2>`;
+  searchRes.goals.forEach(g=>{h+=`<div class="row goal" data-key="${esc(g.key)}"><span class="goalbadge">GOAL</span><span class="what"><b>${esc(g.title)}</b></span><span class="tag">${g.status==="open"?"open":"done"}</span></div>`});
+  searchRes.items.forEach(i=>{h+=`<div class="row" data-key="${esc(i.key)}"><span class="who">${esc(i.who)}</span><span class="what">${esc(i.title)}${i.reason?`<div class="muted">${esc(i.reason)}</div>`:""}${i.only_in_conversation?`<div class="muted">mentioned in the conversation</div>`:""}</span>${i.status==="open"?tag(i.state):`<span class="tag">${esc(i.status)}</span>`}<span class="age">${esc(i.age)}</span>${i.status==="open"?"":`<button class="btn" data-back="${esc(i.key)}">Bring back</button>`}</div>`});
+  main.innerHTML=h;
+  main.querySelectorAll(".row[data-key]").forEach(r=>r.onclick=e=>{if(e.target.dataset.back)return;go("#"+encodeURIComponent(r.dataset.key))});
+  main.querySelectorAll("[data-back]").forEach(b=>b.onclick=async()=>{await api("/api/bring-back",{key:b.dataset.back});toast("Moved back to Owed by you");runSearch()});
+}
+async function loadList(){ S = await api("/api/state"); if(view.page==="list") renderList(); }
+function setupNote(){
+  // Nothing to read yet: say which inputs Today looks for and where to set them.
+  const rows=(S.sources||[]).map(s=>`<li>${esc(s.label)}: <code>${esc(s.path)}</code> ${s.found?"(found)":"(not there yet)"}</li>`).join("");
+  return `<div class="card setup"><div class="title">Connect a source</div><p>Today builds its list from what you owe people in your email and Slack. It reads an email digest file for each inbox and a folder of Slack captures, and none are there yet.</p>`
+    + (rows?`<ul>${rows}</ul>`:`<p>No sources are set up. Add them to <code>${esc(S.settings_path)}</code>.</p>`)
+    + `<p class="muted">The app's README describes each file's format. The list fills in on the next update, every 30 minutes.</p></div>`;
+}
+function renderList(){
+  const app=$("app");
+  let h=`<div class="top"><h1>${esc(S.date)}</h1><span class="muted" title="${esc(S.sync_error||"")}">${S.sync_error?"Couldn't update at ":"Updated "}${fmtTime(S.last_sync)}${S.pending?` · reading ${S.pending} more`:""}</span></div><input class="add search" id="search" placeholder="Search everything, open or finished" value="${esc(searchQ)}"><div id="main"><h2>Today</h2>`;
+  if(!S.has_source) h+=setupNote();
+  h+=`<input class="add" id="add" placeholder="Add something for today">`;
+  if(!S.today.length) h+=`<div class="empty">Nothing picked yet. Tap Today on anything below.</div>`;
+  S.today.forEach((i,n)=>{
+    const label = i.goal ? `${esc(i.next)}<span class="sub">${esc(i.title)} · step ${i.step_n} of ${i.steps}</span>` : esc(i.title);
+    h+=`<div class="row today-row ${n===0?"next":""}" draggable="true" data-key="${esc(i.key)}"><span class="grip">&equiv;</span><span class="nextlabel">${n===0?"NEXT":""}</span><span class="what">${label}</span>${tag(i.state)}</div>`});
+  h+=`<h2>Owed by you · ${S.goals.length+S.owed.length}</h2>`;
+  if(!S.goals.length && !S.owed.length) h+=`<div class="empty">${S.has_source?"You're all caught up.":"Nothing yet: connect a source above."}</div>`;
+  S.goals.forEach(g=>{h+=`<div class="row goal" data-key="${esc(g.key)}"><span class="goalbadge">GOAL</span><span class="what"><b>${esc(g.title)}</b><span class="sub">Next: ${esc(g.next)} · step ${g.step_n} of ${g.steps}${g.waiting>1?` · ${g.waiting} people waiting`:""}</span></span>${tag(g.state)}<span class="age">${esc(g.age)}</span><button class="btn" data-today="${esc(g.key)}">Today</button></div>`});
+  S.owed.forEach(i=>{h+=`<div class="row" data-key="${esc(i.key)}"><span class="who">${esc(i.who)}</span><span class="what">${esc(i.title)}</span>${tag(i.state)}<span class="age">${esc(i.age)}</span><button class="btn" data-today="${esc(i.key)}">Today</button><button class="btn" data-no="${esc(i.key)}">No</button></div>`});
+  if(S.no&&S.no.length){
+    h+=`<h2>Saying no · ${S.no.length}</h2>`;
+    S.no.forEach(i=>{h+=`<div class="row" data-key="${esc(i.key)}"><span class="who">${esc(i.who)}</span><span class="what">${esc(i.title)}${i.draft?`<span class="sub">${esc(i.draft)}</span>`:""}</span>${i.state==="working"?`<span class="tag">Writing a no…</span>`:tag(i.state)}<span class="age">${esc(i.age)}</span></div>`});
+  }
+  if(S.waiting&&S.waiting.length){
+    h+=`<h2>Waiting on them · ${S.waiting.length}</h2>`;
+    S.waiting.forEach(i=>{h+=`<div class="row" data-key="${esc(i.key)}"><span class="who">${esc(i.who)}</span><span class="what">${esc(i.title)}${i.did?`<span class="sub">${esc(i.did)}</span>`:""}</span>${tag(i.state)}<span class="age">${esc(i.age)}</span></div>`});
+  }
+  if(S.cleared.length) h+=`<div class="foot"><a id="clr">Cleared ${S.cleared.length} since yesterday</a></div>`;
+  if(S.rules&&S.rules.length) h+=`<div class="foot"><a id="rls">Rules for drafts · ${S.rules.length}</a></div>`;
+  if(showRules) h+=`<div class="cleared">`+S.rules.map((r,n)=>`<div class="row"><span class="what">${esc(r)}</span><button class="btn" data-rule="${n}">Remove</button></div>`).join("")+`</div>`;
+  if(showCleared) h+=`<div class="cleared">`+S.cleared.map(c=>`<div class="row"><span class="who">${esc(c.who)}</span><span class="what">${esc(c.title)}<div class="muted">${esc(c.reason)}</div></span>${c.source==="goal"?"":`<a class="muted" href="/raw?key=${encodeURIComponent(c.key)}">Original</a><button class="btn" data-back="${esc(c.key)}">Bring back</button>`}</div>`).join("")+`</div>`;
+  h+=`</div>`;
+  app.innerHTML=h;
+  const sb=$("search");
+  sb.oninput=()=>{searchQ=sb.value;clearTimeout(searchTimer);searchTimer=setTimeout(runSearch,250)};
+  sb.onkeydown=e=>{if(e.key==="Escape"){searchQ="";searchRes=null;renderList()}};
+  if(searchQ){ renderSearch(); return; }
+  app.querySelectorAll(".row[data-key]").forEach(r=>r.onclick=e=>{if(e.target.dataset.today||e.target.dataset.no)return;go("#"+encodeURIComponent(r.dataset.key))});
+  app.querySelectorAll("[data-today]").forEach(b=>b.onclick=async e=>{e.stopPropagation();await api("/api/today",{key:b.dataset.today,on:true});toast("Added to Today");loadList()});
+  app.querySelectorAll("[data-no]").forEach(b=>b.onclick=async e=>{e.stopPropagation();await api("/api/no",{key:b.dataset.no});toast("Saying no: writing it now");loadList()});
+  app.querySelectorAll("[data-back]").forEach(b=>b.onclick=async()=>{await api("/api/bring-back",{key:b.dataset.back});toast("Moved back to Owed by you");loadList()});
+  if($("clr")) $("clr").onclick=()=>{showCleared=!showCleared;renderList()};
+  if($("rls")) $("rls").onclick=()=>{showRules=!showRules;renderList()};
+  app.querySelectorAll("[data-rule]").forEach(b=>b.onclick=async()=>{await api("/api/rule/remove",{index:+b.dataset.rule});toast("Rule removed");loadList()});
+  const add=$("add");
+  add.onkeydown=async e=>{if(e.key==="Enter"&&add.value.trim()){await api("/api/add",{text:add.value.trim()});await loadList();$("add").focus()}};
+  let drag=null;
+  app.querySelectorAll(".today-row").forEach(r=>{
+    r.ondragstart=()=>{drag=r.dataset.key;r.classList.add("dragging")};
+    r.ondragend=()=>r.classList.remove("dragging");
+    r.ondragover=e=>e.preventDefault();
+    r.ondrop=async e=>{e.preventDefault();if(!drag||drag===r.dataset.key)return;const order=S.today.map(i=>i.key);order.splice(order.indexOf(drag),1);order.splice(order.indexOf(r.dataset.key),0,drag);await api("/api/order",{order});loadList()};
+  });
+}
+
+async function renderGoal(){
+  let g; try { g = await api("/api/goal?id="+encodeURIComponent(view.id)); } catch(e) { go(""); return; }
+  const app=$("app");
+  let h=`<span class="back" id="back">&larr; Today</span><div class="card"><div class="title" id="gtitle">${esc(g.title)}</div>`;
+  h+=`<div class="muted">Done when: ${esc(g.done_when)}${g.by?` By ${esc(g.by)}.`:""}${g.waiting.length?` Waiting on you: ${esc(g.waiting.join(", "))}.`:""}</div><div style="margin-top:16px">`;
+  g.steps.forEach((s,n)=>{
+    const cls = s.done ? "done" : (s.next ? "nextstep" : "later");
+    const sendable = s.members.filter(m=>m.can_send && !["sent","done","cleared","skipped"].includes(m.status));
+    h+=`<div class="step ${cls}"><span class="num">${s.done?"&#10003;":n+1}</span><div class="body"><div class="stitle">${esc(s.step)}${s.who&&s.who!=="you"?` <span class="muted">(${esc(s.who)})</span>`:""}</div>`;
+    if(!s.done){
+      s.members.filter(m=>!["sent","done","cleared","skipped"].includes(m.status)).forEach(m=>{h+=`<div class="member" data-key="${esc(m.key)}"><span class="who" style="width:70px">${esc(m.who)}</span><span class="what">${esc(m.title)}${m.draft?`<div class="muted" style="margin-top:2px">${esc(m.draft.split("\n")[0])}</div>`:""}</span>${tag(m.state)}</div>`});
+      if(s.next){
+        h+=`<div class="actions">${sendable.length>1?`<button class="btn primary" data-sendall="${esc(s.id)}">Send all ${sendable.length} drafts</button>`:""}<button class="btn" data-stepdone="${esc(s.id)}">Mark step done</button></div>`;
+      }
+    }
+    h+=`</div></div>`;
+  });
+  h+=`</div><div class="actions" style="margin-top:14px">${g.in_today?`<button class="btn" id="gl">Not today</button>`:`<button class="btn primary" id="gt">Do the next step today</button>`}</div>`;
+  h+=`<div class="foot" style="margin-top:14px"><a id="rename">Rename</a> · Open an item to move it out of this goal</div></div>`;
+  app.innerHTML=h;
+  $("back").onclick=()=>go("");
+  app.querySelectorAll(".member").forEach(r=>r.onclick=()=>go("#"+encodeURIComponent(r.dataset.key)));
+  app.querySelectorAll("[data-stepdone]").forEach(b=>b.onclick=async()=>{await api("/api/step-done",{goal:g.id,step:b.dataset.stepdone});toast("Step done");renderGoal()});
+  app.querySelectorAll("[data-sendall]").forEach(b=>b.onclick=async()=>{
+    const s=g.steps.find(x=>x.id===b.dataset.sendall); const ms=s.members.filter(m=>m.can_send);
+    if(!confirm(`Send ${ms.length} replies as you?\n\n`+ms.map(m=>"- "+m.who+": "+(m.draft||"").split("\n")[0]).join("\n"))) return;
+    b.disabled=true; b.textContent="Sending…";
+    const items=[]; for(const m of ms){ const d=await api("/api/item?key="+encodeURIComponent(m.key)); items.push({key:m.key,text:d.draft}); }
+    const r=await api("/api/send-many",{items}); const bad=r.results.filter(x=>!x.ok);
+    toast(`Sent ${r.results.length-bad.length}`+(bad.length?`, ${bad.length} not sent`:"")); if(bad.length) alert(bad.map(x=>x.error).join("\n")); renderGoal()});
+  if($("gt")) $("gt").onclick=async()=>{await api("/api/today",{key:"goal:"+g.id,on:true});toast("Added to Today");renderGoal()};
+  if($("gl")) $("gl").onclick=async()=>{await api("/api/today",{key:"goal:"+g.id,on:false});toast("Moved back to Owed by you");renderGoal()};
+  $("rename").onclick=async()=>{const t=prompt("Goal name",g.title); if(t&&t.trim()&&t.trim()!==g.title){await api("/api/goal/rename",{goal:g.id,title:t.trim()});renderGoal()}};
+  pollTimer=setTimeout(()=>{ if(view.page==="goal") renderGoal(); }, 30000);
+}
+
+
+function fmtDay(iso){ if(!iso) return ""; return new Date(iso).toLocaleDateString([], {month:"short", day:"numeric"}); }
+
+function savedDraft(i,slot){return (i.gmail_drafts||{})[slot]}
+function savedNote(i,slot){const d=savedDraft(i,slot); return d?`<div class="detail">In your Gmail drafts since ${fmtTime(d.at)} · <a href="${esc(d.url)}" target="_blank">Open drafts</a></div>`:""}
+function emailCards(i){
+  return (i.emails||[]).map((e,n)=>{
+    const fmt = a => a.email ? (a.name ? `${a.name} <${a.email}>` : a.email) : "";
+    const missing = [...e.to, ...e.cc].filter(a=>!a.email).map(a=>a.name);
+    if(e.sent) return `<div class="emailcard"><b>${esc(e.subject)}</b><div class="sent">Sent to ${esc(e.sent_to)}</div></div>`;
+    return `<div class="emailcard" data-email="${n}"><label>To</label><input data-f="to" value="${esc(e.to.map(fmt).filter(Boolean).join(", "))}" placeholder="${esc(e.to.map(a=>a.name).join(", "))}">`
+      + `<label>Cc</label><input data-f="cc" value="${esc(e.cc.map(fmt).filter(Boolean).join(", "))}">`
+      + `<label>Subject</label><input data-f="subject" value="${esc(e.subject)}">`
+      + `<label>Message</label><textarea class="draft" data-f="text" rows="${Math.min(16, e.body.split("\n").length+2)}">${esc(e.body)}</textarea>`
+      + (missing.length?`<div class="detail">Couldn't find an address for ${esc(missing.join(", "))}; add it above.</div>`:"")
+      + `<div class="detail">${e.in_thread?"Goes out as a reply in the original email thread.":"Goes out as a new email."}</div>`
+      + `<div class="actions"><button class="btn primary" data-sendemail="${n}">Send this email</button><button class="btn" data-gdraft="${n}">${savedDraft(i,"email:"+n)?"Update Gmail draft":"Save as Gmail draft"}</button></div>${savedNote(i,"email:"+n)}</div>`;
+  }).join("");
+}
+
+function calendarCards(i){
+  return (i.calendar||[]).map((e,n)=>{
+    const when = e.all_day ? new Date(e.start+"T12:00").toLocaleDateString([], {weekday:"short", month:"short", day:"numeric"})
+      : new Date(e.start).toLocaleString([], {weekday:"short", month:"short", day:"numeric", hour:"numeric", minute:"2-digit"}) + (e.end?" to "+new Date(e.end).toLocaleTimeString([], {hour:"numeric", minute:"2-digit"}):"");
+    return `<div class="emailcard"><div><b>${esc(e.title)}</b></div><div class="muted">${esc(when)}${e.location?" · "+esc(e.location):""}</div>${e.notes?`<div class="muted" style="margin-top:4px">${esc(e.notes)}</div>`:""}`
+      + `<div class="actions">${e.added?`<span class="muted">On your calendar</span>${e.link?` · <a href="${esc(e.link)}" target="_blank">Open</a>`:""}`:`<button class="btn primary" data-cal="${n}">Add to my calendar</button>`}</div></div>`;
+  }).join("");
+}
+
+function feedbackBox(i){
+  const notes = (i.feedback||[]).map(f=>f.note);
+  return `<div class="fb">${notes.length?`<div class="muted">Your notes so far: ${notes.map(esc).join(" · ")}</div>`:""}`
+    + `<input class="text" id="fbnote" placeholder="${i.draft||(i.emails||[]).length?"Tell me what to change, like: shorter, warmer, or put it on my calendar":"Tell me what to do, like: put it on my calendar, or draft a reply saying yes"}">`
+    + `<div class="actions"><button class="btn" id="fbgo">${i.draft||(i.emails||[]).length?"Redo the draft":"Do it"}</button><label class="muted fbrem"><input type="checkbox" id="fbrem"> Remember this for all drafts</label></div></div>`;
+}
+
+async function renderItem(){
+  clearTimeout(pollTimer);
+  let i; try { i = await api("/api/item?key="+encodeURIComponent(view.key)); } catch(e) { go(""); return; }
+  const app=$("app"), t=i.target||{};
+  const backTo = i.goal ? {label:i.goal.title, hash:"#goal:"+encodeURIComponent(i.goal.id)} : {label:"Today", hash:""};
+  const kindLine = i.no ? `You said no${i.who?` to ${esc(i.who)}`:""}` : i.manual ? "You added this" : (i.kind==="promised" ? `You told ${esc(i.who)}` : `${esc(i.who)} asked`) + (i.age?` · ${esc(i.age)} ago`:"");
+  let h=`<span class="back" id="back">&larr; ${esc(backTo.label)}</span><div class="card">`;
+  if(!i.manual) h+=`<div class="partof">${i.goal?`Part of <a id="gotogoal">${esc(i.goal.title)}</a> · step ${i.goal.step_n} of ${i.goal.steps} · <a id="notpart">Not part of this goal</a>`:"Not part of a goal"}${i.other_goals.length?` · <select class="btn" id="moveto"><option value="">Move to a goal…</option>${i.other_goals.map(g=>`<option value="${esc(g.id)}">${esc(g.title)}</option>`).join("")}</select>`:""}</div>`;
+  h+=`<div class="title">${esc(i.title)}</div><div class="muted">${kindLine}</div>`;
+  if(!i.manual && i.ask_text) h+=`<div class="quote">${esc(i.ask_text)}</div>`;
+  if(!i.manual) h+=`<div class="src" style="margin-top:6px"><a href="/raw?key=${encodeURIComponent(i.key)}">See the conversation</a>${i.url?` · <a href="${esc(i.url)}">Open in ${i.source==="slack"?"Slack":"Gmail"}</a>`:""}</div>`;
+  if(i.status==="working"){ h+=`<div class="did">${i.no?"Writing a no…":"Working on it…"}</div></div>`; app.innerHTML=h; $("back").onclick=()=>go(backTo.hash); pollTimer=setTimeout(renderItem,2500); return; }
+  if(i.did) h+=`<div class="did">${esc(i.did)}</div>`;
+  h+=calendarCards(i);
+  const noBtn = i.no ? `<button class="btn" id="letgo">Drop it, send nothing</button><button class="btn" id="unno">Undo no</button>` : (i.manual ? "" : `<button class="btn" id="no">No</button>`);
+  const hd = !i.no && i.status!=="sent" ? i.user_draft : null;
+  const todayBtn = i.no ? noBtn : (i.goal ? "" : (i.in_today ? `<button class="btn" id="later">Not today</button>` : `<button class="btn" id="tdy">Do today</button>`)) + (i.no ? "" : noBtn);
+  const start = h.length;
+  if(i.state==="you" && i.questions && i.questions.length && !(i.answers&&i.answers.length&&(i.draft||(i.emails||[]).length))){
+    i.questions.forEach((q,n)=>{h+=`<div class="q"><p>${n+1}. ${esc(q.q)}</p>`;
+      h+= q.kind==="text" ? `<input class="text" data-q="${n}">` : `<div class="opt">${q.options.map(o=>`<button class="btn" data-q="${n}" data-o="${esc(o)}">${esc(o)}</button>`).join("")}</div><input class="text" data-q="${n}" data-other="1" placeholder="or type your own answer" style="margin-top:8px">`;
+      h+=`</div>`});
+    h+=`<div class="actions"><button class="btn primary" id="go">Continue</button>${todayBtn}<button class="btn" id="done">Done already</button></div>`+feedbackBox(i);
+  } else if((i.emails||[]).length){
+    h+=emailCards(i)+`<div class="actions"><button class="btn" id="done">Mark done</button>${todayBtn}</div>`+feedbackBox(i);
+  } else if(i.draft){
+    h+=`<textarea class="draft" id="draft" rows="${Math.min(14, Math.max(3, i.draft.split("\n").length + 1))}">${esc(i.draft)}</textarea>`;
+    if(t.can_send){
+      const gd = i.source==="email" ? `<button class="btn" id="gdraft">${savedDraft(i,"reply")?"Update Gmail draft":"Save as Gmail draft"}</button>` : "";
+      h+=`<div class="detail">${esc(t.detail)}</div><div class="actions"><button class="btn primary" id="send">${esc(t.label)}</button>${gd}${todayBtn}<button class="btn" id="done">Done already</button></div>${i.source==="email"?savedNote(i,"reply"):""}`;
+    } else {
+      h+=`<div class="detail">This goes to ${esc(i.to||"someone else")}, so copy it and send it there.</div><div class="actions"><button class="btn primary" id="copy">Copy</button><button class="btn" id="done">Mark done</button>${todayBtn}</div>`;
+    }
+    h+=feedbackBox(i);
+  } else {
+    h+=`<div class="actions"><button class="btn primary" id="done">Mark done</button>${todayBtn}</div>`+feedbackBox(i);
+  }
+  if(hd){
+    // The user's own unsent draft is the next step; Today's suggestion folds underneath.
+    const mine = `<div class="herdraft"><div class="hdlabel">Your unsent draft · ${esc(fmtDay(hd.date))}</div><div class="detail" style="margin:0 0 6px">To ${esc(hd.to)}${hd.cc?` · Cc ${esc(hd.cc)}`:""}</div>`
+      + `<textarea class="draft" id="hdraft" rows="${Math.min(14, Math.max(4, hd.text.split("\n").length + 1))}">${esc(hd.text)}</textarea>`
+      + `<div class="actions"><button class="btn primary" id="hsend">Send your draft</button><button class="btn" id="hsave">Save changes to Gmail draft</button>${todayBtn}<button class="btn" id="done">Done already</button></div></div>`;
+    const alt = h.slice(start).split(todayBtn).join("").replace(/<button class="btn( primary)?" id="done">[^<]*<\/button>/g, "");
+    h = h.slice(0,start) + mine + `<details class="alt"><summary>Or use my suggestion instead</summary>` + alt + `</details>`;
+  }
+  if(i.error) h+=`<div class="err">${esc(i.error)}</div>`;
+  h+=`</div>`;
+  app.innerHTML=h;
+  if($("hsend")) $("hsend").onclick=async()=>{const b=$("hsend"); if(!confirm(`Send your draft to ${hd.to} as you?`)) return; b.disabled=true;b.textContent="Sending…";
+    try{const r=await api("/api/user-draft",{key:i.key,message_id:hd.message_id,text:$("hdraft").value,send:true});after(r.message)}catch(e){b.disabled=false;b.textContent="Send your draft";toast(e.message)}};
+  if($("hsave")) $("hsave").onclick=async()=>{const b=$("hsave");b.disabled=true;b.textContent="Saving…";
+    try{const r=await api("/api/user-draft",{key:i.key,message_id:hd.message_id,text:$("hdraft").value});toast(r.message);renderItem()}catch(e){b.disabled=false;b.textContent="Save changes to Gmail draft";toast(e.message)}};
+  $("back").onclick=()=>go(backTo.hash);
+  const after = msg => { toast(msg); go(backTo.hash); };
+  if($("gotogoal")) $("gotogoal").onclick=()=>go(backTo.hash);
+  if($("notpart")) $("notpart").onclick=async()=>{await api("/api/goal/remove-item",{key:i.key});toast("Taken out of the goal");renderItem()};
+  if($("moveto")) $("moveto").onchange=async e=>{ if(!e.target.value) return; await api("/api/goal/move-item",{key:i.key,goal:e.target.value}); toast("Moved"); renderItem(); };
+  const answers={};
+  if($("done")) $("done").onclick=async()=>{await api("/api/done",{key:i.key});after("Marked done")};
+  if($("later")) $("later").onclick=async()=>{await api("/api/today",{key:i.key,on:false});after("Moved back to Owed by you")};
+  if($("tdy")) $("tdy").onclick=async()=>{await api("/api/today",{key:i.key,on:true});toast("Added to Today");renderItem()};
+  if($("no")) $("no").onclick=async()=>{await api("/api/no",{key:i.key});toast("Saying no: writing it now");renderItem()};
+  if($("letgo")) $("letgo").onclick=async()=>{await api("/api/let-go",{key:i.key});after("Dropped")};
+  if($("unno")) $("unno").onclick=async()=>{await api("/api/bring-back",{key:i.key});after("Back in Owed by you")};
+  if($("copy")) $("copy").onclick=async()=>{await navigator.clipboard.writeText($("draft").value);toast("Copied")};
+  if($("send")) $("send").onclick=async()=>{const b=$("send");b.disabled=true;b.textContent="Sending…";
+    try{const r=await api("/api/send",{key:i.key,text:$("draft").value});after(r.message)}catch(e){b.disabled=false;b.textContent=t.label;toast(e.message)}};
+  if($("gdraft")) $("gdraft").onclick=async()=>{const b=$("gdraft");b.disabled=true;b.textContent="Saving…";
+    try{const r=await api("/api/gmail-draft",{key:i.key,text:$("draft").value});toast(r.message);renderItem()}catch(e){b.disabled=false;b.textContent="Save as Gmail draft";toast(e.message)}};
+  app.querySelectorAll("[data-gdraft]").forEach(b=>b.onclick=async()=>{
+    const card=b.closest(".emailcard"); const f=n=>card.querySelector(`[data-f="${n}"]`).value;
+    b.disabled=true; b.textContent="Saving…";
+    try{const r=await api("/api/gmail-draft",{key:i.key,index:+b.dataset.gdraft,to:f("to"),cc:f("cc"),subject:f("subject"),text:f("text")});toast(r.message);renderItem()}
+    catch(e){b.disabled=false;b.textContent="Save as Gmail draft";toast(e.message)}});
+  app.querySelectorAll("[data-sendemail]").forEach(b=>b.onclick=async()=>{
+    const card=b.closest(".emailcard"); const f=n=>card.querySelector(`[data-f="${n}"]`).value;
+    if(!confirm(`Send "${f("subject")}" to ${f("to")}${f("cc")?" (cc "+f("cc")+")":""} as you?`)) return;
+    b.disabled=true; b.textContent="Sending…";
+    try{const r=await api("/api/send-email",{key:i.key,index:+b.dataset.sendemail,to:f("to"),cc:f("cc"),subject:f("subject"),text:f("text")});toast(r.message);renderItem()}
+    catch(e){b.disabled=false;b.textContent="Send this email";toast(e.message)}});
+  app.querySelectorAll("[data-o]").forEach(b=>b.onclick=()=>{answers[b.dataset.q]=b.dataset.o;app.querySelectorAll(`[data-o][data-q="${b.dataset.q}"]`).forEach(x=>x.classList.toggle("sel",x===b))});
+  app.querySelectorAll("input[data-q]").forEach(inp=>inp.oninput=()=>{answers[inp.dataset.q]=inp.value; if(inp.dataset.other) app.querySelectorAll(`[data-o][data-q="${inp.dataset.q}"]`).forEach(x=>x.classList.remove("sel"))});
+  if($("fbgo")) { const goFb=async()=>{const note=$("fbnote").value.trim(); if(!note){toast("Say what to change first");return}
+      await api("/api/revise",{key:i.key,note,remember:$("fbrem").checked}); if($("fbrem").checked) toast("Saved as a rule for all drafts"); renderItem()};
+  app.querySelectorAll("[data-cal]").forEach(b=>b.onclick=async()=>{b.disabled=true;b.textContent="Adding…";
+    try{await api("/api/calendar/add",{key:i.key,index:+b.dataset.cal});toast("Added to your calendar");renderItem()}catch(e){b.disabled=false;b.textContent="Add to my calendar";toast(e.message)}});
+    $("fbgo").onclick=goFb; $("fbnote").onkeydown=e=>{if(e.key==="Enter") goFb()}; }
+  if($("go")) $("go").onclick=async()=>{const vals=i.questions.map((q,n)=>(answers[n]||"").trim()); if(vals.some(v=>!v)){toast("Answer each question first");return}
+    await api("/api/answer",{key:i.key,answers:vals}); renderItem()};
+}
+route();
+setInterval(()=>{ if(view.page==="list" && !searchQ && !["add","search"].includes(document.activeElement?.id)) loadList(); }, 60000);
+</script>
+<!--SHELL-->
+</body></html>

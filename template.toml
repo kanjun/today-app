@@ -1,0 +1,143 @@
+# Machine-readable manifest for this template. The sibling
+# template.md holds the prose, the Requirements list, and the two
+# append-only history logs; this file is authoritative for everything
+# below. Both are generated together -- validate_template.py fails if
+# they disagree.
+format = "v2"
+
+[template]
+slug = "today"
+title = "Today"
+description = "A daily list of what you owe people from Slack and email, with replies drafted for you to send"
+thumbnail = "template.svg"
+version = "v1"
+
+# How this template is DERIVED from the workspace it came from. An
+# update re-runs this recipe rather than diffing two repos, which is what
+# keeps an exclusion excluded even though the thing still exists upstream.
+[recipe]
+include = ["system/apps/today", "system/supervisord.conf.d/today.conf"]
+data_include = ["data/.state/cron.d/today-sync", "data/.state/cron.d/today-cleanup"]
+exclude = [
+    "the early-access onboarding page and its waitlist sync (studio.py, batch.py, their routes, page, prompts and tests): specific to the publisher's company",
+    "the texts source (texts.py) that read chats through a desktop messaging bridge on the publisher's computer, and its dependency on the people-archive package",
+    "the design mock page (assets/mock.html), which held real conversations",
+    "system/apps/email_review and system/apps/email_review_personal: the inbox digest apps that produce the email input",
+    "system/apps/slack_review and system/apps/gtd: the Slack scanner and to-do app that produce the Slack captures input",
+    "system/apps/crm: the people archive the texts source read from",
+    "data/.apps/today: all of the user's items, drafts, goals, rules and saved conversations",
+    "every other app, skill and service in the source workspace",
+]
+modification_rules = [
+    "remove the company-specific early-access onboarding feature entirely, with every route, page section, prompt branch and test that used it",
+    "remove the texts source and every use of it, including its package dependency",
+    "replace the publisher's name, organization, role and email addresses everywhere (prompts, UI copy, docstrings, tests) with settings the adopter fills in, defaulting to a neutral 'the user'",
+    "replace real people's names in prompt examples and test fixtures with invented ones",
+    "replace the hardcoded email digest paths, Slack users file and Slack captures folder with settings, and show a 'connect a source' message when none is there",
+    "replace the hardcoded calendar timezone with a setting that defaults to the container's zone",
+    "remove hardcoded Slack channel names and company domains from prompt examples",
+    "rename the user-draft feature and its API from gendered names to neutral ones",
+]
+
+# Everything an adopter must deal with before this is really theirs.
+# One list -- but each entry's KIND says how it is handled, because the
+# two are handled at different times by different mechanisms:
+#
+#   permission / secret / llm = ACTIVATION. The adopting agent acts on
+#   these FIRST and BY ITSELF, initiating each latchkey permission
+#   request and each secret request before asking the user anything.
+#   Every one of them must have a matching requires_ line in template.md
+#   and vice versa -- the validator checks that, because an adopter once
+#   never got prompted for a permission the app needed.
+#
+#   The [[requirements.secret]] entries below were AGGREGATED from the
+#   included apps' app.toml [[secrets]] and skills' SKILL.md secrets:
+#   declarations, plus every data/.secrets/<file>.env the snapshot's
+#   mcp-servers.json and supervisord programs run under. Fix a wrong one
+#   at its declaration, not here.
+#
+#   adaptation = worked through INTERACTIVELY with the user afterwards.
+#   Prose on both sides, so it is not cross-checked.
+#
+# FILL IN, e.g.:
+#   [[requirements.permission]]
+#   scope = "slack-api"
+#   permission = "slack-read-all"
+#
+#   [requirements.llm]
+#   method = "keyed"   # keyed (an API key, e.g. ANTHROPIC_API_KEY) | keyless (a subscription CLI, e.g. claude -p)
+#
+#   [[requirements.adaptation]]
+#   summary = "the digest channel is hardcoded"
+#   resolution = "ask the user which channel to watch"
+[requirements]
+
+[[requirements.permission]]
+scope = "slack-api"
+permission = "slack-read-all"
+
+[[requirements.permission]]
+scope = "slack-api"
+permission = "slack-chat-write"
+
+[[requirements.permission]]
+scope = "google-gmail-api"
+permission = "google-gmail-read-all"
+
+[[requirements.permission]]
+scope = "google-gmail-api"
+permission = "google-gmail-send-messages"
+
+[[requirements.permission]]
+scope = "google-gmail-api"
+permission = "google-gmail-write-drafts"
+
+[[requirements.permission]]
+scope = "google-calendar-api"
+permission = "google-calendar-read-events"
+
+[[requirements.permission]]
+scope = "google-calendar-api"
+permission = "google-calendar-write-events"
+
+[requirements.llm]
+method = "keyless"
+note = "ai.py calls claude -p (model sonnet); an adopter on the keyed litellm path (ANTHROPIC_API_KEY) must switch ai.complete per the use-ai-integration skill"
+
+[[requirements.adaptation]]
+summary = "the email digest and Slack captures inputs are not included"
+resolution = "build or connect a producer for each, in the formats system/apps/today/README.md documents, and point email_digests and slack_captures_dir at them in data/.apps/today/settings.json"
+
+[[requirements.adaptation]]
+summary = "who the user is (name, organization, role, timezone) is unset"
+resolution = "set user_name, user_org, user_role and timezone in data/.apps/today/settings.json (or the TODAY_USER_* env vars)"
+
+[[requirements.adaptation]]
+summary = "the user's inboxes and other addresses are unset"
+resolution = "set email_accounts (the first sends new emails) and email_aliases in data/.apps/today/settings.json"
+
+[[requirements.adaptation]]
+summary = "Slack user names show as ids without a users file"
+resolution = "optionally point slack_users at a JSON map of Slack user id to display name"
+
+# What the included code needs INSTALLED. apt takes bare names: versions
+# are a function of the apt snapshot timestamp, so replaying names at the
+# adopter's timestamp yields versions consistent with the rest of their
+# environment. The other sources are not snapshot-pinned, so for them the
+# recorded version IS the pin (name = version).
+#
+# FILL IN from what the included code actually needs, e.g.:
+#   apt = ["poppler-utils"]
+#   [environment.npm_global]
+#   "@slack/cli" = "2.1.0"
+#   [environment.uv_tools]
+#   yt-dlp = "2026.7.1"
+#   [environment.cargo_crates]
+#   fd-find = "9.0.0"
+#
+# For an install with no package database (a URL-fetched binary, a browser),
+# ship a system/scripts/env.d/<NNNN>-<slug>-<name>.sh unit with NNNN >= 2000,
+# include it in the recipe above, and list it in env_d_units.
+[environment]
+apt = []
+env_d_units = []

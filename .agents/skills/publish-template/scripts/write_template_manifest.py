@@ -289,9 +289,15 @@ def collect_references(repo_root: Path) -> dict[str, list[str]]:
         if not path.is_file():
             continue
         relative = path.relative_to(repo_root).as_posix()
-        for match in _SECRET_REFERENCE_RE.finditer(
-            path.read_text(encoding="utf-8", errors="replace")
-        ):
+        text = path.read_text(encoding="utf-8", errors="replace")
+        if path.suffix == ".conf":
+            # A supervisord comment line is prose, not a program running under the
+            # file: the stock host-backup and share-gateway drop-ins name their env
+            # files in their headers, which made every publish fail this check.
+            text = "\n".join(
+                line for line in text.splitlines() if not line.lstrip().startswith(("#", ";"))
+            )
+        for match in _SECRET_REFERENCE_RE.finditer(text):
             sources_by_file.setdefault(match.group(1), []).append(relative)
     return sources_by_file
 

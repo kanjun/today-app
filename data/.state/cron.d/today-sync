@@ -1,0 +1,5 @@
+# Today app: every 30 minutes, gather what the user owes from Slack and email,
+# clear what is already handled, and have the assistant draft or ask for the
+# rest. Runner-backed: catches up after downtime and retries a failed run; flock
+# holds a lock so a slow run never overlaps the next tick.
+* * * * *   root   /home/user/workspace/system/libs/automations/with_agent_env.sh /home/user/workspace/system/libs/automations/run_job.sh today-sync --every 30m --retry-after 5m env HOME=/home/user uv run today-sync >> /var/log/supervisor/today-sync.log 2>&1

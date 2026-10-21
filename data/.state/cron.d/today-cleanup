@@ -1,0 +1,5 @@
+# Today app: the morning cleanup, once a day in the 5 am hour of the container's
+# clock. It regroups goals (merge, split, close finished, reorder steps) before the
+# user starts their day; it is the only pass that reshuffles goals. Runner-backed:
+# catches up after downtime and retries a failed run.
+* * * * *   root   /home/user/workspace/system/libs/automations/with_agent_env.sh /home/user/workspace/system/libs/automations/run_job.sh today-cleanup --every 1d --at 5 --retry-after 15m env HOME=/home/user uv run today-sync --consolidate >> /var/log/supervisor/today-cleanup.log 2>&1

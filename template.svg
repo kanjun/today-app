@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" width="480" height="320" role="img" aria-label="Today: a list of what you owe people, each with a drafted reply">
+  <title>Today</title>
+  <rect width="240" height="160" rx="14" fill="#f6f4ef"/>
+  <g font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+    <text x="18" y="27" font-size="13" font-weight="700" fill="#1c1b19">Tuesday, Oct 20</text>
+    <text x="222" y="27" font-size="7" fill="#8a857c" text-anchor="end">Updated 9:15am</text>
+
+    <text x="18" y="45" font-size="6" font-weight="700" letter-spacing="0.8" fill="#8a857c">TODAY</text>
+    <rect x="14" y="50" width="212" height="22" rx="5" fill="#ffffff" stroke="#1c1b19" stroke-width="1.2"/>
+    <text x="22" y="64" font-size="5.5" font-weight="700" letter-spacing="0.5" fill="#1c1b19">NEXT</text>
+    <text x="44" y="64" font-size="7.5" fill="#1c1b19">Send Sam the Q3 deck</text>
+    <rect x="170" y="56" width="48" height="11" rx="5.5" fill="#e6f0e6"/>
+    <text x="194" y="63.6" font-size="5.6" fill="#2f6b35" text-anchor="middle">Draft ready</text>
+
+    <text x="18" y="88" font-size="6" font-weight="700" letter-spacing="0.8" fill="#8a857c">OWED BY YOU · 3</text>
+    <rect x="14" y="93" width="212" height="20" rx="5" fill="#ffffff" stroke="#e7e3da"/>
+    <text x="22" y="105.5" font-size="5.5" font-weight="700" letter-spacing="0.5" fill="#8a857c">GOAL</text>
+    <text x="44" y="105.5" font-size="7" font-weight="600" fill="#1c1b19">Offsite booked</text>
+    <text x="102" y="105.5" font-size="5.6" fill="#55514a">step 2 of 3</text>
+    <rect x="170" y="98" width="48" height="11" rx="5.5" fill="#fbeccd"/>
+    <text x="194" y="105.6" font-size="5.6" fill="#8a5a00" text-anchor="middle">Needs you</text>
+
+    <rect x="14" y="116" width="212" height="20" rx="5" fill="#ffffff" stroke="#e7e3da"/>
+    <text x="22" y="128.5" font-size="6.2" fill="#8a857c">Priya</text>
+    <text x="44" y="128.5" font-size="7" fill="#1c1b19">Reply on the pilot pricing</text>
+    <rect x="170" y="121" width="48" height="11" rx="5.5" fill="#e6f0e6"/>
+    <text x="194" y="128.6" font-size="5.6" fill="#2f6b35" text-anchor="middle">Draft ready</text>
+
+    <rect x="14" y="139" width="212" height="14" rx="5" fill="#ffffff" stroke="#e7e3da"/>
+    <text x="22" y="148.5" font-size="6.2" fill="#8a857c">Jordan</text>
+    <text x="44" y="148.5" font-size="7" fill="#1c1b19">Intro Jordan to Lee</text>
+    <rect x="186" y="142" width="32" height="8" rx="4" fill="#1c1b19"/>
+    <text x="202" y="147.6" font-size="5" fill="#ffffff" text-anchor="middle">Send</text>
+  </g>
+</svg>
