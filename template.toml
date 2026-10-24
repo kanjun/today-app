@@ -10,7 +10,7 @@ slug = "today"
 title = "Today"
 description = "A daily list of what you owe people from Slack and email, with replies drafted for you to send"
 thumbnail = "template.svg"
-version = "v1"
+version = "v2"
 
 # How this template is DERIVED from the workspace it came from. An
 # update re-runs this recipe rather than diffing two repos, which is what
@@ -37,6 +37,8 @@ modification_rules = [
     "replace the hardcoded calendar timezone with a setting that defaults to the container's zone",
     "remove hardcoded Slack channel names and company domains from prompt examples",
     "rename the user-draft feature and its API from gendered names to neutral ones",
+    "replace the publisher's own projects (her company's product and her fund) with projects the adopter defines in a settings file, shipping with none by default",
+    "replace the paths to the publisher's own writing-voice files with settings; with none set, drafts use no voice examples",
 ]
 
 # Everything an adopter must deal with before this is really theirs.

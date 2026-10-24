@@ -1,10 +1,11 @@
 """What the buttons do: today list, send, done, answers, bring back."""
 
 import html as htmllib
+import logging
 import re
 import subprocess
 import threading
-from datetime import datetime
+from datetime import datetime, timedelta
 from email.utils import getaddresses
 from typing import Any
 
@@ -15,10 +16,14 @@ from today import (
     connectors,
     goals,
     gtd_link,
+    intent,
+    projects,
     store,
     sync,
     work,
 )
+
+log = logging.getLogger(__name__)
 
 VISIBLE = ("open", "working")
 
@@ -40,8 +45,47 @@ def _age(asked_at: str) -> str:
     return f"{int(hours // 24)}d" if hours >= 24 else f"{max(int(hours), 0)}h"
 
 
+URGENT_DAYS = 2
+
+
+def due_days(due: str) -> int | None:
+    """Days until a due date (negative when past), or None when there is none."""
+    try:
+        return (datetime.fromisoformat(due).date() - datetime.now().date()).days
+    except (TypeError, ValueError):
+        return None
+
+
+def due_label(days: int | None) -> str:
+    """The badge for something due within two days; nothing for later dates."""
+    if days is None or days > URGENT_DAYS:
+        return ""
+    if days < 0:
+        return "Overdue"
+    return ("Due today", "Due tomorrow", "Due in 2 days")[days]
+
+
+def _urgency(days: int | None) -> int:
+    """Sort order: due within two days first, then undated, then later dates at the bottom."""
+    if days is None:
+        return 50
+    return days if days <= URGENT_DAYS else 100 + days
+
+
+def due_on(days: int | None) -> str:
+    """A quiet date for something due later than two days out, like "Due Nov 6"."""
+    if days is None or days <= URGENT_DAYS:
+        return ""
+    return "Due " + (datetime.now() + timedelta(days=days)).strftime("%b %-d")
+
+
 def summary(item: dict[str, Any]) -> dict[str, Any]:
+    days = due_days(item.get("due") or "")
     return {
+        "due": item.get("due") or "",
+        "due_days": days,
+        "due_label": due_label(days),
+        "due_on": due_on(days),
         "key": item["key"],
         "who": item.get("who") or "",
         "title": item.get("title") or item.get("ask_text", "")[:80],
@@ -73,13 +117,25 @@ def view_state() -> dict[str, Any]:
             i["status"] in ("new", "error") and bool(i.get("state"))
         )
 
-    open_goals = {
+    all_goals = {
         gid: g for gid, g in state.get("goals", {}).items() if g["status"] == "open"
     }
+    goal_project = {gid: projects.of_goal(g, items) for gid, g in all_goals.items()}
+    # Goals inside a project show on the project's page, not the main list.
+    open_goals = {gid: g for gid, g in all_goals.items() if not goal_project[gid]}
+
+    def project_of(i: dict[str, Any]) -> str:
+        return projects.of_item(i) or goal_project.get(i.get("goal_id") or "", "")
+
+    def project_key(pid: str) -> str:
+        return f"project:{pid}"
+
+    project_ids = projects.ids(state)
     order = [
         k
         for k in state["today"]["order"]
-        if (k.startswith("goal:") and k[5:] in open_goals)
+        if (k.startswith("project:") and k[8:] in project_ids)
+        or (k.startswith("goal:") and k[5:] in all_goals)
         or (
             k in items
             and visible(items[k])
@@ -89,15 +145,18 @@ def view_state() -> dict[str, Any]:
     order = [k for k in order if not items.get(k, {}).get("no")]
     saying_no = [i for i in items.values() if i.get("no") and visible(i)]
     saying_no.sort(key=lambda i: i["no"]["at"])
+    open_items = [
+        i for k, i in items.items() if visible(i) and k not in order and not i.get("no")
+    ]
+    # A project's tasks stay inside it; its row carries the soonest due badge instead.
     owed = [
         i
-        for k, i in items.items()
-        if visible(i)
-        and k not in order
-        and i.get("goal_id") not in open_goals
-        and not i.get("no")
+        for i in open_items
+        if i.get("goal_id") not in open_goals and not project_of(i)
     ]
-    owed.sort(key=lambda i: i.get("asked_at", ""))
+    owed.sort(
+        key=lambda i: (_urgency(due_days(i.get("due") or "")), i.get("asked_at", ""))
+    )
     waiting = [i for i in owed if i.get("state") == "waiting"]
     owed = [i for i in owed if i.get("state") != "waiting"]
     goal_rows = [
@@ -106,7 +165,38 @@ def view_state() -> dict[str, Any]:
         if f"goal:{gid}" not in order
     ]
     goal_rows = [g for g in goal_rows if g]
-    goal_rows.sort(key=lambda g: g["oldest"])
+    goal_rows.sort(key=lambda g: (_urgency(g["due_days"]), g["oldest"]))
+    project_rows = []
+    for p in projects.all_projects(state):
+        mine = [
+            i
+            for i in open_items
+            if project_of(i) == p["id"] and i.get("state") != "waiting"
+        ]
+        n_goals = sum(1 for gid in all_goals if goal_project[gid] == p["id"])
+        if not (mine or n_goals):
+            continue
+        days = [due_days(i.get("due") or "") for i in mine]
+        soonest = min((d for d in days if d is not None), default=None)
+        row = {
+            "key": project_key(p["id"]),
+            "project": p["id"],
+            "title": p["title"],
+            "state": "mine",
+            "tasks": len(mine),
+            "due_days": soonest,
+            "due_label": due_label(soonest),
+            "due_on": due_on(soonest),
+            "in_today": project_key(p["id"]) in order,
+        }
+        project_rows.append(row)
+    project_rows.sort(
+        key=lambda r: (
+            _urgency(r["due_days"] if isinstance(r["due_days"], int) else None),
+            str(r["title"]),
+        )
+    )
+    by_key = {r["key"]: r for r in project_rows}
     cutoff = datetime.now().timestamp() - 36 * 3600
     cleared = []
     for i in items.values():
@@ -135,11 +225,18 @@ def view_state() -> dict[str, Any]:
         "settings_path": str(config.settings_path()),
         "rules": [r["text"] for r in state.get("draft_rules", [])],
         "today": [
-            goal_summary(open_goals[k[5:]], items)
-            if k.startswith("goal:")
-            else summary(items[k])
-            for k in order
+            row
+            for row in (
+                by_key.get(k)
+                if k.startswith("project:")
+                else goal_summary(all_goals[k[5:]], items)
+                if k.startswith("goal:")
+                else summary(items[k])
+                for k in order
+            )
+            if row
         ],
+        "projects": [r for r in project_rows if not r["in_today"]],
         "goals": goal_rows,
         "owed": [summary(i) for i in owed],
         "no": [summary(i) for i in saying_no],
@@ -256,9 +353,19 @@ def goal_summary(
         ),
         None,
     )
+    days = [
+        due_days(items[k].get("due") or "")
+        for s in p["steps"]
+        for k in s["covers"]
+        if k in items and items[k]["status"] not in goals.FINISHED
+    ]
+    soonest = min((d for d in days if d is not None), default=None)
     return {
         "key": f"goal:{goal['id']}",
         "goal": True,
+        "due_days": soonest,
+        "due_label": due_label(soonest),
+        "due_on": due_on(soonest),
         "title": goal["title"],
         "next": step["step"],
         "step_n": p["next_index"] + 1,
@@ -266,7 +373,11 @@ def goal_summary(
         "waiting": len(p["waiting"]),
         "state": "working"
         if first and first["status"] == "working"
-        else ((first or {}).get("state") or "mine"),
+        # A next step no task covers is someone else's to do, or the user's.
+        else (
+            (first or {}).get("state")
+            or ("waiting" if not first and step.get("who", "you") != "you" else "mine")
+        ),
         "age": _age(p["oldest"]),
         "oldest": p["oldest"],
     }
@@ -304,6 +415,11 @@ def goal_detail(gid: str) -> dict[str, Any] | None:
     return {
         "id": gid,
         "title": goal["title"],
+        "purpose": goal.get("purpose", ""),
+        "story": goal.get("story", ""),
+        "notes": goal.get("intent_notes") or [],
+        "rethinking": bool(goal.get("rethinking")),
+        "sources": intent.sources(goal, items),
         "done_when": goal.get("done_when", ""),
         "by": goal.get("by", ""),
         "status": goal["status"],
@@ -311,6 +427,16 @@ def goal_detail(gid: str) -> dict[str, Any] | None:
         "steps": steps,
         "in_today": f"goal:{gid}" in state["today"]["order"],
         "other_goals": others,
+        # The project it sits in, so back returns there (none for a main-list goal).
+        "project": {
+            "key": f"project:{pid}",
+            "title": next(
+                (p["title"] for p in projects.all_projects(state) if p["id"] == pid),
+                "Project",
+            ),
+        }
+        if (pid := projects.of_goal(goal, items))
+        else None,
     }
 
 
@@ -341,6 +467,14 @@ def _advance_soon(gid: str | None) -> None:
 def mark_step_done(gid: str, step_id: str) -> None:
     goal = store.load()["goals"][gid]
     step = next(s for s in goal["chain"] if s["id"] == step_id)
+    if not step["covers"]:
+
+        def change(s: dict[str, Any]) -> None:
+            for st in s["goals"][gid]["chain"]:
+                if st["id"] == step_id:
+                    st["done"] = True
+
+        store.mutate(change)
     for k in step["covers"]:
         item = store.load()["items"].get(k)
         if item and item["status"] not in goals.FINISHED:
@@ -359,6 +493,34 @@ def _correction(kind: str, **fields: Any) -> None:
             dict(fields, kind=kind, at=store.now_iso())
         )
     )
+
+
+def _reread_soon(gid: str) -> None:
+    """Read the goal again in the background."""
+
+    def run() -> None:
+        sync.reread_goal(gid, force=True)
+        store.mutate(goals.close_finished)
+        _advance_soon(gid)
+
+    threading.Thread(target=run, daemon=True).start()
+
+
+def reorder_steps(gid: str, order: list[str]) -> None:
+    """The user put the goal's steps in their order; the next step may change, so work it."""
+    store.mutate(lambda s: intent.reorder(s, gid, order))
+    _advance_soon(gid)
+
+
+def add_goal_note(gid: str, text: str) -> None:
+    """The user's word on what the goal is really about: the goal is read again with it."""
+    store.mutate(lambda s: intent.add_note(s, gid, text))
+    _reread_soon(gid)
+
+
+def remove_goal_note(gid: str, at: str) -> None:
+    store.mutate(lambda s: intent.remove_note(s, gid, at))
+    _reread_soon(gid)
 
 
 def rename_goal(gid: str, title: str) -> None:
@@ -421,9 +583,12 @@ def send_email(key: str, index: int, to: str, cc: str, subject: str, text: str) 
             )
         return bool(emails) and all(e.get("sent") for e in emails)
 
-    if store.mutate(mark):
+    archived = (
         _finish(key, "sent", f"Sent from Today: {subject}")
-    return f"Sent to {to.split('<')[0].strip() or to}"
+        if store.mutate(mark)
+        else ""
+    )
+    return f"Sent to {to.split('<')[0].strip() or to}" + archived
 
 
 def save_gmail_draft(
@@ -558,8 +723,8 @@ def send_user_draft(key: str, message_id: str, text: str) -> str:
     store.mutate(
         lambda s: s["items"][key].update(sent_text=text, sent_at=store.now_iso())
     )
-    _finish(key, "sent", f"Sent your draft from Today: {text}")
-    return f"Sent to {item.get('who') or 'them'}"
+    archived = _finish(key, "sent", f"Sent your draft from Today: {text}")
+    return f"Sent to {item.get('who') or 'them'}" + archived
 
 
 def _bare_subject(subject: str) -> str:
@@ -675,7 +840,65 @@ def item_detail(key: str) -> dict[str, Any] | None:
         in_today=key in state["today"]["order"],
         goal=goal_info,
         other_goals=others,
+        project=projects.of_item(item)
+        or (projects.of_goal(goal, state["items"]) if goal_info and goal else ""),
+        projects=[
+            {"id": p["id"], "title": p["title"]} for p in projects.all_projects(state)
+        ],
+        due_days=due_days(str(item.get("due") or "")),
+        due_label=due_label(due_days(str(item.get("due") or ""))),
     )
+
+
+def set_item_project(key: str, project: str) -> None:
+    """The user moves an item into a project (or out of all of them); later reads keep it there."""
+
+    def change(state: dict[str, Any]) -> None:
+        if project and project not in projects.ids(state):
+            raise SendError("There's no such project.")
+        state["items"][key].update(project=project, project_by_hand=True)
+
+    store.mutate(change)
+
+
+def project_page(pid: str) -> dict[str, Any] | None:
+    """Everything open in one project: its goals and its loose tasks, soonest due first."""
+    state = store.load()
+    p = next((p for p in projects.all_projects(state) if p["id"] == pid), None)
+    if p is None:
+        return None
+    items = state["items"]
+    open_goals = {
+        gid: g
+        for gid, g in state.get("goals", {}).items()
+        if g["status"] == "open" and projects.of_goal(g, items) == pid
+    }
+    goal_rows = [r for r in (goal_summary(g, items) for g in open_goals.values()) if r]
+    goal_rows.sort(key=lambda g: (_urgency(g["due_days"]), g["oldest"]))
+    tasks = [
+        i
+        for k, i in items.items()
+        if i["status"] in VISIBLE
+        and not i.get("no")
+        and (
+            projects.of_item(i) == pid
+            or (
+                i.get("goal_id") in state.get("goals", {})
+                and projects.of_goal(state["goals"][i["goal_id"]], items) == pid
+            )
+        )
+        and i.get("goal_id") not in open_goals
+    ]
+    tasks.sort(
+        key=lambda i: (_urgency(due_days(i.get("due") or "")), i.get("asked_at", ""))
+    )
+    return {
+        "id": pid,
+        "title": p["title"],
+        "goals": goal_rows,
+        "tasks": [summary(i) for i in tasks],
+        "in_today": f"project:{pid}" in state["today"]["order"],
+    }
 
 
 def set_today(key: str, on: bool) -> None:
@@ -692,7 +915,13 @@ def set_today(key: str, on: bool) -> None:
 def set_order(keys: list[str]) -> None:
     store.mutate(
         lambda s: s["today"].update(
-            order=[k for k in keys if k in s["items"] or k[5:] in s.get("goals", {})]
+            order=[
+                k
+                for k in keys
+                if k.startswith("project:")
+                or k in s["items"]
+                or k[5:] in s.get("goals", {})
+            ]
         )
     )
 
@@ -722,10 +951,16 @@ def add_manual(text: str) -> str:
     return key
 
 
-def _finish(key: str, status: str, note: str, advance: bool = True) -> None:
+def _finish(key: str, status: str, note: str, advance: bool = True) -> str:
+    """Close an item the user finished. Returns " · archived" when its email left the inbox."""
+
     def change(state: dict[str, Any]) -> dict[str, Any]:
         item = state["items"][key]
-        item.update(status=status, finished_at=store.now_iso())
+        item.update(
+            status=status,
+            finished_at=store.now_iso(),
+            was_in_today=key in state["today"]["order"],
+        )
         if key in state["today"]["order"]:
             state["today"]["order"].remove(key)
         return item
@@ -735,10 +970,65 @@ def _finish(key: str, status: str, note: str, advance: bool = True) -> None:
         gtd_link.mark_done(item["gtd_id"], note)
     if advance:
         _advance_soon(item.get("goal_id"))
+    return _archive(key)
 
 
-def mark_done(key: str) -> None:
-    _finish(key, "done", "Marked done in Today.")
+def _thread(item: dict[str, Any]) -> tuple[str, str] | None:
+    thread_id = (item.get("ref") or {}).get("thread_id")
+    if item.get("source") != "email" or not thread_id:
+        return None
+    return item.get("account") or config.default_account(), thread_id
+
+
+def _archive(key: str) -> str:
+    """Finishing an email item archives its thread, unless something else from the
+    same thread is still owed."""
+    state = store.load()
+    item = state["items"][key]
+    thread = _thread(item)
+    if not thread:
+        return ""
+    if any(
+        _thread(other) == thread and other["status"] not in goals.FINISHED
+        for k, other in state["items"].items()
+        if k != key
+    ):
+        return ""
+    try:
+        connectors.gmail_set_inbox(*thread, inbox=False)
+    except connectors.ConnectorError as e:
+        log.warning("archive failed for %s: %s", key, e)
+        return " · couldn't archive it in Gmail"
+    store.mutate(lambda s: s["items"][key].update(archived_at=store.now_iso()))
+    return " · archived"
+
+
+def undo_finish(key: str) -> str:
+    """Undo for the last tap: a done or dropped item comes back, and an archived
+    email goes back to the inbox. A sent message stays sent."""
+    item = store.load()["items"][key]
+    thread = _thread(item)
+    archived, status = bool(item.get("archived_at")), item["status"]
+    if archived and thread:
+        connectors.gmail_set_inbox(*thread, inbox=True)
+
+    def change(state: dict[str, Any]) -> None:
+        it = state["items"][key]
+        it.pop("archived_at", None)
+        if it["status"] in ("done", "skipped"):
+            it.pop("no", None)
+            it.update(status="open", state=it.get("state") or "mine")
+            if it.pop("was_in_today", False) and key not in state["today"]["order"]:
+                state["today"]["order"].append(key)
+
+    store.mutate(change)
+    if status == "sent":
+        return "Back in your inbox"
+    return "Back in your list" + (" and inbox" if archived else "")
+
+
+def mark_done(key: str) -> str:
+    return "Marked done" + _finish(key, "done", "Marked done in Today.")
 
 
 def bring_back(key: str) -> None:
@@ -801,14 +1091,14 @@ def say_no(key: str) -> None:
     threading.Thread(target=run, daemon=True).start()
 
 
-def let_go(key: str) -> None:
+def let_go(key: str) -> str:
     """Drop it without sending anything."""
     store.mutate(
         lambda s: s["items"][key].update(
             cleared_reason="you said no; nothing sent", cleared_at=store.now_iso()
         )
     )
-    _finish(key, "skipped", "Said no in Today; nothing sent.")
+    return "Dropped" + _finish(key, "skipped", "Said no in Today; nothing sent.")
 
 
 def send(key: str, text: str) -> str:
@@ -834,8 +1124,8 @@ def send(key: str, text: str) -> str:
     store.mutate(
         lambda s: s["items"][key].update(sent_text=text, sent_at=store.now_iso())
     )
-    _finish(key, "sent", f"Replied from Today: {text}")
-    return target["label"].replace("Send", "Sent")
+    archived = _finish(key, "sent", f"Replied from Today: {text}")
+    return target["label"].replace("Send", "Sent") + archived
 
 
 def answer(key: str, answers: list[str]) -> None:

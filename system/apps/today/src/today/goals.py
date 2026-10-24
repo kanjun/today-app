@@ -16,16 +16,16 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from today import ai, calendar_events, config, gtd_link, store
+from today import ai, calendar_events, config, gtd_link, intent, store
 
 FINISHED = ("sent", "done", "cleared", "skipped")
 
-RULES_TEMPLATE = """Goals are SMART-style: each is one clearly accomplishable outcome with a plain end state (when it is true, the goal is done), like "2025 taxes filed and the federal balance paid" or "Sam's offer signed". Add a date only when one is actually known. A category ("Introductions", "Sam's asks", "Team health", "Admin") is NOT a goal: if items only share a category, type of task, or person, they are separate goals or standalone. Test every item: finishing it must directly move THIS goal's end state closer. If it would not, it does not belong.
-Within that test, do not be timid: {name} wants related work pulled together. Good goals: "2025 taxes filed and paid" (questionnaire, signatures, payment); "Priya's role on the new team settled" (reading her proposal doc, and talking with her manager about timing); "Beta customers onboarded". A person's situation, a filing, a deal, an event, or a decision with several asks around it is a goal.
-Group generously within that rule: whenever two or more items serve the same accomplishable outcome (the same filing, deal, event, hire, person's situation, launch, or decision), put them together. A goal needs at least two items.
-Each goal has a CHAIN: the ordered steps to reach the end state. Every item key goes in exactly one step: the step that finishes it. Merge items that are the same action into one step (two people asking whether {name} signed the same forms is one step). Order steps by what depends on what (answer the questionnaire, then sign, then pay). Step text is a short action for {name}, verb first. "who" is "you" unless the step is someone else's to do.
-{Possessive} calendar is given: use it to tell events apart. Asks about different events (different dates, hosts, or guests) are different goals, even when both are dinners; an ask about an event already on the calendar is about that event.
-{Possessive} corrections always win: an item they took out of a goal must not go back into it; an item they moved into a goal stays there; a goal they renamed keeps their title."""
+RULES_TEMPLATE = """A goal is something {name} is trying to do: one effort with a purpose and an end state, like "2025 taxes filed and the federal balance paid", "Sam's offer signed", or "Monday's team dinner with Priya and Jordan". Work out what {name} is trying to do from what the tasks and their conversations say (what {name} said, asked for, and cares about), then group the tasks that serve that effort. Each goal has a "purpose": one or two plain sentences on what {name} is trying to do and why.
+Never group by person, by event or by category alone. Two tasks with the same person can be two efforts (a dinner {name} is hosting, and a fundraiser {name} is planning); a category ("Introductions", "Sam's asks", "Admin") is never a goal. Test every task: finishing it must directly move THIS goal's end state closer. A small one-off (one reply, one quick favour) stays standalone; a goal is an effort with several steps, and needs at least two tasks to start. An existing goal continues while it has open steps left (its "open_steps" are steps no task covers yet, like hosting the dinner), even when only one task is left in it.
+Within that, {name} wants related work pulled together: a person's situation, a filing, a deal, an event {name} is organizing, or a decision with several asks around it is a goal.
+Each goal has a CHAIN: the ordered steps to reach the end state. Every task key goes in exactly one step: the step that finishes it. Merge tasks that are the same action into one step. Order steps by what depends on what. Step text is a short action for {name}, verb first. "who" is "you" unless the step is someone else's to do.
+{Possessive} calendar is given: use it to tell events apart, and to see what already happened (a call or meeting whose time has passed happened).
+{Possessive} corrections always win: a task they took out of a goal must not go back into it; a task they moved into a goal stays there; a goal they renamed keeps their title; their notes on what a goal is about (kind "intent") say what it is for, and which tasks belong."""
 
 
 def rules() -> str:
@@ -49,6 +49,7 @@ def _row(i: dict[str, Any]) -> dict[str, Any]:
         "state": i.get("state"),
         "source": i["source"],
         "asked_at": i.get("asked_at"),
+        "conversation": intent.conversation_id(i),
     }
 
 
@@ -71,7 +72,12 @@ def _goal_brief(g: dict[str, Any]) -> dict[str, Any]:
         "done_when": g.get("done_when", ""),
         "by": g.get("by", ""),
         "renamed_by_user": bool(g.get("user_title")),
+        "purpose": g.get("purpose", ""),
+        "user_notes": [n["text"] for n in g.get("intent_notes") or []],
         "items": [k for s in g["chain"] for k in s["covers"]],
+        "open_steps": [
+            s["step"] for s in g["chain"] if not s["covers"] and not s.get("done")
+        ],
     }
 
 
@@ -107,7 +113,7 @@ def consolidate(state: dict[str, Any]) -> dict[str, Any]:
         f"Current goals (keep their ids when a goal continues; you may merge, split, rename unless renamed by the user, or drop):\n{json.dumps([_goal_brief(g) for g in current], ensure_ascii=False)}\n"
         f"The user's corrections:\n{json.dumps(state.get('corrections', [])[-80:], ensure_ascii=False)}\n"
         f"Open items:\n{json.dumps([_row(i) for i in items], ensure_ascii=False)}\n\n"
-        'Answer: {"goals": [{"id": "existing id or empty for a new goal", "title": "...", "done_when": "one sentence end state", "by": "YYYY-MM-DD or empty", '
+        'Answer: {"goals": [{"id": "existing id or empty for a new goal", "title": "...", "purpose": "what they are trying to do", "done_when": "one sentence end state", "by": "YYYY-MM-DD or empty", '
         '"chain": [{"step": "...", "who": "you", "covers": ["key"]}]}], "standalone": ["key"]}'
     )
     answer = ai.complete_json(
@@ -122,9 +128,9 @@ def consolidate(state: dict[str, Any]) -> dict[str, Any]:
     placed: set[str] = set()
     for g in answer.get("goals", []) or []:
         chain = _clean_chain(g.get("chain"), keys - placed)
-        if sum(len(s["covers"]) for s in chain) < 2:
-            continue
         old = by_id.get(str(g.get("id") or ""))
+        if sum(len(s["covers"]) for s in chain) < (1 if old else 2):
+            continue
         gid = old["id"] if old else "g" + uuid.uuid4().hex[:7]
         title = (
             old["title"]
@@ -136,6 +142,7 @@ def consolidate(state: dict[str, Any]) -> dict[str, Any]:
             "title": title,
             "user_title": bool(old and old.get("user_title")),
             "done_when": str(g.get("done_when") or ""),
+            "purpose": str(g.get("purpose") or "")[:500],
             "by": str(g.get("by") or ""),
             "chain": chain,
             "status": "open",
@@ -236,7 +243,11 @@ def progress(goal: dict[str, Any], items: dict[str, dict[str, Any]]) -> dict[str
     next_index = None
     for n, s in enumerate(goal["chain"]):
         members = [items[k] for k in s["covers"] if k in items]
-        done = bool(members) and all(m["status"] in FINISHED for m in members)
+        done = (
+            all(m["status"] in FINISHED for m in members)
+            if members
+            else bool(s.get("done"))
+        )
         if not done and next_index is None:
             next_index = n
         steps.append(dict(s, done=done))
@@ -263,6 +274,10 @@ def goal_context(goal: dict[str, Any], items: dict[str, dict[str, Any]]) -> str:
     lines = [
         f'This is part of {config.possessive()} goal "{goal["title"]}" (done when: {goal.get("done_when", "")}).'
     ]
+    if goal.get("purpose"):
+        lines.append(f"What they are trying to do: {goal['purpose']}")
+    if goal.get("story"):
+        lines.append(f"Where it stands: {goal['story']}")
     for n, s in enumerate(p["steps"], 1):
         lines.append(f"  Step {n} ({'done' if s['done'] else 'not done'}): {s['step']}")
     known = [
@@ -341,6 +356,10 @@ def apply_duplicates(state: dict[str, Any], result: list[dict[str, Any]]) -> lis
             item = state["items"].get(k)
             if not item or item["status"] in FINISHED:
                 continue
+            # A copy may carry a date the kept one lacks ("I'll look in the morning").
+            dates = [d for d in (keep.get("due"), item.get("due")) if d]
+            if dates:
+                keep["due"] = min(dates)
             item.update(
                 status="skipped",
                 cleared_reason=f"same as: {keep.get('title', '')}",
@@ -381,10 +400,14 @@ def _take_out(state: dict[str, Any], key: str) -> str | None:
     gid = item.get("goal_id")
     goal = state.get("goals", {}).get(gid or "")
     if goal:
+        emptied = []
         for s in goal["chain"]:
             if key in s["covers"]:
                 s["covers"].remove(key)
-        goal["chain"] = [s for s in goal["chain"] if s["covers"]]
+                if not s["covers"]:
+                    emptied.append(s["id"])
+        # Steps no task ever covered (worked out from the conversations) stay.
+        goal["chain"] = [s for s in goal["chain"] if s["id"] not in emptied]
         goal["dirty"] = True
     item["goal_id"] = None
     item["placed"] = True
@@ -484,8 +507,10 @@ def close_finished(state: dict[str, Any]) -> None:
         if g["status"] != "open":
             continue
         keys = [k for s in g["chain"] for k in s["covers"]]
-        if len(keys) < 2 and not g.get("pinned"):
-            # A goal needs two items; once the user takes one out, the rest stands alone.
+        if (not keys or (len(keys) == 1 and len(g["chain"]) < 2)) and not g.get(
+            "pinned"
+        ):
+            # A goal is several steps; once it is down to one task, that task stands alone.
             for k in keys:
                 if k in state["items"]:
                     _take_out(state, k)

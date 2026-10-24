@@ -33,6 +33,8 @@ from today import (
     connectors,
     goals,
     gtd_link,
+    intent,
+    mail_store,
     store,
     work,
 )
@@ -41,6 +43,7 @@ log = logging.getLogger("today.sync")
 
 OWED_BUCKETS = {"1", "2", "4"}
 OPEN = ("open", "working")
+REOPEN_DAYS = 14
 WORKERS = 4
 
 
@@ -257,6 +260,25 @@ def collect() -> list[dict[str, Any]]:
     return cands
 
 
+# Cleared by the user (or by a rule they own) rather than by Today's own reading.
+USER_CLEARS = ("marked done in your to-do list",)
+
+
+def cleared_by_today(item: dict[str, Any]) -> bool:
+    """Today decided this needed nothing from the user: new messages in the conversation
+    can change that, so it is read again. Never something they finished, said no to, or a
+    copy."""
+    return (
+        item["status"] in ("cleared", "skipped")
+        and not item.get("finished_at")
+        and not item.get("no")
+        and not item.get("dup_of")
+        and item.get("kind") != "followup"
+        and item.get("source") in ("email", "slack")
+        and item.get("cleared_reason") not in USER_CLEARS
+    )
+
+
 def _apply(key: str, fields: dict[str, Any]) -> None:
     def change(state: dict[str, Any]) -> None:
         item = state["items"].get(key)
@@ -265,10 +287,13 @@ def _apply(key: str, fields: dict[str, Any]) -> None:
         if (
             item["status"] in goals.FINISHED
             and fields.get("status", item["status"]) not in goals.FINISHED
+            and not cleared_by_today(item)
         ):
             # The user finished it while it was being worked on: their call stands.
             return
-        item.update(fields)
+        # The user put it in a project by hand: a later read never moves it.
+        keep = ("project",) if item.get("project_by_hand") else ()
+        item.update({k: v for k, v in fields.items() if k not in keep})
         item["updated_at"] = store.now_iso()
 
     store.mutate(change)
@@ -279,10 +304,18 @@ REFETCH_HOURS = 6
 
 def gmail_changes(state: dict[str, Any]) -> dict[str, set[str] | None]:
     """Per inbox, the threads with new messages since the last update (None when that
-    is unknown, so every thread is fetched). Saves where to start next time."""
+    is unknown, so every thread is fetched). Saves where to start next time. Read from
+    the synced mail store's change feed when it is current, else from Gmail's history."""
     marks = dict(state.get("gmail_history") or {})
+    seqs = dict(state.get("gmail_store_seq") or {})
     out: dict[str, set[str] | None] = {}
     for account, _ in config.load().email_digests:
+        local = mail_store.new_threads(account, seqs.get(account))
+        if local is not None:
+            out[account], seqs[account] = local
+            continue
+        # Gmail's history: the store's position no longer says where this update left off.
+        seqs.pop(account, None)
         start = marks.get(account)
         try:
             if not start:
@@ -312,7 +345,7 @@ def gmail_changes(state: dict[str, Any]) -> dict[str, set[str] | None]:
             log.warning("gmail history for %s: %s", account, e)
             out[account] = None
             marks.pop(account, None)
-    store.mutate(lambda st: st.update(gmail_history=marks))
+    store.mutate(lambda st: st.update(gmail_history=marks, gmail_store_seq=seqs))
     return out
 
 
@@ -407,6 +440,8 @@ def _work_one(
                 _apply(key, {"slack_fp": slack_fingerprint(item)})
         store.save_raw(key, raw)
         sig = signature(raw)
+        if item["status"] in goals.FINISHED and sig == item.get("signature"):
+            return  # cleared earlier and nothing new has been said since
         if recheck and sig == item.get("signature"):
             # Nothing new in the conversation; every couple of hours, look again at
             # what the user has sent elsewhere since (an answer by email to a Slack ask).
@@ -500,6 +535,8 @@ def _apply_result(key: str, result: dict[str, Any], sig: str) -> None:
             fields["who"] = result["who"]
         if result.get("searched"):
             fields["searched"] = result["searched"]
+        fields["due"] = result.get("due", "")
+        fields["project"] = result.get("project", "")
         fields["done_check"] = result.get("done_check", [])
         fields["sent_found"] = result.get("sent_found", [])
         fields["done_checked_at"] = store.now_iso()
@@ -519,10 +556,12 @@ def _keep_added(key: str, proposed: list[dict[str, Any]]) -> list[dict[str, Any]
 
 
 def _add_promises(key: str, promises: list[dict[str, str]]) -> None:
-    """Each thing the user promised in the conversation becomes its own item, worked right away."""
+    """Each thing the user promised in the conversation becomes its own item, worked right away.
+
+    One they asked someone else to do ("asked" names them) is theirs: it waits on them."""
     parent = store.load()["items"][key]
     raw = store.load_raw(key)
-    if not promises or not raw or parent.get("kind") == "promised":
+    if not promises or not raw or parent.get("kind") in ("promised", "handed"):
         return
 
     def change(state: dict[str, Any]) -> list[str]:
@@ -548,13 +587,15 @@ def _add_promises(key: str, promises: list[dict[str, str]]) -> None:
                 )
             } | {
                 "key": new_key,
-                "kind": "promised",
+                "kind": "handed" if p.get("asked") else "promised",
                 "title": p["title"],
                 "ask_text": p["quote"] or p["title"],
                 "status": "working",
                 "created": store.now_iso(),
                 "gtd_status": None,
             }
+            if p.get("asked"):
+                state["items"][new_key]["who"] = p["asked"]
             added.append(new_key)
         return added
 
@@ -596,9 +637,41 @@ def _rework(key: str) -> None:
         log.warning("rework %s failed: %s", key, e)
 
 
+def reread_goal(gid: str, force: bool = False) -> bool:
+    """Read a goal whole again when anything it draws on changed (or when forced)."""
+    state = store.load()
+    goal = state["goals"].get(gid)
+    if not goal or goal["status"] != "open":
+        return False
+    try:
+        if not force:
+            convs = intent.conversations(goal, state)
+            if intent.signature(goal, state, convs) == goal.get("intent_sig"):
+                return False
+        result = intent.rethink(goal, state)
+    except (
+        ai.ClaudeError,
+        connectors.ConnectorError,
+        OSError,
+        ValueError,
+        KeyError,
+        subprocess.TimeoutExpired,
+    ) as e:
+        log.warning("goal %s: reading failed: %s", gid, e)
+        store.mutate(lambda s: s["goals"][gid].update(rethinking=False))
+        return False
+
+    def change(s: dict[str, Any]) -> None:
+        if s["goals"].get(gid, {}).get("status") == "open":
+            intent.apply(s, gid, result)
+
+    store.mutate(change)
+    return True
+
+
 def goals_phase(consolidate_now: bool = False) -> dict[str, int]:
-    """Place new items in goals, rewrite changed chains, close finished goals, and get
-    each goal's next step as far as it can go."""
+    """Place new items in goals, re-read the goals whose conversations, meetings or notes
+    changed, close finished goals, and get each goal's next step as far as it can go."""
     counts = {"assigned": 0, "rewritten": 0, "reworked": 0}
     dups = goals.duplicates(store.load())
     deduped = store.mutate(lambda s: goals.apply_duplicates(s, dups)) if dups else []
@@ -621,35 +694,13 @@ def goals_phase(consolidate_now: bool = False) -> dict[str, int]:
                 lambda s: goals.apply_assignment(s, assignment, new_keys)
             )
             counts["assigned"] = len(new_keys)
-    for gid in dict.fromkeys(touched):
-        state = store.load()
-        goal = state["goals"][gid]
-        if goal["status"] != "open":
-            continue
-        members = [
-            state["items"][k]
-            for s in goal["chain"]
-            for k in s["covers"]
-            if k in state["items"]
-        ]
-        if len(members) < 2:
-            store.mutate(
-                lambda s, gid=gid: [
-                    goals._take_out(s, k)
-                    for st in s["goals"][gid]["chain"]
-                    for k in list(st["covers"])
-                ]
-            )
-            continue
-        chain = goals.synthesize(goal, members)
-
-        def set_chain(
-            s: dict[str, Any], gid: str = gid, chain: list[dict[str, Any]] = chain
-        ) -> None:
-            s["goals"][gid].update(chain=chain, dirty=False, updated=store.now_iso())
-
-        store.mutate(set_chain)
-        counts["rewritten"] += 1
+    # Every goal is read whole: again when it was just regrouped, else only when a
+    # conversation, meeting or note it draws on changed.
+    state = store.load()
+    regrouped = set(touched)
+    ids = [gid for gid, g in state["goals"].items() if g["status"] == "open"]
+    # One at a time: each reading is a large prompt, and memory here is shared.
+    counts["reread"] = sum(reread_goal(gid, gid in regrouped) for gid in ids)
     store.mutate(goals.close_finished)
     state = store.load()
     todo: list[str] = []
@@ -672,6 +723,8 @@ def goals_phase(consolidate_now: bool = False) -> dict[str, int]:
 
 
 def run(limit: int | None = None, consolidate_now: bool = False) -> dict[str, int]:
+    # Mail is read from the synced store; bring it up to the minute first (a few Gmail calls).
+    mail_store.catch_up(tuple(account for account, _ in config.load().email_digests))
     calendar_events.refresh()
     names = _names()
     cands = collect()
@@ -701,7 +754,7 @@ def run(limit: int | None = None, consolidate_now: bool = False) -> dict[str, in
                 item["status"] == "working" and not item.get("state")
             ):
                 new.append(c["key"])
-            elif item["status"] in OPEN:
+            elif item["status"] in OPEN or cleared_by_today(item):
                 recheck.append(c["key"])
         return new, recheck
 
@@ -736,12 +789,24 @@ def run(limit: int | None = None, consolidate_now: bool = False) -> dict[str, in
     # conversation the user replied to. Otherwise an answer elsewhere never clears them.
     def leftovers(state: dict[str, Any]) -> list[str]:
         listed = set(new) | set(recheck)
+        recent = (datetime.now() - timedelta(days=REOPEN_DAYS)).isoformat(
+            timespec="seconds"
+        )
         return [
             k
             for k, i in state["items"].items()
             if i["source"] in ("email", "slack")
-            and i["status"] in (*OPEN, "new", "error")
             and k not in listed
+            and (
+                i["status"] in (*OPEN, "new", "error")
+                # Email is cheap to look at again (unchanged threads are skipped),
+                # so a recent clear of Today's own is watched for new messages.
+                or (
+                    i["source"] == "email"
+                    and cleared_by_today(i)
+                    and (i.get("cleared_at") or "") >= recent
+                )
+            )
         ]
 
     rest = store.mutate(leftovers)
@@ -753,7 +818,8 @@ def run(limit: int | None = None, consolidate_now: bool = False) -> dict[str, in
                     k,
                     names,
                     # Never worked yet, or failed last time: a full first pass.
-                    recheck=store.load()["items"][k]["status"] in OPEN,
+                    recheck=store.load()["items"][k]["status"] in OPEN
+                    or cleared_by_today(store.load()["items"][k]),
                     sent_log=sent_log,
                     changes=changes,
                 ),

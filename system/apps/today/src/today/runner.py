@@ -144,8 +144,9 @@ def api_add() -> Response:
 
 @app.post("/api/done")
 def api_done() -> Response:
-    actions.mark_done(str(_body().get("key", "")))
-    return jsonify({"ok": True})
+    return jsonify(
+        {"ok": True, "message": actions.mark_done(str(_body().get("key", "")))}
+    )
 
 
 @app.post("/api/bring-back")
@@ -179,8 +180,16 @@ def api_no() -> Response:
 
 @app.post("/api/let-go")
 def api_let_go() -> Response:
-    actions.let_go(str(_body().get("key", "")))
-    return jsonify({"ok": True})
+    return jsonify({"ok": True, "message": actions.let_go(str(_body().get("key", "")))})
+
+
+@app.post("/api/undo-finish")
+def api_undo_finish() -> Response:
+    try:
+        message = actions.undo_finish(str(_body().get("key", "")))
+    except connectors.ConnectorError as e:
+        return _error(f"Couldn't put it back in your inbox: {e}")
+    return jsonify({"ok": True, "message": message})
 
 
 @app.post("/api/send")
@@ -234,6 +243,32 @@ def api_goal_rename() -> Response:
     if not title:
         return _error("Type a name first.")
     actions.rename_goal(str(body.get("goal", "")), title)
+    return jsonify({"ok": True})
+
+
+@app.post("/api/goal/note")
+def api_goal_note() -> Response:
+    body = _body()
+    text = str(body.get("text", "")).strip()
+    if not text:
+        return _error("Say what this goal is really about first.")
+    actions.add_goal_note(str(body.get("goal", "")), text)
+    return jsonify({"ok": True})
+
+
+@app.post("/api/goal/reorder")
+def api_goal_reorder() -> Response:
+    body = _body()
+    actions.reorder_steps(
+        str(body.get("goal", "")), [str(i) for i in body.get("order") or []]
+    )
+    return jsonify({"ok": True})
+
+
+@app.post("/api/goal/note/remove")
+def api_goal_note_remove() -> Response:
+    body = _body()
+    actions.remove_goal_note(str(body.get("goal", "")), str(body.get("at", "")))
     return jsonify({"ok": True})
 
 
@@ -327,6 +362,24 @@ def api_revise() -> Response:
 @app.post("/api/rule/remove")
 def api_rule_remove() -> Response:
     actions.remove_rule(int(_body().get("index", -1)))
+    return jsonify({"ok": True})
+
+
+@app.get("/api/project")
+def api_project() -> Response:
+    page = actions.project_page(str(request.args.get("id", "")))
+    if page is None:
+        return _error("No such project.")
+    return jsonify(page)
+
+
+@app.post("/api/item/project")
+def api_item_project() -> Response:
+    body = _body()
+    try:
+        actions.set_item_project(str(body.get("key", "")), str(body.get("project", "")))
+    except actions.SendError as e:
+        return _error(str(e))
     return jsonify({"ok": True})
 
 

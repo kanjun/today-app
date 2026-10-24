@@ -1,7 +1,8 @@
 """Slack and Gmail through the user's connected accounts (``latchkey curl``).
 
 Read calls are used by the sync; the two send calls are used only when the user
-presses Send in the app.
+presses Send in the app. Gmail threads are read from the synced mail store
+(mail_store.py) when it is current.
 """
 
 import base64
@@ -13,7 +14,7 @@ from email.message import EmailMessage
 from email.utils import getaddresses
 from urllib.parse import urlencode
 
-from today import config
+from today import config, mail_store
 
 
 class ConnectorError(RuntimeError):
@@ -144,6 +145,11 @@ def header(msg: dict, name: str) -> str:
 
 
 def gmail_thread(thread_id: str, account: str) -> dict:
+    """The whole thread (``format=full``): from the synced mail store when it is current and
+    holds the thread, else from Gmail."""
+    local = mail_store.thread(thread_id, account)
+    if local is not None:
+        return local
     return gmail_get(f"threads/{thread_id}", account, {"format": "full"})
 
 
@@ -186,6 +192,7 @@ def gmail_search(query: str, account: str, limit: int = 5) -> list[dict]:
                 "subject": header(m, "Subject"),
                 "date": header(m, "Date"),
                 "snippet": m.get("snippet", ""),
+                "thread_id": m.get("threadId", ""),
             }
         )
     return out
@@ -381,6 +388,25 @@ def gmail_rewrite_draft(account: str, draft_id: str, text: str) -> dict:
         text,
         draft_id=draft_id,
     )
+
+
+def gmail_set_inbox(account: str, thread_id: str, inbox: bool) -> None:
+    """Archive a thread (take it out of the inbox), or put it back. Nothing is deleted."""
+    change = {"addLabelIds" if inbox else "removeLabelIds": ["INBOX"]}
+    data = _curl(
+        [
+            "-X",
+            "POST",
+            "-H",
+            "Content-Type: application/json",
+            "-d",
+            json.dumps(change),
+            f"{GMAIL}/threads/{thread_id}/modify",
+        ],
+        account=account,
+    )
+    if "error" in data:
+        raise ConnectorError(f"gmail archive: {str(data['error'])[:300]}")
 
 
 def gmail_send_draft(account: str, draft_id: str) -> dict:

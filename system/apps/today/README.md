@@ -10,6 +10,11 @@ you can answer. Related items are grouped into goals with ordered steps; a morni
 cleanup (`today-sync --consolidate`) regroups them once a day. Nothing is ever sent
 until you press Send.
 
+Finishing or dropping an item archives its email (with Undo); items carry due dates
+(due soon rises to the top, far-off sinks with a quiet date); tasks can be grouped
+into projects you define; and each goal says what you're trying to do and where it
+stands, re-read whenever a linked conversation, meeting or your note on it changes.
+
 ## Settings
 
 Everything personal is configured in `data/.apps/today/settings.json` (every key
@@ -26,6 +31,9 @@ optional), and each key can be overridden by an environment variable:
 | `email_digests` | `TODAY_EMAIL_DIGESTS` | One digest file per inbox (`[{"account", "path"}]`, or `account=path,...`) |
 | `slack_users` | `TODAY_SLACK_USERS` | A JSON file mapping Slack user ids to names |
 | `slack_captures_dir` | `TODAY_GTD_ITEMS_DIR` | The folder of Slack captures |
+| `email_voice` | `TODAY_EMAIL_VOICE` | A file of your own emails that email drafts copy the voice of (none: no voice examples) |
+| `chat_voice` | `TODAY_CHAT_VOICE` | The same for Slack drafts |
+| `projects` | `TODAY_PROJECTS` | Your projects, `[{"id", "title", "about"}]` (or the path of a JSON file holding it); none by default |
 
 ```json
 {
@@ -72,3 +80,10 @@ instead of ids.
 State lives in `data/.apps/today/state.json`; the raw conversation each item came
 from is kept under `data/.apps/today/raw/` and is one click away on every item
 ("See the conversation").
+
+## Changing how Today reads conversations
+
+Mistakes you correct can be kept as cases in `data/.apps/today/cases/` (each a snapshot
+of the item and its conversation, plus the right reading). After any change to the
+reader's prompts or rules, re-check them with `uv run python -m today.casebook`; add one
+with `uv run python -m today.casebook add NAME KEY --why ... --expect ...`.

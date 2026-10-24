@@ -49,8 +49,26 @@ def _when(start: dict[str, Any]) -> str:
     )
 
 
-def brief(limit: int = 120) -> str:
-    """One line per event the user hasn't declined, for a prompt. Empty when never fetched."""
+def video(e: dict[str, Any]) -> str:
+    """Which call link the event carries, if any."""
+    where = f"{e.get('location') or ''} {e.get('description') or ''}".lower()
+    if "zoom.us" in where:
+        return "Zoom"
+    if e.get("hangoutLink") or e.get("conferenceData"):
+        return "Google Meet"
+    return ""
+
+
+def events(ids: list[str]) -> list[dict[str, Any]]:
+    """The saved events with these ids (an event no longer on the calendar is left out)."""
+    record = store.load_raw(KEY) or {}
+    by_id = {e.get("id"): e for e in record.get("events", [])}
+    return [by_id[i] for i in ids if i in by_id]
+
+
+def brief(limit: int = 120, ids: bool = False) -> str:
+    """One line per event the user hasn't declined, for a prompt. Empty when never fetched.
+    ``ids`` starts each line with the event's id, for a prompt that links events."""
     record = store.load_raw(KEY)
     if not record:
         return ""
@@ -65,6 +83,10 @@ def brief(limit: int = 120) -> str:
             if not a.get("self") and not a.get("resource")
         ]
         line = f"- {_when(e.get('start') or {})}: {e.get('summary', '(no title)')}"
+        if ids:
+            line = f"- [{e.get('id', '')}] " + line[2:]
+        if video(e):
+            line += f" (call on {video(e)})"
         if e.get("location") and not e["location"].startswith("http"):
             line += f" @ {e['location'][:60]}"
         if guests:

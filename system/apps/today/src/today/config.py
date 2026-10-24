@@ -19,13 +19,25 @@ settings.json (all keys optional)::
         {"account": "alex@acme.example", "path": "data/.apps/email-review/data.json"}
       ],
       "slack_users": "data/.apps/slack-review/users.json",
-      "slack_captures_dir": "data/.apps/gtd/items"
+      "slack_captures_dir": "data/.apps/gtd/items",
+      "email_voice": "data/.apps/today/voice/email.md",
+      "chat_voice": "data/.apps/today/voice/slack.md",
+      "projects": [
+        {"id": "launch", "title": "Launch", "about": "Getting the spring launch out: ..."}
+      ]
     }
+
+``email_voice`` and ``chat_voice`` are files of the user's own messages that drafts
+for email and for Slack copy the voice of; with neither, drafts use no voice examples.
+``projects`` are long-lived areas that hold their tasks and goals off the main list
+(``about`` tells the model what belongs); there are none by default. It may also be the
+path of a JSON file holding that list.
 
 Environment overrides: TODAY_USER_NAME, TODAY_USER_ORG, TODAY_USER_ROLE,
 TODAY_TIMEZONE, TODAY_EMAIL_ACCOUNTS and TODAY_EMAIL_ALIASES (comma-separated),
 TODAY_EMAIL_DIGESTS (``account=path`` pairs, comma-separated), TODAY_SLACK_USERS,
-and TODAY_GTD_ITEMS_DIR (the Slack captures directory). Relative paths are
+TODAY_GTD_ITEMS_DIR (the Slack captures directory), TODAY_EMAIL_VOICE,
+TODAY_CHAT_VOICE, and TODAY_PROJECTS (the path of a JSON file with the project list). Relative paths are
 relative to the repo root, where the services run.
 
 The input formats are documented in the app's README.
@@ -49,6 +61,9 @@ class Settings(NamedTuple):
     email_digests: tuple[tuple[str, Path], ...]
     slack_users: Path | None
     slack_captures_dir: Path | None
+    email_voice: Path | None
+    chat_voice: Path | None
+    projects: tuple[dict[str, str], ...]
 
 
 def settings_path() -> Path:
@@ -81,6 +96,31 @@ def _digests(value: Any) -> tuple[tuple[str, Path], ...]:
     return tuple((a, Path(p)) for a, p in out if a and p)
 
 
+def _projects(value: Any) -> tuple[dict[str, str], ...]:
+    """The project list, given inline or as the path of a JSON file holding it."""
+    if isinstance(value, str) and value.strip():
+        try:
+            value = json.loads(Path(value.strip()).read_text())
+        except (OSError, ValueError):
+            return ()
+    out = []
+    for entry in value if isinstance(value, list) else []:
+        if isinstance(entry, dict) and str(entry.get("id") or "").strip():
+            pid = str(entry["id"]).strip()
+            out.append(
+                {
+                    "id": pid,
+                    "title": str(entry.get("title") or pid).strip(),
+                    "about": str(entry.get("about") or "").strip(),
+                }
+            )
+    return tuple(out)
+
+
+def _path(value: Any) -> Path | None:
+    return Path(str(value)) if value else None
+
+
 def _local_zone() -> str:
     try:
         return Path("/etc/timezone").read_text().strip() or "UTC"
@@ -95,8 +135,6 @@ def load() -> Settings:
         value = os.environ.get(env)
         return value if value is not None and value.strip() else f.get(key)
 
-    users = pick("slack_users", "TODAY_SLACK_USERS")
-    captures = pick("slack_captures_dir", "TODAY_GTD_ITEMS_DIR")
     return Settings(
         user_name=str(pick("user_name", "TODAY_USER_NAME") or "").strip(),
         user_org=str(pick("user_org", "TODAY_USER_ORG") or "").strip(),
@@ -105,8 +143,11 @@ def load() -> Settings:
         email_accounts=_list(pick("email_accounts", "TODAY_EMAIL_ACCOUNTS")),
         email_aliases=_list(pick("email_aliases", "TODAY_EMAIL_ALIASES")),
         email_digests=_digests(pick("email_digests", "TODAY_EMAIL_DIGESTS")),
-        slack_users=Path(str(users)) if users else None,
-        slack_captures_dir=Path(str(captures)) if captures else None,
+        slack_users=_path(pick("slack_users", "TODAY_SLACK_USERS")),
+        slack_captures_dir=_path(pick("slack_captures_dir", "TODAY_GTD_ITEMS_DIR")),
+        email_voice=_path(pick("email_voice", "TODAY_EMAIL_VOICE")),
+        chat_voice=_path(pick("chat_voice", "TODAY_CHAT_VOICE")),
+        projects=_projects(pick("projects", "TODAY_PROJECTS")),
     )
 
 
