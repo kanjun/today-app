@@ -22,7 +22,7 @@ from today import (
     store,
 )
 
-SYSTEM_TEMPLATE = """You help <WHO> get through what they owe people. You get one thing someone asked of <NAME> (or something <NAME> promised), plus the conversation it came from (Slack messages marked later_in_conversation come after the ask in the same conversation, outside its thread; they often settle it, like "done, paid!"). Take it as far as you can without <NAME>. Answer with exactly one JSON object and nothing else.
+SYSTEM_TEMPLATE = """You help <WHO> get through what they owe people. You get one thing someone asked of <NAME> (or something <NAME> promised), plus the conversation it came from (a Slack conversation is shown thread by thread: the ask's own thread first, then separate threads and the rest of the channel, which can settle it, like "done, paid!", but are separate exchanges; never read a reply in one thread as an answer in another). Take it as far as you can without <NAME>. Answer with exactly one JSON object and nothing else.
 
 Fields:
 - "owed": false when there is nothing for <NAME> to do personally (an FYI, an automated or marketing message, someone else is the one who must act, or it is not really addressed to <NAME>). Otherwise true.
@@ -84,16 +84,49 @@ def _fmt_time(ts: float) -> str:
     return datetime.fromtimestamp(ts).strftime("%a %b %d %-I:%M %p")
 
 
+def threads(raw: dict[str, Any]) -> list[dict[str, Any]]:
+    """A Slack conversation split into its threads, so replies from different threads are
+    never read as one exchange: the ask's own thread first, then each other thread and
+    the channel's top-level messages, each in time order. A conversation saved before
+    threads were recorded (or a text chat) is one group, as saved."""
+    msgs = raw.get("messages", [])
+    if not any("thread_ts" in m for m in msgs):
+        return [{"label": "", "messages": msgs}]
+    groups: dict[str, list[dict[str, Any]]] = {}
+    for m in msgs:
+        groups.setdefault(str(m.get("thread_ts") or ""), []).append(m)
+    for g in groups.values():
+        g.sort(key=lambda m: float(m["ts"]))
+    ask = next((str(m.get("thread_ts") or "") for m in msgs if m.get("is_ask")), "")
+    order = sorted(groups, key=lambda k: (k != ask, float(groups[k][0]["ts"])))
+    out = []
+    for k in order:
+        first = groups[k][0]
+        if k == ask:
+            label = (
+                "The thread the ask is in" if k else "The conversation, outside threads"
+            )
+        elif k:
+            label = f"A separate thread, started by {first.get('name')} on {_fmt_time(float(first['ts']))}"
+        else:
+            label = "Elsewhere in the channel, outside threads"
+        out.append({"label": label, "messages": groups[k]})
+    return out
+
+
 def transcript(raw: dict[str, Any]) -> str:
     """The conversation as plain lines, with the ask marked."""
     lines = []
     if raw.get("source") == "slack":
         lines.append(f"Slack, {raw.get('channel_label', '')}")
-        for m in raw.get("messages", []):
-            mark = ">> " if m.get("is_ask") else ""
-            lines.append(
-                f"{mark}[{_fmt_time(float(m['ts']))}] {m.get('name')}: {m.get('text')}"
-            )
+        for group in threads(raw):
+            if group["label"]:
+                lines.append(f"--- {group['label']}:")
+            for m in group["messages"]:
+                mark = ">> " if m.get("is_ask") else ""
+                lines.append(
+                    f"{mark}[{_fmt_time(float(m['ts']))}] {m.get('name')}: {m.get('text')}"
+                )
     else:
         me = config.name()
         lines.append(f"Email thread ({raw.get('account')}): {raw.get('subject', '')}")

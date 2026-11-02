@@ -39,7 +39,7 @@ from urllib.parse import quote
 from flask import Flask, Response, abort, jsonify, request, send_file
 from werkzeug.serving import run_simple
 
-from today import actions, connectors, store
+from today import actions, connectors, store, work
 
 # Persistent state for this app lives under DATA_DIR. It defaults to
 # ``data/.apps/today/`` but is overridable via the ``TODAY_DATA_DIR`` env var
@@ -128,6 +128,13 @@ def api_today() -> Response:
     return jsonify({"ok": True})
 
 
+@app.post("/api/later")
+def api_later() -> Response:
+    body = _body()
+    actions.set_later(str(body.get("key", "")), bool(body.get("on", True)))
+    return jsonify({"ok": True})
+
+
 @app.post("/api/order")
 def api_order() -> Response:
     actions.set_order([str(k) for k in _body().get("order", [])])
@@ -176,6 +183,11 @@ def api_search() -> Response:
 def api_no() -> Response:
     actions.say_no(str(_body().get("key", "")))
     return jsonify({"ok": True})
+
+
+@app.post("/api/ignore")
+def api_ignore() -> Response:
+    return jsonify({"ok": True, "message": actions.ignore(str(_body().get("key", "")))})
 
 
 @app.post("/api/let-go")
@@ -233,6 +245,16 @@ def api_goal() -> Response:
 def api_step_done() -> Response:
     body = _body()
     actions.mark_step_done(str(body.get("goal", "")), str(body.get("step", "")))
+    return jsonify({"ok": True})
+
+
+@app.post("/api/item/title")
+def api_item_title() -> Response:
+    body = _body()
+    title = str(body.get("title", "")).strip()
+    if not title:
+        return _error("Type a title first.")
+    actions.rename_item(str(body.get("key", "")), title)
     return jsonify({"ok": True})
 
 
@@ -392,15 +414,18 @@ def raw_view() -> Response:
         abort(404)
     rows = []
     if raw.get("source") == "slack":
-        for m in raw.get("messages", []):
-            when = datetime.fromtimestamp(float(m["ts"])).strftime(
-                "%a %b %-d, %-I:%M %p"
-            )
-            cls = "msg ask" if m.get("is_ask") else "msg"
-            rows.append(
-                f'<div class="{cls}"><div class="meta">{escape(m.get("name", ""))} &middot; {when}</div>'
-                f'<div class="text">{escape(m.get("text", ""))}</div></div>'
-            )
+        for group in work.threads(raw):
+            if group["label"]:
+                rows.append(f'<div class="thread">{escape(group["label"])}</div>')
+            for m in group["messages"]:
+                when = datetime.fromtimestamp(float(m["ts"])).strftime(
+                    "%a %b %-d, %-I:%M %p"
+                )
+                cls = "msg ask" if m.get("is_ask") else "msg"
+                rows.append(
+                    f'<div class="{cls}"><div class="meta">{escape(m.get("name", ""))} &middot; {when}</div>'
+                    f'<div class="text">{escape(m.get("text", ""))}</div></div>'
+                )
     else:
         for m in raw.get("messages", []):
             draft = (
@@ -416,7 +441,7 @@ def raw_view() -> Response:
         "<!doctype html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Original</title><style>"
         "body{font:15px/1.5 ui-sans-serif,system-ui,sans-serif;background:#f6f4ef;color:#1c1b19;padding:28px}"
         ".wrap{max-width:680px;margin:0 auto}.msg{background:#fff;border:1px solid #e7e3da;border-radius:10px;padding:12px 16px;margin-bottom:8px}"
-        ".ask{border:1.5px solid #1c1b19}.unsent{border-style:dashed;background:#fbfaf6}.draft{background:#f3e3c4;color:#7a5a1c;border-radius:4px;padding:1px 6px;font-weight:600}.meta{font-size:12px;color:#8a857c;margin-bottom:4px}.text{white-space:pre-wrap;overflow-wrap:anywhere}.meta{overflow-wrap:anywhere}"
+        ".thread{font-size:12px;color:#8a857c;text-transform:uppercase;letter-spacing:.04em;margin:18px 0 6px}.ask{border:1.5px solid #1c1b19}.unsent{border-style:dashed;background:#fbfaf6}.draft{background:#f3e3c4;color:#7a5a1c;border-radius:4px;padding:1px 6px;font-weight:600}.meta{font-size:12px;color:#8a857c;margin-bottom:4px}.text{white-space:pre-wrap;overflow-wrap:anywhere}.meta{overflow-wrap:anywhere}"
         "@media (max-width:600px){body{padding:16px 12px}.msg{padding:10px 12px}}"
         "a{color:#8a857c;font-size:13px}.back{display:inline-block;margin-bottom:16px;text-decoration:none}h1{font-size:18px;margin-bottom:6px}</style></head><body><div class='wrap'>"
         f"<a class='back' href='/#{quote(key, safe='')}' onclick='if(document.referrer.startsWith(location.origin)){{history.back();return false}}'>&larr; Back</a>"

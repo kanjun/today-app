@@ -2,7 +2,7 @@
 title: "Today"
 description: "A daily list of what you owe people from Slack and email, with replies drafted for you to send"
 thumbnail: "template.svg"
-version: v2
+version: v3
 format: v2
 ---
 
@@ -132,6 +132,8 @@ This is distinct from "Adaptation history" below, which is the ADOPTERS' log.
 ### v1 (2026-10-20) -- first version: the Today app alone, with its 30-minute update and morning cleanup, identity and inputs as settings
 
 ### v2 (2026-10-23) -- finishing or dropping a task archives its email with Undo; due dates; a check-off circle; projects you define; goals that say what you're trying to do and re-read their conversations and meetings; redo reads linked pages; sharper reading; optional synced mail store; a re-check of corrected mistakes
+
+### v3 (2026-10-29) -- Later and Ignore in one menu per row; Slack shown thread by thread; drag to reorder a goal's steps; task and goal titles are edited in place and kept
 
 ## Adaptation history
 

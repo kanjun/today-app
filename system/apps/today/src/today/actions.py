@@ -148,6 +148,10 @@ def view_state() -> dict[str, Any]:
     open_items = [
         i for k, i in items.items() if visible(i) and k not in order and not i.get("no")
     ]
+    # Set aside for later: off the owed list, not a no, nothing is sent.
+    later = [i for i in open_items if i.get("later")]
+    later.sort(key=lambda i: i["later"])
+    open_items = [i for i in open_items if not i.get("later")]
     # A project's tasks stay inside it; its row carries the soonest due badge instead.
     owed = [
         i
@@ -239,6 +243,11 @@ def view_state() -> dict[str, Any]:
         "projects": [r for r in project_rows if not r["in_today"]],
         "goals": goal_rows,
         "owed": [summary(i) for i in owed],
+        "later": [
+            summary(i)
+            for i in later
+            if i.get("goal_id") not in open_goals and not project_of(i)
+        ],
         "no": [summary(i) for i in saying_no],
         "waiting": [dict(summary(i), did=i.get("did") or "") for i in waiting],
         "cleared": [
@@ -527,6 +536,15 @@ def rename_goal(gid: str, title: str) -> None:
     old = store.load()["goals"][gid]["title"]
     store.mutate(lambda s: s["goals"][gid].update(title=title, user_title=True))
     _correction("rename", goal=gid, title=title, was=old)
+
+
+def rename_item(key: str, title: str) -> None:
+    """The user's own title for a task; later reads keep it."""
+    old = store.load()["items"][key].get("title")
+    store.mutate(
+        lambda s: s["items"][key].update(title=title, title_by_hand=True)
+    )
+    _correction("retitle", item=key, title=title, was=old)
 
 
 def remove_from_goal(key: str) -> None:
@@ -904,10 +922,27 @@ def project_page(pid: str) -> dict[str, Any] | None:
 def set_today(key: str, on: bool) -> None:
     def change(state: dict[str, Any]) -> None:
         order = state["today"]["order"]
+        if on and key in state["items"]:
+            state["items"][key].pop("later", None)
         if on and key not in order:
             order.append(key)
         if not on and key in order:
             order.remove(key)
+
+    store.mutate(change)
+
+
+def set_later(key: str, on: bool) -> None:
+    """Set a task aside for later, or bring it back to the owed list."""
+
+    def change(state: dict[str, Any]) -> None:
+        item = state["items"][key]
+        if on:
+            item["later"] = store.now_iso()
+            if key in state["today"]["order"]:
+                state["today"]["order"].remove(key)
+        else:
+            item.pop("later", None)
 
     store.mutate(change)
 
@@ -1101,6 +1136,16 @@ def let_go(key: str) -> str:
     return "Dropped" + _finish(key, "skipped", "Said no in Today; nothing sent.")
 
 
+def ignore(key: str) -> str:
+    """Set it aside for good: nothing is written and nothing is sent."""
+    store.mutate(
+        lambda s: s["items"][key].update(
+            cleared_reason="you ignored it; nothing sent", cleared_at=store.now_iso()
+        )
+    )
+    return "Ignored" + _finish(key, "skipped", "Ignored in Today; nothing sent.")
+
+
 def send(key: str, text: str) -> str:
     item = store.load()["items"][key]
     target = send_target(item)
@@ -1194,7 +1239,14 @@ def revise(key: str, note: str, remember: bool) -> None:
             subprocess.TimeoutExpired,
         ) as e:
             fields = {"status": "open", "error": f"Couldn't redo this: {str(e)[:200]}"}
-        store.mutate(lambda s: s["items"][key].update(fields))
+
+        def save(s: dict[str, Any]) -> None:
+            it = s["items"][key]
+            if it.get("title_by_hand"):
+                fields.pop("title", None)
+            it.update(fields)
+
+        store.mutate(save)
 
     threading.Thread(target=run, daemon=True).start()
 

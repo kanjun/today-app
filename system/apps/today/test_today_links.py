@@ -59,3 +59,36 @@ def test_redo_prompt_carries_the_linked_pages(monkeypatch: pytest.MonkeyPatch) -
     work.revise_draft({"feedback": []}, {}, f"Add this launch: {POST}")
     assert "TAKO LAUNCH TEXT" in prompts[0]
     assert "put that exact link in the message" in prompts[0]
+
+
+def test_slack_threads_are_kept_apart() -> None:
+    """Replies from two threads in one channel are never interleaved as one exchange."""
+    raw = {
+        "source": "slack",
+        "channel_label": "channel",
+        "messages": [
+            {
+                "ts": "1",
+                "name": "Sam",
+                "text": "export idea",
+                "thread_ts": "1",
+                "is_ask": True,
+            },
+            {"ts": "2", "name": "Priya", "text": "uri scheme", "thread_ts": "2"},
+            {"ts": "3", "name": "Sam", "text": "re uri", "thread_ts": "2"},
+            {"ts": "4", "name": "Jordan", "text": "re export", "thread_ts": "1"},
+            {"ts": "5", "name": "Priya", "text": "ci is faster", "thread_ts": ""},
+        ],
+    }
+    groups = work.threads(raw)
+    assert [g["label"].split(",")[0] for g in groups] == [
+        "The thread the ask is in",
+        "A separate thread",
+        "Elsewhere in the channel",
+    ]
+    assert [m["text"] for m in groups[0]["messages"]] == ["export idea", "re export"]
+    text = work.transcript(raw)
+    assert text.index("re export") < text.index("--- A separate thread")
+    # A conversation saved before threads were recorded reads as it was saved.
+    old = {"source": "slack", "messages": [{"ts": "1", "name": "Sam", "text": "hi"}]}
+    assert work.threads(old) == [{"label": "", "messages": old["messages"]}]

@@ -43,6 +43,8 @@ h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#8a857c;fo
 .back{font-size:13px;color:#8a857c;margin-bottom:16px;display:inline-block;cursor:pointer}
 .card{background:#fff;border:1px solid #e7e3da;border-radius:12px;padding:26px 28px}
 .title{font-size:20px;font-weight:600;margin-bottom:4px}
+.edtitle{outline:none;cursor:text;border-radius:3px}
+.edtitle:hover{background:#f6f3ec}.edtitle:focus{background:none}
 .quote{border-left:3px solid #e7e3da;padding:2px 0 2px 12px;color:#55514a;margin:14px 0 4px}
 .src{font-size:12px;color:#8a857c}
 .src a{color:#8a857c}
@@ -78,7 +80,7 @@ input.text{font:inherit;width:100%;border:1px solid #d9d4c8;border-radius:7px;pa
 .step.done .num{background:#e6f0e6;border-color:#e6f0e6;color:#2f6b35}
 .step.done .stitle{color:#8a857c;text-decoration:line-through}
 .step .body{flex:1;min-width:0}.stitle{font-weight:500}
-.move{float:right;margin-left:8px;white-space:nowrap}.move a{display:inline-block;width:26px;height:26px;line-height:26px;text-align:center;border-radius:6px;color:#8a857c;cursor:pointer;user-select:none}.move a:hover{background:#eeebe4;color:#1c1b19}.move a.off{visibility:hidden}
+.step .grip{cursor:grab;color:#c9c3b6;font-size:14px;user-select:none;margin:3px -6px 0 -4px}.step.dragging{opacity:.4}.step.dropto{box-shadow:inset 0 2px 0 #1c1b19}
 .step.later{opacity:.75}
 .member{display:flex;gap:10px;align-items:center;padding:7px 10px;margin-top:6px;border:1px solid #eeebe4;border-radius:8px;cursor:pointer;font-size:14px}
 .member:hover{border-color:#cfc9bc}.member .what{flex:1}
@@ -91,13 +93,14 @@ select.btn{padding:5px 8px;max-width:100%}
 details summary{cursor:pointer;font-size:13px;color:#8a857c;margin:14px 0 6px}
 .herdraft{margin-top:16px}.hdlabel{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#7a5a1c;margin-bottom:4px}
 details.alt{margin-top:18px;border-top:1px solid #efece5;padding-top:4px}
+.rowmenu{flex-shrink:0;width:46px;padding:6px 0;font-size:15px;font-weight:700;letter-spacing:.1em;text-align:center;text-align-last:center;cursor:pointer;-webkit-appearance:none;appearance:none}
 /* Phone: each row puts who it is from on top, the title on its own line, then its tag and buttons. */
 @media (max-width:600px){
 body{padding:18px 12px 48px}
 .top{flex-wrap:wrap;gap:4px 12px}
 .row{flex-wrap:wrap;gap:6px 10px;padding:12px 14px}
 .row .who,.goalbadge,.nextlabel{width:100%;order:-1}
-.nextlabel:empty,.today-row .grip{display:none}
+.nextlabel:empty,.today-row .grip,.step .grip{display:none}
 .row .what{flex:1 1 100%;min-width:0;overflow-wrap:anywhere}
 .row:has(.check) .what{flex-basis:calc(100% - 40px)}
 .row .age{width:auto;text-align:left;margin-right:auto}
@@ -174,7 +177,12 @@ function checkBtn(key){return `<button class="check" data-check="${esc(key)}" ti
 // Checking a task off from a list: done (its email is archived), with Undo in the message.
 function bindChecks(root, reload){root.querySelectorAll("[data-check]").forEach(b=>b.onclick=async e=>{e.stopPropagation();b.disabled=true;
   try{const r=await api("/api/done",{key:b.dataset.check});toast(r.message,b.dataset.check)}catch(err){toast(err.message)}reload()})}
-function taskRow(i,todayBtn){return `<div class="row" data-key="${esc(i.key)}">${checkBtn(i.key)}<span class="who">${esc(i.who)}</span><span class="what">${esc(i.title)}</span>${dueTag(i)}${tag(i.state)}<span class="age">${esc(i.age)}</span>${todayBtn?`<button class="btn" data-today="${esc(i.key)}">Today</button><button class="btn" data-no="${esc(i.key)}">No</button>`:""}</div>`}
+function taskRow(i,todayBtn){return `<div class="row" data-key="${esc(i.key)}">${checkBtn(i.key)}<span class="who">${esc(i.who)}</span><span class="what">${esc(i.title)}</span>${dueTag(i)}${tag(i.state)}<span class="age">${esc(i.age)}</span>${todayBtn?`${rowMenu(i.key,[["today","Do today"],["later","Later"],["ignore","Ignore"]])}`:""}</div>`}
+// One small menu per row instead of a button for each choice; a phone shows its own picker.
+function rowMenu(key,opts){return `<select class="btn rowmenu" data-menu="${esc(key)}" title="Today, later or ignore"><option value="" selected disabled hidden>&middot;&middot;&middot;</option>${opts.map(([v,l])=>`<option value="${v}">${l}</option>`).join("")}</select>`}
+// A title edited where it sits: Enter or clicking away saves, Esc puts it back.
+function editInPlace(el, save){ if(!el) return; let was=el.textContent;
+  el.onkeydown=e=>{ if(e.key==="Enter"){e.preventDefault();el.blur()} if(e.key==="Escape"){el.textContent=was;el.blur()} };
 function projectSub(p){return p.tasks?`${p.tasks} ${p.tasks===1?"task":"tasks"}`:""}
 function projectRow(p){return `<div class="row goal" data-project="${esc(p.key)}"><span class="goalbadge">PROJECT</span><span class="what"><b>${esc(p.title)}</b><span class="sub">${projectSub(p)}</span></span>${dueTag(p)}<button class="btn" data-today="${esc(p.key)}">Today</button></div>`}
 function projectHash(key){return "#"+encodeURIComponent(key)}
@@ -200,6 +208,10 @@ function renderList(){
   S.owed.filter(i=>!soon(i)&&!far(i)).forEach(i=>h+=taskRow(i,true));
   S.projects.filter(far).map(p=>[p.due_days,projectRow(p)]).concat(S.goals.filter(far).map(g=>[g.due_days,goalRow(g,true)]), S.owed.filter(far).map(i=>[i.due_days,taskRow(i,true)]))
     .sort((a,b)=>a[0]-b[0]).forEach(r=>h+=r[1]);
+  if(S.later&&S.later.length){
+    h+=`<h2>Later · ${S.later.length}</h2>`;
+    S.later.forEach(i=>{h+=`<div class="row" data-key="${esc(i.key)}">${checkBtn(i.key)}<span class="who">${esc(i.who)}</span><span class="what">${esc(i.title)}</span>${dueTag(i)}<span class="age">${esc(i.age)}</span>${rowMenu(i.key,[["today","Do today"],["unlater","Bring back"],["ignore","Ignore"]])}</div>`});
+  }
   if(S.no&&S.no.length){
     h+=`<h2>Saying no · ${S.no.length}</h2>`;
     S.no.forEach(i=>{h+=`<div class="row" data-key="${esc(i.key)}"><span class="who">${esc(i.who)}</span><span class="what">${esc(i.title)}${i.draft?`<span class="sub">${esc(i.draft)}</span>`:""}</span>${i.state==="working"?`<span class="tag">Writing a no…</span>`:tag(i.state)}<span class="age">${esc(i.age)}</span></div>`});
@@ -218,9 +230,16 @@ function renderList(){
   sb.oninput=()=>{searchQ=sb.value;clearTimeout(searchTimer);searchTimer=setTimeout(runSearch,250)};
   sb.onkeydown=e=>{if(e.key==="Escape"){searchQ="";searchRes=null;renderList()}};
   if(searchQ){ renderSearch(); return; }
-  app.querySelectorAll(".row[data-key]").forEach(r=>r.onclick=e=>{if(e.target.dataset.today||e.target.dataset.no)return;go("#"+encodeURIComponent(r.dataset.key))});
+  app.querySelectorAll(".row[data-key]").forEach(r=>r.onclick=e=>{if(e.target.dataset.today||e.target.dataset.menu||e.target.closest("[data-menu]"))return;go("#"+encodeURIComponent(r.dataset.key))});
   app.querySelectorAll("[data-today]").forEach(b=>b.onclick=async e=>{e.stopPropagation();await api("/api/today",{key:b.dataset.today,on:true});toast("Added to Today");loadList()});
-  app.querySelectorAll("[data-no]").forEach(b=>b.onclick=async e=>{e.stopPropagation();await api("/api/no",{key:b.dataset.no});toast("Saying no: writing it now");loadList()});
+  app.querySelectorAll("[data-menu]").forEach(m=>{m.onclick=e=>e.stopPropagation();m.onchange=async()=>{const key=m.dataset.menu,v=m.value;m.disabled=true;
+    try{
+      if(v==="today"){await api("/api/today",{key,on:true});toast("Added to Today")}
+      else if(v==="later"){await api("/api/later",{key,on:true});toast("Moved to Later")}
+      else if(v==="unlater"){await api("/api/later",{key,on:false});toast("Back in Owed by you")}
+      else if(v==="ignore"){const r=await api("/api/ignore",{key});toast(r.message,key)}
+    }catch(err){toast(err.message)}
+    loadList()}});
   app.querySelectorAll("[data-back]").forEach(b=>b.onclick=async()=>{await api("/api/bring-back",{key:b.dataset.back});toast("Moved back to Owed by you");loadList()});
   bindChecks(app, loadList);
   app.querySelectorAll("[data-project]").forEach(r=>r.onclick=e=>{if(e.target.dataset.today)return;go(projectHash(r.dataset.project))});
@@ -244,7 +263,7 @@ async function renderGoal(){
   // Back returns to the page the goal was opened from; else to its project, else Today.
   const from = view.id in goalFrom ? goalFrom[view.id] : (g.project ? g.project.key : "");
   const back = from.startsWith("project:") ? {label:(g.project&&g.project.key===from?g.project.title:"Project"), hash:projectHash(from)} : {label:"Today", hash:""};
-  let h=`<span class="back" id="back">&larr; ${esc(back.label)}</span><div class="card"><div class="title" id="gtitle">${esc(g.title)}</div>`;
+  let h=`<span class="back" id="back">&larr; ${esc(back.label)}</span><div class="card"><div class="title"><span class="edtitle" id="gtitle" contenteditable="true" spellcheck="true">${esc(g.title)}</span></div>`;
   h+=`<div class="purpose" id="purpose"><span class="lab">What you're trying to do</span>${g.purpose?esc(g.purpose):`<span class="muted">Not worked out yet.</span>`} <a class="muted" id="fixintent" style="white-space:nowrap">${g.purpose?"Not quite right?":"Say what it's for"}</a></div>`;
   if(g.notes.length) h+=`<div class="notes"><span class="muted">Your notes on it:</span>${g.notes.map(n=>`<div>&ldquo;${esc(n.text)}&rdquo; <a class="muted" data-unnote="${esc(n.at)}">remove</a></div>`).join("")}</div>`;
   h+=`<div class="intentbox" id="intentbox" style="display:none"><textarea id="intenttext" placeholder="What are you actually trying to do here? Say it however it comes, like: Jordan's leaving town; I want to stay close and hear how Monday's dinner lands for them."></textarea><div class="actions"><button class="btn primary" id="intentsave">Rethink this goal</button><button class="btn" id="intentcancel">Cancel</button></div></div>`;
@@ -254,8 +273,7 @@ async function renderGoal(){
   g.steps.forEach((s,n)=>{
     const cls = s.done ? "done" : (s.next ? "nextstep" : "later");
     const sendable = s.members.filter(m=>m.can_send && !["sent","done","cleared","skipped"].includes(m.status));
-    const mv = s.done ? "" : `<span class="move"><a data-up="${esc(s.id)}" class="${n===0?"off":""}" title="Move up">&uarr;</a><a data-down="${esc(s.id)}" class="${n===g.steps.length-1?"off":""}" title="Move down">&darr;</a></span>`;
-    h+=`<div class="step ${cls}"><span class="num">${s.done?"&#10003;":n+1}</span><div class="body"><div class="stitle">${mv}${esc(s.step)}${s.who&&s.who!=="you"?` <span class="muted">(${esc(s.who)})</span>`:""}</div>`;
+    h+=`<div class="step ${cls}" draggable="true" data-step="${esc(s.id)}"><span class="grip" title="Drag to reorder">&equiv;</span><span class="num">${s.done?"&#10003;":n+1}</span><div class="body"><div class="stitle">${esc(s.step)}${s.who&&s.who!=="you"?` <span class="muted">(${esc(s.who)})</span>`:""}</div>`;
     if(!s.done){
       s.members.filter(m=>!["sent","done","cleared","skipped"].includes(m.status)).forEach(m=>{h+=`<div class="member" data-key="${esc(m.key)}"><span class="who" style="width:70px">${esc(m.who)}</span><span class="what">${esc(m.title)}${m.draft?`<div class="muted" style="margin-top:2px">${esc(m.draft.split("\n")[0])}</div>`:""}</span>${tag(m.state)}</div>`});
       if(s.next){
@@ -265,7 +283,7 @@ async function renderGoal(){
     h+=`</div></div>`;
   });
   h+=`</div><div class="actions" style="margin-top:14px">${g.in_today?`<button class="btn" id="gl">Not today</button>`:`<button class="btn primary" id="gt">Do the next step today</button>`}</div>`;
-  h+=`<div class="foot" style="margin-top:14px"><a id="rename">Rename</a> · Open an item to move it out of this goal</div>`;
+  h+=`<div class="foot" style="margin-top:14px">Open an item to move it out of this goal</div>`;
   if(g.sources.length) h+=`<div class="sources">Read from: ${g.sources.map(s=>s.url?`<a href="${esc(s.url)}" target="_blank">${esc(s.label)}</a>`:esc(s.label)).join(" · ")}</div>`;
   h+=`</div>`;
   app.innerHTML=h;
@@ -281,15 +299,21 @@ async function renderGoal(){
     toast(`Sent ${r.results.length-bad.length}`+(bad.length?`, ${bad.length} not sent`:"")); if(bad.length) alert(bad.map(x=>x.error).join("\n")); renderGoal()});
   if($("gt")) $("gt").onclick=async()=>{await api("/api/today",{key:"goal:"+g.id,on:true});toast("Added to Today");renderGoal()};
   if($("gl")) $("gl").onclick=async()=>{await api("/api/today",{key:"goal:"+g.id,on:false});toast("Moved back to Owed by you");renderGoal()};
-  $("rename").onclick=async()=>{const t=prompt("Goal name",g.title); if(t&&t.trim()&&t.trim()!==g.title){await api("/api/goal/rename",{goal:g.id,title:t.trim()});renderGoal()}};
+  editInPlace($("gtitle"), t=>api("/api/goal/rename",{goal:g.id,title:t}));
   $("fixintent").onclick=()=>{$("intentbox").style.display="block";$("intenttext").focus()};
   $("intentcancel").onclick=()=>{$("intentbox").style.display="none"};
   $("intentsave").onclick=async()=>{const t=$("intenttext").value.trim(); if(!t) return; $("intentsave").disabled=true; await api("/api/goal/note",{goal:g.id,text:t}); toast("Rethinking this goal"); renderGoal()};
-  const move=async(id,by)=>{const ids=g.steps.map(s=>s.id); const i=ids.indexOf(id), j=i+by; if(j<0||j>=ids.length) return; [ids[i],ids[j]]=[ids[j],ids[i]]; await api("/api/goal/reorder",{goal:g.id,order:ids}); renderGoal()};
-  app.querySelectorAll("[data-up]").forEach(a=>a.onclick=e=>{e.stopPropagation();move(a.dataset.up,-1)});
-  app.querySelectorAll("[data-down]").forEach(a=>a.onclick=e=>{e.stopPropagation();move(a.dataset.down,1)});
+  // Drag a step onto another to put it there, as on the main list.
+  let dragStep=null;
+  app.querySelectorAll(".step[data-step]").forEach(r=>{
+    r.ondragstart=()=>{dragStep=r.dataset.step;r.classList.add("dragging");clearTimeout(pollTimer)};
+    r.ondragend=()=>{r.classList.remove("dragging");app.querySelectorAll(".dropto").forEach(x=>x.classList.remove("dropto"))};
+    r.ondragover=e=>{e.preventDefault();r.classList.add("dropto")};
+    r.ondragleave=()=>r.classList.remove("dropto");
+    r.ondrop=async e=>{e.preventDefault();r.classList.remove("dropto");if(!dragStep||dragStep===r.dataset.step)return;const ids=g.steps.map(s=>s.id);ids.splice(ids.indexOf(dragStep),1);ids.splice(ids.indexOf(r.dataset.step),0,dragStep);await api("/api/goal/reorder",{goal:g.id,order:ids});renderGoal()};
+  });
   app.querySelectorAll("[data-unnote]").forEach(a=>a.onclick=async()=>{await api("/api/goal/note/remove",{goal:g.id,at:a.dataset.unnote}); renderGoal()});
-  pollTimer=setTimeout(()=>{ if(view.page==="goal" && $("intentbox").style.display!=="block") renderGoal(); }, g.rethinking?4000:30000);
+  pollTimer=setTimeout(()=>{ if(view.page==="goal" && $("intentbox").style.display!=="block" && document.activeElement?.id!=="gtitle") renderGoal(); }, g.rethinking?4000:30000);
 }
 
 
@@ -354,13 +378,13 @@ async function renderItem(){
   const kindLine = i.no ? `You said no${i.who?` to ${esc(i.who)}`:""}` : i.manual ? "You added this" : (i.kind==="promised" ? `You told ${esc(i.who)}` : i.kind==="handed" ? `You asked ${esc(i.who)} to do this` : `${esc(i.who)} asked`) + (i.age?` · ${esc(i.age)} ago`:"");
   let h=`<span class="back" id="back">&larr; ${esc(backTo.label)}</span><div class="card">`;
   if(!i.manual) h+=`<div class="partof">${i.goal?`Part of <a id="gotogoal">${esc(i.goal.title)}</a> · step ${i.goal.step_n} of ${i.goal.steps} · <a id="notpart">Not part of this goal</a>`:"Not part of a goal"}${i.other_goals.length?` · <select class="btn" id="moveto"><option value="">Move to a goal…</option>${i.other_goals.map(g=>`<option value="${esc(g.id)}">${esc(g.title)}</option>`).join("")}</select>`:""}${i.projects.length?` · <select class="btn" id="proj">${[{id:"",title:"No project"}].concat(i.projects).map(p=>`<option value="${esc(p.id)}"${p.id===i.project?" selected":""}>${p.id?"Project: ":""}${esc(p.title)}</option>`).join("")}</select>`:""}</div>`;
-  h+=`<div class="title">${esc(i.title)}${i.due_label?` ${dueTag(i)}`:""}</div><div class="muted">${kindLine}</div>`;
+  h+=`<div class="title"><span class="edtitle" id="ititle" contenteditable="true" spellcheck="true">${esc(i.title)}</span>${i.due_label?` ${dueTag(i)}`:""}</div><div class="muted">${kindLine}</div>`;
   if(!i.manual && i.ask_text) h+=`<div class="quote">${esc(i.ask_text)}</div>`;
   if(!i.manual) h+=`<div class="src" style="margin-top:6px"><a href="/raw?key=${encodeURIComponent(i.key)}">See the conversation</a>${i.url?` · <a href="${esc(i.url)}">Open in ${i.source==="slack"?"Slack":"Gmail"}</a>`:""}</div>`;
   if(i.status==="working"){ h+=`<div class="did">${i.no?"Writing a no…":"Working on it…"}</div></div>`; app.innerHTML=h; $("back").onclick=()=>go(backTo.hash); pollTimer=setTimeout(renderItem,2500); return; }
   if(i.did) h+=`<div class="did">${esc(i.did)}</div>`;
   h+=calendarCards(i);
-  const noBtn = i.no ? `<button class="btn" id="letgo">Drop it, send nothing</button><button class="btn" id="unno">Undo no</button>` : (i.manual ? "" : `<button class="btn" id="no">No</button>`);
+  const noBtn = i.no ? `<button class="btn" id="letgo">Drop it, send nothing</button><button class="btn" id="unno">Undo no</button>` : (i.manual ? "" : (i.goal||i.project ? "" : i.later ? `<button class="btn" id="unlater">Bring back from Later</button>` : `<button class="btn" id="setlater">Later</button>`) + `<button class="btn" id="ignore">Ignore</button><button class="btn" id="no">Draft a no</button>`);
   const hd = !i.no && i.status!=="sent" ? i.user_draft : null;
   const todayBtn = i.no ? noBtn : (i.goal ? "" : (i.in_today ? `<button class="btn" id="later">Not today</button>` : `<button class="btn" id="tdy">Do today</button>`)) + (i.no ? "" : noBtn);
   const start = h.length;
@@ -399,6 +423,7 @@ async function renderItem(){
   if($("hsave")) $("hsave").onclick=async()=>{const b=$("hsave");b.disabled=true;b.textContent="Saving…";
     try{const r=await api("/api/user-draft",{key:i.key,message_id:hd.message_id,text:$("hdraft").value});toast(r.message);renderItem()}catch(e){b.disabled=false;b.textContent="Save changes to Gmail draft";toast(e.message)}};
   $("back").onclick=()=>go(backTo.hash);
+  editInPlace($("ititle"), t=>api("/api/item/title",{key:i.key,title:t}));
   const after = (msg, undoKey) => { toast(msg, undoKey); go(backTo.hash); };
   if($("gotogoal")) $("gotogoal").onclick=()=>go(backTo.hash);
   if($("notpart")) $("notpart").onclick=async()=>{await api("/api/goal/remove-item",{key:i.key});toast("Taken out of the goal");renderItem()};
@@ -409,6 +434,9 @@ async function renderItem(){
   if($("later")) $("later").onclick=async()=>{await api("/api/today",{key:i.key,on:false});after("Moved back to Owed by you")};
   if($("tdy")) $("tdy").onclick=async()=>{await api("/api/today",{key:i.key,on:true});toast("Added to Today");renderItem()};
   if($("no")) $("no").onclick=async()=>{await api("/api/no",{key:i.key});toast("Saying no: writing it now");renderItem()};
+  if($("ignore")) $("ignore").onclick=async()=>{const r=await api("/api/ignore",{key:i.key});after(r.message,i.key)};
+  if($("setlater")) $("setlater").onclick=async()=>{await api("/api/later",{key:i.key,on:true});after("Moved to Later")};
+  if($("unlater")) $("unlater").onclick=async()=>{await api("/api/later",{key:i.key,on:false});toast("Back in Owed by you");renderItem()};
   if($("letgo")) $("letgo").onclick=async()=>{const r=await api("/api/let-go",{key:i.key});after(r.message,i.key)};
   if($("unno")) $("unno").onclick=async()=>{await api("/api/bring-back",{key:i.key});after("Back in Owed by you")};
   if($("copy")) $("copy").onclick=async()=>{await navigator.clipboard.writeText($("draft").value);toast("Copied")};

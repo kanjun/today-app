@@ -159,6 +159,8 @@ def slack_raw(item: dict[str, Any], names: dict[str, str]) -> dict[str, Any]:
                 "text": text,
                 "is_ask": m["ts"] == ts,
                 "in_thread": bool(m.get("in_thread")),
+                # Which thread it is in ("" for a top-level message with no replies).
+                "thread_ts": str(m.get("thread_ts") or ""),
                 "later_in_conversation": bool(m.get("elsewhere")),
             }
         )
@@ -292,7 +294,10 @@ def _apply(key: str, fields: dict[str, Any]) -> None:
             # The user finished it while it was being worked on: their call stands.
             return
         # The user put it in a project by hand: a later read never moves it.
+        # The same for a title or due date set by hand.
         keep = ("project",) if item.get("project_by_hand") else ()
+        keep += ("title",) if item.get("title_by_hand") else ()
+        keep += ("due",) if item.get("due_by_hand") else ()
         item.update({k: v for k, v in fields.items() if k not in keep})
         item["updated_at"] = store.now_iso()
 

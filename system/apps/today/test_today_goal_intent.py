@@ -398,4 +398,4 @@ def test_user_step_order_holds_through_a_reading(
 @pytest.mark.frontend
 def test_goal_steps_can_be_moved() -> None:
     page = (Path(__file__).parent / "src/today/assets/app.html").read_text()
-    assert "/api/goal/reorder" in page and "data-up" in page and "data-down" in page
+    assert "/api/goal/reorder" in page and "data-step=" in page and "dragStep" in page

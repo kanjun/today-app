@@ -10,7 +10,7 @@ slug = "today"
 title = "Today"
 description = "A daily list of what you owe people from Slack and email, with replies drafted for you to send"
 thumbnail = "template.svg"
-version = "v2"
+version = "v3"
 
 # How this template is DERIVED from the workspace it came from. An
 # update re-runs this recipe rather than diffing two repos, which is what
