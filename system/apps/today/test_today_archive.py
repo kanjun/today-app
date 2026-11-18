@@ -26,7 +26,6 @@ def _setup(
     calls: list[tuple[str, str, bool]] = []
     monkeypatch.setattr(actions.store, "mutate", lambda fn: fn(state))
     monkeypatch.setattr(actions.store, "load", lambda: state)
-    monkeypatch.setattr(actions, "_advance_soon", lambda gid: None)
     monkeypatch.setattr(
         actions.connectors,
         "gmail_set_inbox",
@@ -63,5 +62,5 @@ def test_thread_with_something_still_owed_stays_in_inbox(
 def test_non_email_items_never_touch_gmail(monkeypatch: pytest.MonkeyPatch) -> None:
     state, calls = _setup(monkeypatch)
     state["items"][KEY].update(source="slack", ref={"channel": "C1"})
-    assert actions.let_go(KEY) == "Dropped"
+    actions.ignore(KEY)
     assert calls == []

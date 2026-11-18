@@ -1,84 +1,50 @@
-"""Read the web pages behind links in the user's notes, so a redo can describe what they show.
+"""Links in what Today reads and writes: the one place that knows what a link looks like.
 
-Public pages only, read-only. X posts load through the public fxtwitter mirror, since
-x.com itself serves an empty page without a login.
+Every part of Today that finds, tidies or checks a link uses these, so a link reads the same
+everywhere (the user, 2026-11-15: links must always come through):
+- ``find``: every link in a piece of text, tidied, in order, once each;
+- ``clean``: one link made clickable (a Slack label, ``&amp;`` and trailing punctuation dropped),
+  or "" when it is not a link;
+- ``readable``: text with Slack's ``<url|label>`` markup written out, as "label (url)" for the
+  AI (so a link behind a word like "Here" is never missed) or as just the label for the user's screen;
+- ``is_link``: whether a value is a web link at all.
+
+Opening a link to read what it shows is ``link_pages`` (it reaches the network and the user
+connected accounts; this module only reads text).
 """
 
 import html as htmllib
-import json
 import re
-import urllib.error
-import urllib.request
 
-URL = re.compile(r"https?://[^\s<>\"')\]]+")
+URL = re.compile(r"https?://[^\s<>\"')\]|]+")
+SLACK_LINK = re.compile(r"<(https?://[^|>\s]+)(?:\|([^>]*))?>")  # Slack writes links as <url|label>
+NOTION = re.compile(r"https?://([\w-]+\.)?notion\.(so|com|site)/", re.I)
 X_POST = re.compile(r"https?://(?:www\.|mobile\.)?(?:x|twitter)\.com/\w+/status/(\d+)")
-MAX_LINKS = 4
-MAX_CHARS = 6000
-AGENT = "Mozilla/5.0 (compatible; TodayApp/1.0)"
+TRAILING = ".,;:!?"
 
 
-def urls_in(text: str) -> list[str]:
-    return list(dict.fromkeys(u.rstrip(".,;:!?") for u in URL.findall(text)))
+def clean(value: object) -> str:
+    """The first link in ``value`` made clickable, or "" when there is none."""
+    found = URL.search(htmllib.unescape(str(value or "")))
+    return found.group(0).rstrip(TRAILING) if found else ""
 
 
-def _get(url: str) -> tuple[str, str]:
-    request = urllib.request.Request(url, headers={"User-Agent": AGENT})
-    with urllib.request.urlopen(request, timeout=20) as response:
-        kind = response.headers.get("Content-Type", "")
-        return kind, response.read(400_000).decode("utf-8", "replace")
+def find(text: str) -> list[str]:
+    """Every link in ``text`` (plain or Slack-style), tidied, in order, once each."""
+    return list(dict.fromkeys(clean(u) for u in URL.findall(htmllib.unescape(str(text or "")))))
 
 
-def _page_text(html: str) -> tuple[str, str]:
-    title = re.search(r"(?is)<title[^>]*>(.*?)</title>", html)
-    meta = re.search(
-        r'(?is)<meta[^>]+(?:name|property)=["\'](?:og:)?description["\'][^>]+content=["\']([^"\']*)',
-        html,
-    )
-    body = re.sub(r"(?is)<(script|style|noscript|svg).*?</\1>", " ", html)
-    body = re.sub(r"(?i)<br\s*/?>|</p>|</div>|</li>|</h\d>", "\n", body)
-    body = htmllib.unescape(re.sub(r"<[^>]+>", " ", body))
-    body = re.sub(r"[ \t]+", " ", body)
-    body = re.sub(r"\n\s*\n+", "\n\n", body).strip()
-    lead = htmllib.unescape(meta.group(1)) + "\n\n" if meta else ""
-    return htmllib.unescape(title.group(1).strip()) if title else "", lead + body
+def readable(text: str, *, urls: bool = True) -> str:
+    """Slack's link markup written out: "label (url)" (``urls``) or just the label, and a bare
+    ``<url>`` as the url. Nothing else in the text changes."""
+    def one(m: re.Match[str]) -> str:
+        url, label = m.group(1), m.group(2) or ""
+        if not label.strip() or label == url:
+            return url
+        return f"{label} ({url})" if urls else label
+
+    return SLACK_LINK.sub(one, str(text or ""))
 
 
-def _x_post(post_id: str) -> dict[str, str]:
-    _, text = _get(f"https://api.fxtwitter.com/status/{post_id}")
-    tweet = json.loads(text).get("tweet") or {}
-
-    def one(t: dict) -> str:
-        who = (t.get("author") or {}).get("name", "")
-        handle = (t.get("author") or {}).get("screen_name", "")
-        return f"{who} (@{handle}): {t.get('text', '')}"
-
-    out = one(tweet)
-    if tweet.get("quote"):
-        out += (
-            "\n\nQuoting "
-            + one(tweet["quote"])
-            + f"\n({tweet['quote'].get('url', '')})"
-        )
-    return {"title": "Post on X", "text": out}
-
-
-def read(url: str) -> dict[str, str]:
-    """What a link shows, or why it could not be read."""
-    try:
-        post = X_POST.match(url)
-        if post:
-            page = _x_post(post.group(1))
-        else:
-            kind, body = _get(url)
-            if "html" in kind:
-                title, text = _page_text(body)
-                page = {"title": title, "text": text}
-            else:
-                page = {"title": "", "text": body}
-    except (urllib.error.URLError, OSError, ValueError) as e:
-        return {"url": url, "error": f"could not open it: {str(e)[:150]}"}
-    return {"url": url, "title": page["title"], "text": page["text"][:MAX_CHARS]}
-
-
-def read_all(text: str) -> list[dict[str, str]]:
-    return [read(u) for u in urls_in(text)[:MAX_LINKS]]
+def is_link(value: object) -> bool:
+    return bool(re.match(r"^https?://", str(value or "").strip()))

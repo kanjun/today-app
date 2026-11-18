@@ -1,4 +1,4 @@
-"""Headless ``claude -p`` completions for Today (stdlib only).
+"""Headless ``claude -p`` completions for Today.
 
 A trimmed copy of the workspace's keyless claude_p helper: no tools, an isolated
 throwaway cwd (so repo CLAUDE.md/hooks never bleed in), no session persistence,
@@ -9,6 +9,8 @@ import json
 import os
 import subprocess
 import tempfile
+
+from today import config
 
 DEFAULT_MODEL = "sonnet"
 
@@ -51,10 +53,12 @@ def _child_env() -> dict[str, str]:
 def complete(
     prompt: str, *, system: str, model: str = DEFAULT_MODEL, timeout: int = 300
 ) -> str:
+    # Who the user is (the user_name, user_org and user_role settings), wherever a prompt asks.
+    about = config.about()
+    system = system.replace("{ABOUT} ", about + " " if about else "").replace("{ABOUT}", about)
     argv = [
         "claude",
         "-p",
-        prompt,
         "--output-format",
         "json",
         "--model",
@@ -68,6 +72,7 @@ def complete(
     with tempfile.TemporaryDirectory(prefix="today_claude_") as cwd:
         proc = subprocess.run(
             argv,
+            input=prompt,  # on stdin: a long prompt (a whole Notion doc) is past what one argument may hold
             capture_output=True,
             text=True,
             env=_child_env(),

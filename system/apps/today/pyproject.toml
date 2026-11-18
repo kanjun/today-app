@@ -3,10 +3,12 @@ name = "today"
 version = "0.1.0"
 description = "What you owe people from Slack and email, taken as far as it can go, plus your list for today"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = [
     "flask>=3.0",
     "flask-sock>=0.7",
+    # The latchkey gateway is spoken to directly over one kept-alive connection (connectors.py).
+    "httpx>=0.27",
     "werkzeug>=3.0",
 ]
 
@@ -23,9 +25,17 @@ packages = ["src/today"]
 
 [dependency-groups]
 dev = [
+    "imbue-common[testing]",
     # Used by test_no_type_errors in the ratchets, pinned to the version the shell and chat use.
     "ty==0.0.85",
 ]
 
 # Makes this directory ty's project; without a [tool.ty] table ty keeps searching upward.
 [tool.ty]
+
+[tool.pytest.ini_options]
+testpaths = ["."]
+markers = [
+    "frontend: reads the app's frontend source (assets)",
+    "browser: drives a browser",
+]

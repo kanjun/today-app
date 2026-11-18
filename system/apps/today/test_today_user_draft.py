@@ -43,7 +43,6 @@ def world(monkeypatch: pytest.MonkeyPatch) -> dict:
     monkeypatch.setattr(actions.store, "load_raw", lambda key: w["raw"])
     monkeypatch.setattr(actions.store, "save_raw", lambda key, raw: None)
     monkeypatch.setattr(actions.store, "mutate", lambda fn: fn(w["state"]))
-    monkeypatch.setattr(actions, "_advance_soon", lambda gid: None)
     monkeypatch.setattr(connectors, "gmail_find_draft", lambda a, m: "d1")
 
     def rewrite(account: str, draft_id: str, text: str) -> dict:

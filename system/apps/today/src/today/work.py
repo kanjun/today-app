@@ -1,8 +1,10 @@
-"""The assistant pass: take one owed item as far as it can go.
+"""How every AI in Today reads a conversation and writes in the user's voice: a conversation as
+text (``transcript``, threads apart, the ask marked, the user's unsent drafts marked), the user's voice
+samples and the user's standing rules for drafts (``voice``, ``guidance``), the user's Gmail searched and
+read (``_read_mail``, ``mail_block``) and what the user sent lately (``recent_sent``, for the judge).
 
-Read-only by construction: the model gets the conversation (and, when it asks,
-the results of up to two Gmail searches we run for it) and answers with JSON.
-It never sends anything; sending happens only when the user presses Send.
+The old reply writer that lived here is gone (the user, 2026-11-15): whether something is owed
+is the judge's to decide, and the one assistant (act.py) writes replies, ahead and on request.
 """
 
 import json
@@ -12,81 +14,25 @@ from pathlib import Path
 from typing import Any
 
 from today import (
-    ai,
-    calendar_events,
     config,
     connectors,
+    learned,
     links,
     mail_store,
-    projects,
     store,
 )
 
-SYSTEM_TEMPLATE = """You help <WHO> get through what they owe people. You get one thing someone asked of <NAME> (or something <NAME> promised), plus the conversation it came from (a Slack conversation is shown thread by thread: the ask's own thread first, then separate threads and the rest of the channel, which can settle it, like "done, paid!", but are separate exchanges; never read a reply in one thread as an answer in another). Take it as far as you can without <NAME>. Answer with exactly one JSON object and nothing else.
-
-Fields:
-- "owed": false when there is nothing for <NAME> to do personally (an FYI, an automated or marketing message, someone else is the one who must act, or it is not really addressed to <NAME>). Otherwise true.
-- "resolved": true when the conversation shows it is already handled: <NAME> already answered or did it (writing back is not enough by itself: <NAME> may have asked them something, said it would happen later, or only acknowledged it; then it is not resolved), someone else took care of it, or the moment has passed (a meeting time that is over). Otherwise false. Judge only the specific thing in the ask: when one message covers several things, others being handled does not resolve this one. When unsure, it is not resolved. The marked ask may be an older message: if anyone wrote later in the conversation asking <NAME> something <NAME> has not answered yet (a question, a request for <POSS> comments, a confirmation, a document to review), it is still owed: set owed true, resolved false, and make the title that newer ask. Someone else saying they will handle part of it does not resolve the parts only <NAME> can do. A message marked UNSENT DRAFT was never sent: it is not a reply, does not resolve anything, and nothing in it has happened; you may reuse its words in your draft. When <POSS> newest message is an UNSENT DRAFT, <NAME> will see it first as the next step: start "did" by saying whether it still works as written or exactly what is off (a time that has passed, a placeholder left in, a question it misses).
-- "resolved_reason": when resolved or not owed, a few plain words to <NAME> saying why, like "you answered in the thread", "the meeting already happened", "Sam is handling it", or "a newsletter, nothing to do". Else "".
-- "title": a short plain action for <NAME>, at most 60 characters, starting with a verb and naming the person, like "Tell Sam whether to sign the tax returns".
-- "who": first name of the person waiting on <NAME>.
-- "state": "ready" when you can write the reply <NAME> would send and it needs no fact or decision you lack; "you" when you need one to three facts or decisions only <NAME> has; "mine" when it is something <NAME> has to do personally (a meeting, a call, a conversation, a task outside this thread); "waiting" when <NAME> has replied and the next move is theirs before it can be finished (<NAME> asked them for something, like which address they sent to), so nothing is owed right now: say in "did" what <NAME> is waiting for, and leave "draft" empty. A call or meeting whose time has passed happened unless something says it did not: a call leaves no messages behind, so silence after it never means <NAME> missed it.
-- "did": one plain sentence to <NAME> about what you did (refer to other people by name or as "they", never "he" or "she"), like "Sam's draft reads fine, so I wrote an approval." Only claim what you actually did: you read the conversation, and the search results if any were given. Never claim to have opened attachments, documents, calendars, or links.
-- "draft": the message <NAME> would send, in <POSS> voice: short, warm, direct, plain words, no corporate filler, no em dashes, matching <POSS> own messages in the conversation. Never invent facts, numbers, dates, people, or commitments; if you would need to, ask instead (state "you"). For "mine", draft a message only if one clearly moves it forward (for example asking an assistant to schedule it); otherwise "".
-- "emails": when the right action is one or more NEW emails rather than a reply here (an introduction, a note to someone outside this conversation), write each one: {"to": ["Full Name", ...], "cc": ["Full Name"], "subject": "...", "body": "..."}. For introductions, write ONE email per introduction, addressed to both people being introduced (an intro of Sam to Priya and to Jordan is two emails: Sam and Priya; Sam and Jordan). Use people's full names as the conversation gives them. When an introduction has been asked for or agreed to, ALWAYS write the intro emails, even if a last name or address is missing: use the name you have; <NAME> fills in missing addresses on screen. Each intro says in a line or two who each person is and why they should talk, from what the conversation says. When you write emails, leave "draft" empty, set state "ready", and ask no questions. Else [].
-- "elsewhere": false when the draft is a reply in this same Slack conversation or email thread. true when it belongs somewhere else (an introduction email between two people, a message to a different person); then say where in "to".
-- "to": who the draft reaches, in plain words, like "Sam" or "the team channel" or "a new email to Sam and Jordan".
-- "questions": when state is "you", one to three short questions. Each is {"q": "...", "kind": "choice", "options": ["...", "..."]} with two to four short options, or {"q": "...", "kind": "text"} when the answer is free text. Prefer choices. Else [].
-- "done_check": for anything owed, one or two short searches of <POSS> OWN sent messages that would show it was already done somewhere else (people often ask in Slack and get answered by email, or the reverse). Use the people's first names and one or two key words, like "Sam Jordan dinner" or "Priya tax". No operators; the date and sent-only limits are added for you. Else [].
-- "promises": things <NAME> personally promised in this conversation that are not done yet and are separate from the ask above, like "I have some notes drafted that I can send this week" or "I'll ask Jordan to help". Each is {"title": "a short plain action starting with a verb, naming the person, at most 60 characters", "quote": "<POSS> words", "asked": ""}. When <NAME> asks someone else to do something for them ("can you let Priya and Jordan know I got invited?", "could you book us a table?"), that is not <POSS> promise: it is theirs and <NAME> is waiting on them. List it too, with "asked": their first name and a title saying what they will do (like "Sam tells Priya and Jordan about the invite"). Leave out what <NAME> has clearly already done later in the conversation, and anything that answering the ask would already do (if they asked for access and <NAME> said "I'll get you access", that is the ask, not a separate promise). Fill this in even when the ask itself is not owed or is resolved. Else [].
-- "calendar": events to put on <POSS> calendar: when the conversation settles (or nearly settles) something <NAME> will attend (a meeting, party, dinner, call) and the calendar (given below) does not already have it, or when <NAME> asks you to. Each is {"title": "...", "start": "YYYY-MM-DDTHH:MM" (<ZONE> time), "end": "YYYY-MM-DDTHH:MM", "all_day": false, "location": "", "notes": "a line or two of context: who, why, what to bring, and where the details came from"}. Use "YYYY-MM-DD" for start and end with all_day true when there is no time. Start the title with "Maybe: " when <NAME> is unsure about going. When no end is known, make it one hour (a party: three). Never invent a date or time; if one is missing, ask (state "you"). Events go on the calendar only when <NAME> taps, so in "did" say an event is ready to add, never that you added it. Else [].
-<PROJECT>- "due": "YYYY-MM-DD", the earliest date by which <POSS> part must happen. Look through the whole conversation for: (1) what <NAME> said about when they would do it or get back to them ("I'll take a look in the morning", "tomorrow", "tonight", "by Friday", "this week" means that Friday, "after the weekend" means that Monday, "in 2-3 weeks" means two weeks after it was said, "next month" means the 1st), counted from when <NAME> said it, not from today; (2) deadlines others set ("by Friday", "before the event"); (3) dates the task must come before (a talk, event, call or trip it prepares for, or a meeting time that still needs confirming). Something <NAME> will do AFTER an event ("leave me a voice note after Monday's dinner", "follow up after the call") is never due before that event: its due date is the event's date. Use the message timestamps. A date can already be past. Else "". Never guess a date that is not there.
-- "search": up to two Gmail search queries (Gmail search syntax) that would find a fact you need from <POSS> email, like "from:sam 1095-B" (a company by its domain, like from:example.com; OR for other spellings). Only when it would really help; else []."""
-
-
-def _fill(template: str) -> str:
-    """A prompt template with the user's name, possessive, and time zone filled in."""
-    return (
-        template.replace("<WHO>", config.who_they_are())
-        .replace("<NAME>", config.name())
-        .replace("<POSS>", config.possessive())
-        .replace("<ZONE>", config.load().timezone)
-    )
-
-
-PROJECT_FIELD = """- "project": the id of the project this item is part of, or "" when it is part of none. Only when the item is really about that project, not when it merely mentions it (a lunch, a catch-up, or a question about something else is ""):
-"""
-
-
-def system() -> str:
-    """The drafting prompt for this user; the "project" field only when projects are set up."""
-    lines = projects.prompt_lines()
-    field = PROJECT_FIELD + lines + "\n" if lines else ""
-    return _fill(SYSTEM_TEMPLATE.replace("<PROJECT>", field))
-
-
-ANSWER_SCHEMA_HINT = (
-    '{"owed": true, "resolved": false, "resolved_reason": "", "title": "", "who": "", "state": "ready", '
-    '"did": "", "draft": "", "elsewhere": false, "to": "", "questions": [], "emails": [], "done_check": [], "promises": [], "calendar": [], "project": "", "due": "", "search": []}'
-)
 _me: dict[str, str] = {}
-
-
-def _clean_due(value: Any) -> str:
-    text = str(value or "").strip()[:10]
-    try:
-        return datetime.strptime(text, "%Y-%m-%d").date().isoformat()
-    except ValueError:
-        return ""
 
 
 def _fmt_time(ts: float) -> str:
     return datetime.fromtimestamp(ts).strftime("%a %b %d %-I:%M %p")
 
 
-def threads(raw: dict[str, Any]) -> list[dict[str, Any]]:
+def threads(raw: dict[str, Any], source: str = "") -> list[dict[str, Any]]:
     """A Slack conversation split into its threads, so replies from different threads are
-    never read as one exchange: the ask's own thread first, then each other thread and
+    never read as one exchange: the thread of the task's source message first (``source``,
+    store.source_message), then each other thread and
     the channel's top-level messages, each in time order. A conversation saved before
     threads were recorded (or a text chat) is one group, as saved."""
     msgs = raw.get("messages", [])
@@ -97,7 +43,7 @@ def threads(raw: dict[str, Any]) -> list[dict[str, Any]]:
         groups.setdefault(str(m.get("thread_ts") or ""), []).append(m)
     for g in groups.values():
         g.sort(key=lambda m: float(m["ts"]))
-    ask = next((str(m.get("thread_ts") or "") for m in msgs if m.get("is_ask")), "")
+    ask = next((str(m.get("thread_ts") or "") for m in msgs if store.is_source(m, source)), "")
     order = sorted(groups, key=lambda k: (k != ask, float(groups[k][0]["ts"])))
     out = []
     for k in order:
@@ -114,26 +60,28 @@ def threads(raw: dict[str, Any]) -> list[dict[str, Any]]:
     return out
 
 
-def transcript(raw: dict[str, Any]) -> str:
-    """The conversation as plain lines, with the ask marked."""
+def transcript(raw: dict[str, Any], source: str = "") -> str:
+    """The conversation as plain lines, with the task's source message marked."""
     lines = []
-    if raw.get("source") == "slack":
-        lines.append(f"Slack, {raw.get('channel_label', '')}")
-        for group in threads(raw):
+    if raw.get("source") in ("slack", "text"):
+        lines.append(
+            f"{'Slack' if raw.get('source') == 'slack' else 'Texts'}, {raw.get('channel_label', '')}"
+        )
+        for group in threads(raw, source):
             if group["label"]:
                 lines.append(f"--- {group['label']}:")
             for m in group["messages"]:
-                mark = ">> " if m.get("is_ask") else ""
-                lines.append(
-                    f"{mark}[{_fmt_time(float(m['ts']))}] {m.get('name')}: {m.get('text')}"
-                )
+                mark = ">> " if store.is_source(m, source) else ""
+                said = links.readable(m.get("text") or "")
+                if m.get("note"):
+                    said = f"{said} ({m['note']})" if said else f"({m['note']})"
+                lines.append(f"{mark}[{_fmt_time(float(m['ts']))}] {m.get('name')}: {said}")
     else:
-        me = config.name()
         lines.append(f"Email thread ({raw.get('account')}): {raw.get('subject', '')}")
         for m in raw.get("messages", []):
-            who = me if m.get("from_me") else m.get("from")
+            who = config.name() if m.get("from_me") else m.get("from")
             if m.get("draft"):
-                who = f"{me}, UNSENT DRAFT (never sent, so the other side has not seen it)"
+                who = f"{config.name()}, UNSENT DRAFT (never sent, so the other side has not seen it)"
             lines.append(
                 f"--- From: {who} | To: {m.get('to')} | Cc: {m.get('cc')} | {m.get('date')}\n{m.get('text')}"
             )
@@ -141,280 +89,93 @@ def transcript(raw: dict[str, Any]) -> str:
 
 
 def guidance(item: dict[str, Any]) -> str:
-    """The user's standing rules for all drafts, and their notes on this item's earlier drafts."""
-    rules = [r["text"] for r in store.load().get("draft_rules", [])]
+    """The user's standing rules for all drafts, and the user's notes on this item's earlier drafts."""
+    state = store.load()
+    rules = [r["text"] for r in state.get("draft_rules", [])]
     notes = [f["note"] for f in item.get("feedback") or []]
+    not_mine = [
+        c for c in state.get("corrections", []) if c.get("kind") == "not_mine"
+    ][-15:]
     out = ""
-    own = config.possessive()
-    own = own[0].upper() + own[1:]
+    if item.get("filed_by_hand"):
+        out += (
+            "\nThe user pulled this one back themselves: it IS the user's to answer or do. Set filed \"\", "
+            "and never write a no unless the user asked for one.\n"
+        )
+    if not_mine:
+        out += (
+            "\nThings the user marked as NOT the user's to do (learn the pattern; similar asks are likely not the user's either):\n"
+            + "\n".join(
+                f'- From {c.get("who", "")}: "{c.get("ask_text", "")[:200]}" (it was read as: {c.get("title", "")})'
+                for c in not_mine
+            )
+            + "\n"
+        )
+    out += learned.prompt_text_now()
     if rules:
         out += (
-            f"\n{own} standing rules for every draft (always follow them):\n"
+            "\nThe user's standing rules for every draft (always follow them):\n"
             + "\n".join(f"- {r}" for r in rules)
             + "\n"
         )
     if notes:
         out += (
-            f"\n{own} notes on earlier drafts for this item (still apply):\n"
+            "\nThe user's notes on earlier drafts for this item (still apply):\n"
             + "\n".join(f"- {n}" for n in notes)
             + "\n"
         )
     return out
 
 
-# The user's voice references (settings email_voice and chat_voice): real messages they
-# wrote. Email drafts follow the email file; Slack drafts follow the chat file. With
-# neither set, drafts use no voice examples.
-VOICE_CHARS = 30000
+# The user's voice reference: real messages the user wrote. The ``voice_file`` setting is one file
+# (shareable with other agents): the user's standing rules on top, Part 1 the user's emails, Part 2
+# the user's chat messages (the model for texts and DMs too). Without it, the older ``email_voice`` and
+# ``chat_voice`` settings (one file each) are used; with none set, drafts use no voice examples.
+VOICE: Path | None = config.load().voice_file
+EMAIL_VOICE: Path | None = config.load().email_voice
+CHAT_VOICE: Path | None = config.load().chat_voice
+VOICE_CHARS = 40000
 
 
 def voice(item: dict[str, Any]) -> str:
-    s = config.load()
-    path = s.email_voice if item.get("source") == "email" else s.chat_voice
-    if path is None:
-        return ""
+    email = item.get("source") == "email"
+    path = VOICE or (EMAIL_VOICE if email else CHAT_VOICE)
     try:
-        text = path.read_text()[:VOICE_CHARS]
+        text = path.read_text()[:VOICE_CHARS] if path else ""
     except OSError:
-        return ""
-    return (
-        _fill(
-            "\nHow <NAME> actually writes: <POSS> own messages, with notes on <POSS> voice. Every draft and email "
-            "you write must sound like these (<POSS> words, length, greetings, sign-off, punctuation), not like "
-            "you; match the length and warmth of the closest kind of message.\n<user_voice>\n"
-        )
+        text = ""
+    part = (
+        ""
+        if VOICE is None
+        else "This is an email: follow Part 1 (the user's emails). "
+        if email
+        else "This is a chat message: follow Part 2 (the user's Slack messages), not the user's emails. "
+    )
+    out = (
+        "\nHow the user actually writes: the user's own messages. Every draft and email you write must sound like "
+        "the closest of these (the user's words, length, greetings, sign-off, punctuation), not like you. "
+        f"{part}Any standing rules at the top apply to everything.\n<user_voice>\n"
         + text
         + "\n</user_voice>\n"
-    )
+    ) if text else ""
+    if item.get("source") != "slack":
+        # The user's Slack samples carry Slack's emoji codes, which show as raw text anywhere else.
+        out += ("Emoji codes like :slightly_smiling_face: only work in Slack. This is not Slack: write an emoji as "
+                "the emoji itself (like \U0001F642), never as a code.\n")
+    return out
 
 
-def _prompt(item: dict[str, Any], raw: dict[str, Any], extra: str) -> str:
-    kind = _fill(
-        "<NAME> promised this"
-        if item.get("kind") == "promised"
-        else "Someone asked this of <NAME>"
-    )
-    if item.get("kind") == "handed":
-        kind = _fill(
-            f"<NAME> asked {item.get('who', '')} to do this for them, so it is theirs to do, not <POSS>. "
-            'Set state "waiting" and say in "did" what <NAME> is waiting for, with an empty draft. If the conversation shows '
-            "they did it, set resolved true. If they came back needing something from <NAME> (an answer, a decision), it is owed: "
-            "work that out as usual. What <NAME> asked"
-        )
-    if item.get("no"):
-        kind = _fill(
-            "<NAME> has decided to say NO to this (it will not happen). The thing"
-        )
-    return (
-        f"Today is {datetime.now().strftime('%A, %B %d, %Y, %-I:%M %p')}.\n"
-        f"{kind}: {item.get('ask_text', '')}\n"
-        f"(Who: {item.get('who', '')}. When: {item.get('asked_at', '')}.)\n\n"
-        f"The conversation (the marked line is the ask; later lines happened after it):\n{transcript(raw)[:24000]}\n"
-        f"\n{calendar_events.brief()}{voice(item)}{guidance(item)}{extra}\n\nAnswer with one JSON object shaped like: {ANSWER_SCHEMA_HINT}"
-    )
-
-
-def _clean(answer: dict[str, Any]) -> dict[str, Any]:
-    state = (
-        answer.get("state")
-        if answer.get("state") in ("ready", "you", "mine", "waiting")
-        else "mine"
-    )
-    questions = []
-    for q in answer.get("questions") or []:
-        if isinstance(q, dict) and q.get("q"):
-            opts = [str(o) for o in (q.get("options") or [])][:4]
-            questions.append(
-                {
-                    "q": str(q["q"]),
-                    "kind": "choice" if opts else "text",
-                    "options": opts,
-                }
-            )
-    if state == "you" and not questions:
-        state = "mine"
-    return {
-        "owed": bool(answer.get("owed", True)),
-        "resolved": bool(answer.get("resolved", False)),
-        "resolved_reason": str(answer.get("resolved_reason") or ""),
-        "title": str(answer.get("title") or "")[:90],
-        "who": str(answer.get("who") or ""),
-        "state": state,
-        "did": str(answer.get("did") or ""),
-        "draft": str(answer.get("draft") or ""),
-        "elsewhere": bool(answer.get("elsewhere", False)),
-        "to": str(answer.get("to") or ""),
-        "questions": questions[:3] if state == "you" else [],
-        "search": [str(s) for s in (answer.get("search") or [])][:2],
-        "done_check": [str(s) for s in (answer.get("done_check") or [])][:2],
-        "project": str(answer.get("project") or "")
-        if str(answer.get("project") or "") in {p["id"] for p in projects.defined()}
-        else "",
-        "due": _clean_due(answer.get("due")),
-        "emails": _clean_emails(answer.get("emails")),
-        "calendar": _clean_calendar(answer.get("calendar")),
-        "promises": [
-            {
-                "title": str(p["title"])[:90],
-                "quote": str(p.get("quote") or "")[:400],
-                "asked": str(p.get("asked") or "")[:40],
-            }
-            for p in (answer.get("promises") or [])
-            if isinstance(p, dict) and p.get("title")
-        ][:3],
-    }
-
-
-def _clean_calendar(value: Any) -> list[dict[str, Any]]:
-    out = []
-    for e in value or []:
-        if not isinstance(e, dict) or not e.get("title") or not e.get("start"):
-            continue
-        out.append(
-            {
-                "title": str(e["title"])[:120],
-                "start": str(e["start"])[:16],
-                "end": str(e.get("end") or "")[:16],
-                "all_day": bool(e.get("all_day")),
-                "location": str(e.get("location") or "")[:200],
-                "notes": str(e.get("notes") or "")[:1000],
-                "added": False,
-            }
-        )
-    return out[:3]
-
-
-def _clean_emails(value: Any) -> list[dict[str, Any]]:
-    out = []
-    for e in value or []:
-        if isinstance(e, dict) and e.get("body"):
-            out.append(
-                {
-                    "to": [str(n) for n in (e.get("to") or [])][:6],
-                    "cc": [str(n) for n in (e.get("cc") or [])][:6],
-                    "subject": str(e.get("subject") or "")[:200],
-                    "body": str(e["body"]),
-                }
-            )
-    return out[:6]
-
-
-def with_addresses(emails: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Look up each named person's email address in the user's mail (blank when unsure)."""
-    cache: dict[str, str] = {}
-
-    def addr(name: str) -> str:
-        if name not in cache:
-            cache[name] = connectors.find_address(name, config.accounts())
-        return cache[name]
-
-    return [
-        dict(
-            e,
-            to=[{"name": n, "email": addr(n)} for n in e["to"]],
-            cc=[{"name": n, "email": addr(n)} for n in e["cc"]],
-            sent=False,
-        )
-        for e in emails
-    ]
-
-
-def slack_me() -> str:
-    """The user's own Slack id (asked once per process)."""
+def _slack_me() -> str:
     if "id" not in _me:
         _me["id"] = str(connectors.slack_get("auth.test", {})["user_id"])
     return _me["id"]
 
 
-def sent_since(item: dict[str, Any], queries: list[str]) -> list[dict[str, Any]]:
-    """What was said since the ask that matches the queries: every inbox's sent mail, and
-    Slack messages anywhere (the user's, and others', since a teammate often settles it
-    elsewhere)."""
-    try:
-        asked = datetime.fromisoformat(item.get("asked_at", ""))
-    except ValueError:
-        asked = datetime.now()
-    day = asked.strftime("%Y/%m/%d")
-    slack_after = (asked - timedelta(days=1)).date().isoformat()
-    hits: list[dict[str, Any]] = []
-    followed: dict[str, str] = {}  # channel id -> first matching message
-    for q in queries:
-        for account in config.accounts():
-            try:
-                for h in connectors.gmail_search(
-                    f"in:sent after:{day} {q}", account, limit=3
-                ):
-                    hits.append(dict(h, where=f"email sent from {account}"))
-            except connectors.ConnectorError:
-                pass
-        try:
-            data = connectors.slack_get(
-                "search.messages",
-                {
-                    "query": f"after:{slack_after} {q}",
-                    "count": "8",
-                    # Relevance: by date, a busy workspace buries the one message that matters.
-                    "sort": "score",
-                },
-            )
-            for m in (data.get("messages") or {}).get("matches", []) or []:
-                if float(m.get("ts", 0)) >= asked.timestamp():
-                    channel_id = str((m.get("channel") or {}).get("id") or "")
-                    if channel_id and channel_id not in followed and len(followed) < 3:
-                        followed[channel_id] = str(m["ts"])
-                    by = (
-                        config.name()
-                        if m.get("user") == slack_me()
-                        else (m.get("username") or "someone")
-                    )
-                    hits.append(
-                        {
-                            "where": f"Slack, {((m.get('channel') or {}).get('name')) or 'a conversation'}, from {by}",
-                            "date": datetime.fromtimestamp(float(m["ts"])).isoformat(
-                                timespec="minutes"
-                            ),
-                            "text": str(m.get("text", ""))[:400],
-                        }
-                    )
-        except connectors.ConnectorError:
-            pass
-    hits += _what_followed(followed)
-    return hits
-
-
-def _what_followed(followed: dict[str, str]) -> list[dict[str, Any]]:
-    """The replies after a matching Slack message: the answer that settles something rarely
-    repeats its words ("sure, 10am Monday works, will update the cal")."""
-    names = _slack_names()
-    out: list[dict[str, Any]] = []
-    for channel, ts in followed.items():
-        try:
-            later = connectors.slack_get(
-                "conversations.history",
-                {"channel": channel, "oldest": ts, "inclusive": "false", "limit": "8"},
-            ).get("messages", [])
-        except connectors.ConnectorError:
-            continue
-        for m in reversed(later):
-            uid = str(m.get("user") or "")
-            out.append(
-                {
-                    "where": f"Slack, the same conversation, right after, from {config.name() if uid == slack_me() else names.get(uid, uid)}",
-                    "date": datetime.fromtimestamp(float(m["ts"])).isoformat(
-                        timespec="minutes"
-                    ),
-                    "text": str(m.get("text", ""))[:400],
-                }
-            )
-    return out
-
-
+# Words too common to tie a message to one person.
 def _slack_names() -> dict[str, str]:
     path = config.load().slack_users
-    if path is None:
-        return {}
     try:
-        names = json.loads(Path(path).read_text())
+        names = json.loads(path.read_text()) if path else {}
     except (OSError, ValueError):
         return {}
     return names if isinstance(names, dict) else {}
@@ -437,8 +198,8 @@ def _sent_after(account: str, since: datetime) -> list[dict[str, Any]]:
 
 
 def recent_sent(since: datetime) -> list[dict[str, Any]]:
-    """Everything the user sent since then, fetched once per update: every inbox's sent
-    mail and their own Slack messages. ``sent_matching`` checks items against it."""
+    """Everything the user sent since then, fetched once per update: both inboxes' sent
+    mail and the user's own Slack messages."""
     out: list[dict[str, Any]] = []
     for account in config.accounts():
         try:
@@ -457,6 +218,7 @@ def recent_sent(since: datetime) -> list[dict[str, Any]]:
                         "subject": head["Subject"],
                         "date": head["Date"],
                         "snippet": m.get("snippet", ""),
+                        "thread_id": m.get("threadId", ""),
                         "ts": int(m.get("internalDate") or 0) / 1000,
                         "blob": " ".join(head.values()) + " " + body,
                     }
@@ -467,7 +229,7 @@ def recent_sent(since: datetime) -> list[dict[str, Any]]:
         data = connectors.slack_get(
             "search.messages",
             {
-                "query": f"from:<@{slack_me()}> after:{(since - timedelta(days=1)).date().isoformat()}",
+                "query": f"from:<@{_slack_me()}> after:{(since - timedelta(days=1)).date().isoformat()}",
                 "count": "100",
                 "sort": "timestamp",
             },
@@ -489,6 +251,7 @@ def recent_sent(since: datetime) -> list[dict[str, Any]]:
             out.append(
                 {
                     "where": f"Slack, {where}",
+                    "channel": str(channel.get("id") or ""),
                     "date": datetime.fromtimestamp(ts).isoformat(timespec="minutes"),
                     "text": text[:400],
                     "ts": ts,
@@ -500,142 +263,33 @@ def recent_sent(since: datetime) -> list[dict[str, Any]]:
     return out
 
 
-def sent_matching(
-    sent: list[dict[str, Any]], queries: list[str], after: float
-) -> list[dict[str, Any]]:
-    """The messages in ``sent`` after ``after`` holding every word of one of the queries
-    (the same words the per-item search would have used)."""
-    out = []
-    for h in sent:
-        blob = h["blob"].lower()
-        if h["ts"] > after and any(
-            q.split() and all(w.lower() in blob for w in q.split()) for q in queries
-        ):
-            out.append({k: v for k, v in h.items() if k not in ("blob", "ts")})
-    return out
+# A whole email reaches the reader: a schedule or a table cut in half reads as complete
+# (the user, Nov 15). The searches together get a budget; past it the longest messages are
+# shortened, each saying how much is not shown, never the JSON cut mid-way.
+MAIL_CHARS = 20000
+MAIL_BUDGET = 90000
 
 
-SAY_NO = """
-<NAME> pressed No: <NAME> has decided not to do this. Do not help do it; help let it go.
-- If the person reasonably expects an answer (someone <NAME> knows or works with, a direct personal ask, a relationship worth keeping), write a short, kind, clear no in <POSS> voice in "draft": thank them if it fits, say no plainly, no invented excuses, no "maybe later" or offers the conversation does not support. Set owed true, resolved false, state "ready", and a title like "Tell Sam no on the panel".
-- If no answer is needed (a cold pitch, a mass or automated email, a stranger, someone <NAME> clearly does not want a relationship with), set owed false and resolved_reason "you said no; no reply needed".
-- If the conversation already shows it is off (they withdrew, it was cancelled), set resolved true.
-questions [], emails [], promises [], search [], done_check []."""
+def mail_block(found: list[dict[str, Any]], budget: int = MAIL_BUDGET) -> str:
+    """The searches' results as JSON within ``budget`` characters."""
+    out = json.dumps(found, ensure_ascii=False)
+    cap = MAIL_CHARS
+    while len(out) > budget and cap > 500:
+        cap //= 2
+        found = [dict(f, results=[dict(t, messages=[dict(m, text=_shorten(m.get("text", ""), cap))
+                                                     for m in t.get("messages", [])])
+                                  for t in f.get("results", [])]) for f in found]
+        out = json.dumps(found, ensure_ascii=False)
+    return out[:budget]
 
 
-def say_no(item: dict[str, Any], raw: dict[str, Any]) -> dict[str, Any]:
-    """The user said no: either a kind decline to send, or nothing to send at all."""
-    answer = _clean(
-        ai.complete_json(_prompt(item, raw, _fill(SAY_NO)), system=system())
-    )
-    answer.update(questions=[], emails=[], promises=[], search=[], done_check=[])
-    if answer["owed"] and not answer["resolved"]:
-        answer["state"] = "ready" if answer["draft"] else "mine"
-    return answer
-
-
-def take_it_further(
-    item: dict[str, Any], raw: dict[str, Any], context: str = ""
-) -> dict[str, Any]:
-    """First pass, then always a check of what the user already sent elsewhere, plus
-    one round of Gmail searches when the model asks for them. ``context`` is what
-    the assistant should know about the goal this item is a step of."""
-    if item.get("no"):
-        return say_no(item, raw)
-    return _take_it_further(item, raw, context)
-
-
-NO_DAYS = 60
-
-
-def decided_no(item: dict[str, Any]) -> str:
-    """What the user has already said no to lately, so a related ask or promise found
-    later (often in another conversation with another person) is not put back to them."""
-    cutoff = (datetime.now() - timedelta(days=NO_DAYS)).isoformat(timespec="seconds")
-    nos = [
-        i
-        for i in store.load()["items"].values()
-        if i.get("no")
-        and i["key"] != item.get("key")
-        and i["no"].get("at", "") >= cutoff
-    ]
-    if not nos:
-        return ""
-    return (
-        _fill(
-            "\n<NAME> has already said no to these (<POSS> decision; never ask to confirm or decide it again):\n"
-        )
-        + "\n".join(
-            f"- {i.get('title')} (with {i.get('who') or 'someone'}): {((i['no'].get('before') or {}).get('title') or i.get('ask_text') or '')[:200]}"
-            for i in nos
-        )
-        + "\nIf this item is the same thing or part of it (answering it, deciding it, its logistics, looping someone in on it), "
-        'set resolved true with resolved_reason "you already said no: <that title>". Do not list promises about those either.\n'
-    )
-
-
-def _take_it_further(
-    item: dict[str, Any], raw: dict[str, Any], context: str = ""
-) -> dict[str, Any]:
-    context = decided_no(item) + context
-    first = _clean(ai.complete_json(_prompt(item, raw, context), system=system()))
-    if not first["owed"] or first["resolved"]:
-        return first
-    sent = sent_since(item, first["done_check"]) if first["done_check"] else []
-    sent_block = (
-        _fill(
-            "\nIMPORTANT: messages since the ask that may be related, found by searching <POSS> sent mail and Slack (theirs and others'):\n"
-        )
-        + (json.dumps(sent, ensure_ascii=False)[:8000] if sent else "(none found)")
-        + _fill(
-            "\nIf these show it is already done, by <NAME> or by someone else on <POSS> behalf (for example <NAME> sent the intro by email, or Sam says the invoice is paid), "
-            'set resolved to true, with resolved_reason saying who did what and when, like "you emailed Sam and Jordan on Oct 15" or "Sam paid it on Oct 15". '
-            "Only resolve on a message that clearly says this specific thing is done.\n"
-        )
-    )
-    found = []
-    for query in first["search"]:
-        found.append({"query": query, "results": _read_mail(query)})
-    extra = context + sent_block
-    if found:
-        extra += (
-            "\nYou asked to search the user's email (every inbox, spam and trash included). Results with each message's text:\n"
-            + json.dumps(found, ensure_ascii=False)[:16000]
-            + '\nUse them if they help. In "did", say what you found or that the search found nothing useful.'
-        )
-    extra += '\nNow answer. Leave "search" empty.'
-    second = _clean(ai.complete_json(_prompt(item, raw, extra), system=system()))
-    second["search"] = []
-    second["searched"] = found
-    second["sent_found"] = sent
-    second["done_check"] = first["done_check"]
-    second["project"] = second["project"] or first["project"]
-    second["due"] = second["due"] or first["due"]
-    second["promises"] = second["promises"] or first["promises"]
-    if second["emails"]:
-        second["emails"] = with_addresses(second["emails"])
-    return second
-
-
-def finish_with_answers(item: dict[str, Any], raw: dict[str, Any]) -> dict[str, Any]:
-    """After the user answers the questions, write the message."""
-    me = config.name()
-    qa = "\n".join(
-        f"Q: {q['q']}\n{me}: {a}"
-        for q, a in zip(item.get("questions", []), item.get("answers", []))
-    )
-    extra = (
-        f"\nEarlier you asked {me} some questions. The answers:\n{qa}\n"
-        f'Now write the draft. Set state to "ready" (or "mine" if it is still something {me} must do personally), questions to [], search to []. '
-        'In "did", say briefly what you wrote.'
-    )
-    answer = _clean(ai.complete_json(_prompt(item, raw, extra), system=system()))
-    if answer["emails"]:
-        answer["emails"] = with_addresses(answer["emails"])
-    if answer["state"] == "you":
-        answer["state"] = "ready" if answer["draft"] else "mine"
-        answer["questions"] = []
-    return answer
+def _shorten(text: str, cap: int) -> str:
+    # Already-marked text keeps its count honest: cut the words, re-mark the total left out.
+    body, _, rest = text.partition("\n[... ")
+    left = int(rest.split(" ", 1)[0]) if rest[:1].isdigit() else 0
+    if len(body) <= cap:
+        return text
+    return body[:cap] + f"\n[... {len(body) - cap + left} more characters of this message not shown]"
 
 
 def _read_mail(query: str) -> list[dict[str, Any]]:
@@ -651,7 +305,7 @@ def _read_mail(query: str) -> list[dict[str, Any]]:
             )
             for ref in listed.get("threads", []) or []:
                 msgs = connectors.thread_messages(
-                    connectors.gmail_thread(ref["id"], account)
+                    connectors.gmail_thread(ref["id"], account), limit=MAIL_CHARS, mark_cut=True
                 )
                 out.append(
                     {
@@ -666,7 +320,7 @@ def _read_mail(query: str) -> list[dict[str, Any]]:
                                     else ""
                                 ),
                                 "date": m["date"],
-                                "text": m["text"][:2000],
+                                "text": m["text"],
                             }
                             for m in msgs[-6:]
                         ],
@@ -675,74 +329,3 @@ def _read_mail(query: str) -> list[dict[str, Any]]:
         except connectors.ConnectorError as e:
             out.append({"inbox": account, "error": str(e)[:200]})
     return out
-
-
-SEARCH_TIPS = (
-    "Gmail search tips: a company's mail is best found by its domain (from:example.com); "
-    "use OR for other spellings (lockup OR lock-up); keep each search to two or three key words."
-)
-
-
-def revise_draft(
-    item: dict[str, Any], raw: dict[str, Any], note: str
-) -> dict[str, Any]:
-    """Do what the user's note on this item asks: change the draft, write emails, put something on their calendar."""
-    current = json.dumps(
-        {
-            "title": item.get("title", ""),
-            "draft": item.get("draft", ""),
-            "emails": item.get("emails") or [],
-            "calendar": item.get("calendar") or [],
-        },
-        ensure_ascii=False,
-    )
-    extra = (
-        f"\nWhat you have so far for this item:\n{current}\n"
-        f"{config.possessive()} instruction: {note}\n"
-        "Do what it asks, changing only what the instruction is about and keeping the rest as it was. "
-        'If it is about the message, rewrite "draft" (or "emails"). If it asks to put something on the calendar, fill in "calendar". '
-        'If it is about what has to be done, update "title". Set questions to []. '
-        'If doing it needs something from email (like finding a message the instruction mentions), put up to two Gmail searches in "search" '
-        "(spam and trash are searched too; you get whole threads back and can search once more). "
-        + SEARCH_TIPS
-        + " Otherwise search []. "
-        'In "did", say in a few words what you did.'
-    )
-    notes = " ".join([f["note"] for f in item.get("feedback") or []] + [note])
-    pages = links.read_all(notes)
-    if pages:
-        extra += _fill(
-            "\nThe pages behind the links in <POSS> notes, opened just now:\n"
-            + json.dumps(pages, ensure_ascii=False)
-            + "\nWhen <NAME> asks you to add or share a link, put that exact link in the message. "
-            "When <NAME> asks you to describe or research what a link shows, write it from these pages, "
-            "saying only what they support. Only if a page has an error may you say you could not open it."
-        )
-    answer = _clean(ai.complete_json(_prompt(item, raw, extra), system=system()))
-    searched: list[dict[str, Any]] = []
-    for round_left in (1, 0):
-        if not answer["search"]:
-            break
-        found = [{"query": q, "results": _read_mail(q)} for q in answer["search"]]
-        searched += found
-        extra += (
-            "\nResults of your searches of the user's email (every inbox, including spam and trash; whole threads):\n"
-            + json.dumps(found, ensure_ascii=False)[:24000]
-            + (
-                '\nIf these do not answer it, you may put up to two better searches in "search" for one more round. '
-                + SEARCH_TIPS
-                if round_left
-                else "\nSet search to []."
-            )
-            + "\nNow do the instruction using what you found. Never claim to have found something these results do not show."
-        )
-        answer = _clean(ai.complete_json(_prompt(item, raw, extra), system=system()))
-    answer["search"] = []
-    if searched:
-        answer["searched"] = searched
-    if answer["emails"]:
-        answer["emails"] = with_addresses(answer["emails"])
-    if answer["state"] == "you":
-        answer["state"] = "ready" if (answer["draft"] or answer["emails"]) else "mine"
-        answer["questions"] = []
-    return answer

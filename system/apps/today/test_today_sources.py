@@ -4,20 +4,14 @@ import json
 from pathlib import Path
 
 import pytest
-from today import actions, config, gtd_link, store, sync, work
-
-CAPTURE = """---
-id: gtd-1
-title: Send Sam the deck
-status: inbox
-source: slack
-source_url: https://acme.slack.com/archives/C0123/p1760000000000100
-source_kind: asked
-source_person: Sam
-created_at: '2026-10-09T10:00:00'
----
-Sam asked: "Can you send the deck?" (#general)
-"""
+from today import (
+    act,
+    actions,
+    config,
+    project_book,
+    store,
+    sync,
+)
 
 
 @pytest.fixture
@@ -30,7 +24,6 @@ def data(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
         "TODAY_EMAIL_ALIASES",
         "TODAY_EMAIL_DIGESTS",
         "TODAY_SLACK_USERS",
-        "TODAY_GTD_ITEMS_DIR",
     ):
         monkeypatch.delenv(var, raising=False)
     monkeypatch.setattr(store, "DATA_DIR", tmp_path / "today")
@@ -46,16 +39,17 @@ def test_nothing_set_means_a_neutral_user_and_no_sources(data: Path) -> None:
     assert config.name() == "the user"
     assert config.possessive() == "the user's"
     assert config.accounts() == ()
-    assert config.sources() == []
+    assert [(x["kind"], x["found"]) for x in config.sources()] == [("slack", False)]
     assert sync.collect() == []
-    assert "the user" in work.system()
+    assert config.about() == ""
+    assert "{ABOUT}" in act.system()  # filled in by ai.complete from the settings
 
 
 def test_the_page_asks_to_connect_a_source(data: Path) -> None:
     view = actions.view_state()
     assert view["has_source"] is False
-    assert view["sources"] == []
-    assert view["owed"] == [] and view["goals"] == []
+    assert [x["kind"] for x in view["sources"]] == ["slack"]
+    assert all(not view["page"].get(name) for name in ("now", "replies", "answers", "todos", "waiting"))
 
 
 def test_settings_file_names_the_user_and_env_overrides_it(
@@ -63,7 +57,7 @@ def test_settings_file_names_the_user_and_env_overrides_it(
 ) -> None:
     _settings(data, user_name="Alex Rivera", user_org="Acme", user_role="CEO")
     assert config.who_they_are() == "Alex Rivera, CEO at Acme"
-    assert "Alex" in work.system() and "the user" not in work.system()
+    assert config.about() == "The user is Alex Rivera, CEO at Acme. Call the user Alex."
     monkeypatch.setenv("TODAY_USER_NAME", "Jordan Park")
     assert config.name() == "Jordan"
 
@@ -76,8 +70,8 @@ def test_a_configured_but_missing_digest_is_reported_and_skipped(data: Path) -> 
         ],
     )
     assert sync.collect() == []
-    [source] = config.sources()
-    assert source["found"] is False
+    email, slack = config.sources()
+    assert email["found"] is False and slack["found"] is False
     assert actions.view_state()["has_source"] is False
 
 
@@ -111,18 +105,10 @@ def test_owed_threads_in_a_digest_become_items(data: Path) -> None:
     assert actions.view_state()["has_source"] is True
 
 
-def test_slack_captures_are_read_from_the_configured_folder(
-    data: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    folder = data / "captures"
-    folder.mkdir()
-    (folder / "gtd-1.md").write_text(CAPTURE)
-    monkeypatch.setenv("TODAY_GTD_ITEMS_DIR", str(folder))
-    [item] = sync.collect()
-    assert item["key"] == "slack:C0123:1760000000.000100"
-    assert item["ask_text"] == "Can you send the deck?"
-    assert gtd_link.mark_done("gtd-1", "Sent it.")
-    assert "status: done" in (folder / "gtd-1.md").read_text()
+def test_slack_counts_as_a_source_once_a_refresh_has_read_it(data: Path) -> None:
+    assert actions.view_state()["has_source"] is False
+    store.mutate(lambda s: s.update(slack_checked=1763400000.0))
+    assert actions.view_state()["has_source"] is True
 
 
 def test_env_digests_are_account_path_pairs(
@@ -148,6 +134,15 @@ def test_an_empty_list_never_calls_the_model(
     def no_model(*args: object, **kwargs: object) -> dict:
         raise AssertionError("the model was called with nothing to do")
 
-    monkeypatch.setattr(sync.ai, "complete_json", no_model)
-    counts = sync.goals_phase(consolidate_now=True)
-    assert counts["duplicates"] == 0 and counts["rewritten"] == 0
+    monkeypatch.setattr(act.ai, "complete_json", no_model)
+    counts = act.write_ahead_due()
+    assert counts == {"due": 0, "written": 0, "errors": 0}
+
+
+def test_a_new_install_has_no_projects_and_seeds_the_configured_ones(data: Path) -> None:
+    """None ship by default; projects in the settings become the user's projects."""
+    with project_book.opened() as db:
+        assert project_book.project_list(db)["projects"] == []
+    _settings(data, projects=[{"id": "launch", "title": "Launch", "about": "the spring launch"}])
+    with project_book.opened() as db:
+        assert [p["title"] for p in project_book.project_list(db)["projects"]] == ["Launch"]

@@ -13,5 +13,10 @@ stop_when_no_windows = true
 # How update-app boots a throwaway preview of this app: on a free port, over a
 # scratch copy of its data (see .agents/skills/update-app/scripts/preview_app.py).
 [preview]
-env = {TODAY_PORT = "{port:main}", TODAY_HOST = "{host}", TODAY_DATA_DIR = "{copy:data}"}
-copies = {data = "data/.apps/today"}
+# TODAY_DRY_SEND keeps a preview from sending anything: every send, archive, calendar add
+# and GTD write is logged to dry_sends.jsonl in the copy instead.
+# TODAY_WEEKLY_DIR points the weekly priorities notes at a copy too, so a preview never
+# writes into the real weekly priorities folder. The copy is of the default ``weekly_dir``
+# (config.py); if settings.json points it elsewhere, change this path to match.
+env = {TODAY_PORT = "{port:main}", TODAY_HOST = "{host}", TODAY_DATA_DIR = "{copy:data}", TODAY_DRY_SEND = "1", TODAY_WEEKLY_DIR = "{copy:weekly}"}
+copies = {data = "data/.apps/today", weekly = "data/Today/Weekly priorities"}

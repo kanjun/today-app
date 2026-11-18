@@ -19,26 +19,46 @@ settings.json (all keys optional)::
         {"account": "alex@acme.example", "path": "data/.apps/email-review/data.json"}
       ],
       "slack_users": "data/.apps/slack-review/users.json",
-      "slack_captures_dir": "data/.apps/gtd/items",
-      "email_voice": "data/.apps/today/voice/email.md",
-      "chat_voice": "data/.apps/today/voice/slack.md",
+      "voice_file": "data/.apps/today/voice.md",
       "projects": [
         {"id": "launch", "title": "Launch", "about": "Getting the spring launch out: ..."}
-      ]
+      ],
+      "writing_dir": "data/.apps/writing/docs",
+      "writing_url": "http://writing.localhost/#doc/",
+      "weekly_dir": "data/Today/Weekly priorities",
+      "someday_file": "data/Today/Someday.md",
+      "projects_dir": "data/Today/Projects",
+      "agents_dir": "data/agents"
     }
 
-``email_voice`` and ``chat_voice`` are files of the user's own messages that drafts
-for email and for Slack copy the voice of; with neither, drafts use no voice examples.
+``voice_file`` is one file of the user's own messages that every draft copies the voice of:
+standing rules on top, then "Part 1" (emails) and "Part 2" (chat messages). The older
+``email_voice`` and ``chat_voice`` (one file each) are used when it is not set; with none,
+drafts use no voice examples.
 ``projects`` are long-lived areas that hold their tasks and goals off the main list
-(``about`` tells the model what belongs); there are none by default. It may also be the
-path of a JSON file holding that list.
+(``about`` tells the model what belongs; optional ``folder`` and ``agent`` name the project's
+folder under ``projects_dir`` and an agent whose playbook is read with it); there are none by
+default. It may also be the
+path of a JSON file holding that list. Each project becomes one of the user's projects in
+Today the first time it runs; more can be made on the Projects tab.
+
+``writing_dir`` is an optional folder of markdown drafts from a writing app, so a weekly writing
+goal can point at the draft it names; ``writing_url`` is the link a draft opens at (the draft's
+file name is appended). With neither, writing goals get a plain next step.
+
+``weekly_dir`` is the folder the weekly priorities note is kept in, one dated file per week;
+``someday_file`` the markdown file of Someday bullets; ``projects_dir`` the folder holding
+one sub-folder per project, whose ``Goal.md`` is the user's own words on what the project
+is for; ``agents_dir`` holds an optional ``<agent>/playbook.md`` per project, notes some
+other agent keeps on it. All four are optional and default to the paths above.
 
 Environment overrides: TODAY_USER_NAME, TODAY_USER_ORG, TODAY_USER_ROLE,
 TODAY_TIMEZONE, TODAY_EMAIL_ACCOUNTS and TODAY_EMAIL_ALIASES (comma-separated),
 TODAY_EMAIL_DIGESTS (``account=path`` pairs, comma-separated), TODAY_SLACK_USERS,
-TODAY_GTD_ITEMS_DIR (the Slack captures directory), TODAY_EMAIL_VOICE,
-TODAY_CHAT_VOICE, and TODAY_PROJECTS (the path of a JSON file with the project list). Relative paths are
-relative to the repo root, where the services run.
+TODAY_VOICE_FILE, TODAY_EMAIL_VOICE,
+TODAY_CHAT_VOICE, TODAY_PROJECTS (the path of a JSON file with the project list),
+TODAY_WRITING_DIR, TODAY_WRITING_URL, TODAY_WEEKLY_DIR, TODAY_SOMEDAY_FILE, TODAY_PROJECTS_DIR and TODAY_AGENTS_DIR. Relative
+paths are relative to the repo root, where the services run.
 
 The input formats are documented in the app's README.
 """
@@ -60,10 +80,22 @@ class Settings(NamedTuple):
     email_aliases: tuple[str, ...]
     email_digests: tuple[tuple[str, Path], ...]
     slack_users: Path | None
-    slack_captures_dir: Path | None
     email_voice: Path | None
+    voice_file: Path | None
     chat_voice: Path | None
     projects: tuple[dict[str, str], ...]
+    writing_dir: Path | None
+    writing_url: str
+    weekly_dir: Path
+    someday_file: Path
+    projects_dir: Path
+    agents_dir: Path
+
+
+DEFAULT_WEEKLY_DIR = "data/Today/Weekly priorities"
+DEFAULT_SOMEDAY_FILE = "data/Today/Someday.md"
+DEFAULT_PROJECTS_DIR = "data/Today/Projects"
+DEFAULT_AGENTS_DIR = "data/agents"
 
 
 def settings_path() -> Path:
@@ -112,6 +144,12 @@ def _projects(value: Any) -> tuple[dict[str, str], ...]:
                     "id": pid,
                     "title": str(entry.get("title") or pid).strip(),
                     "about": str(entry.get("about") or "").strip(),
+                    # Optional: the project's folder under projects_dir (default: its title) and
+                    # the name of an agent whose playbook is agents_dir/<agent>/playbook.md.
+                    "folder": str(entry.get("folder") or "").strip(),
+                    # Optional: a short name for the project on list rows.
+                    "short": str(entry.get("short") or "").strip(),
+                    "agent": str(entry.get("agent") or "").strip(),
                 }
             )
     return tuple(out)
@@ -144,10 +182,16 @@ def load() -> Settings:
         email_aliases=_list(pick("email_aliases", "TODAY_EMAIL_ALIASES")),
         email_digests=_digests(pick("email_digests", "TODAY_EMAIL_DIGESTS")),
         slack_users=_path(pick("slack_users", "TODAY_SLACK_USERS")),
-        slack_captures_dir=_path(pick("slack_captures_dir", "TODAY_GTD_ITEMS_DIR")),
         email_voice=_path(pick("email_voice", "TODAY_EMAIL_VOICE")),
+        voice_file=_path(pick("voice_file", "TODAY_VOICE_FILE")),
         chat_voice=_path(pick("chat_voice", "TODAY_CHAT_VOICE")),
         projects=_projects(pick("projects", "TODAY_PROJECTS")),
+        writing_dir=_path(pick("writing_dir", "TODAY_WRITING_DIR")),
+        writing_url=str(pick("writing_url", "TODAY_WRITING_URL") or "").strip(),
+        weekly_dir=Path(str(pick("weekly_dir", "TODAY_WEEKLY_DIR") or DEFAULT_WEEKLY_DIR)),
+        someday_file=Path(str(pick("someday_file", "TODAY_SOMEDAY_FILE") or DEFAULT_SOMEDAY_FILE)),
+        projects_dir=Path(str(pick("projects_dir", "TODAY_PROJECTS_DIR") or DEFAULT_PROJECTS_DIR)),
+        agents_dir=Path(str(pick("agents_dir", "TODAY_AGENTS_DIR") or DEFAULT_AGENTS_DIR)),
     )
 
 
@@ -172,6 +216,15 @@ def who_they_are() -> str:
     if s.user_org:
         return f"{person}, who works at {s.user_org}"
     return person
+
+
+def about() -> str:
+    """A sentence on who the user is, for the system prompts ("" when nothing is set).
+    ``ai.complete`` puts it where a prompt says ``{ABOUT}``."""
+    s = load()
+    if not (s.user_name or s.user_org or s.user_role):
+        return ""
+    return f"The user is {who_they_are()}." + (f" Call the user {name()}." if s.user_name else "")
 
 
 def my_emails() -> set[str]:
@@ -204,13 +257,14 @@ def sources() -> list[dict[str, Any]]:
         }
         for account, path in s.email_digests
     ]
-    if s.slack_captures_dir:
-        out.append(
-            {
-                "kind": "slack",
-                "label": "Slack captures",
-                "path": str(s.slack_captures_dir),
-                "found": s.slack_captures_dir.is_dir(),
-            }
-        )
+    # Slack needs no file: Today reads it through the connected Slack account (slack_watch.py),
+    # and it counts as there once a refresh has read it.
+    out.append(
+        {
+            "kind": "slack",
+            "label": "Slack, read through your connected Slack account",
+            "path": "",
+            "found": bool(store.load().get("slack_checked")),
+        }
+    )
     return out

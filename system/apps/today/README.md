@@ -3,17 +3,21 @@
 What you owe people from Slack and email, taken as far as it can go, plus your list for today.
 
 Every 30 minutes a sync (`today-sync`) gathers the things people have asked of you
-(and the things you promised), clears the ones you have already handled anywhere,
-and has the assistant take each remaining one as far as it can: a drafted reply, an
-intro email, an event ready to add to your calendar, or one to three questions only
-you can answer. Related items are grouped into goals with ordered steps; a morning
-cleanup (`today-sync --consolidate`) regroups them once a day. Nothing is ever sent
-until you press Send.
+(and the things you promised): it searches your Slack itself (`slack_watch.py`) for what is
+new from you, to you or mentioning you, and reads the email threads your inbox digests list. Everything you owe or wait on is one task list with a
+history of every change. A judge (`conversation_judge.py`) reads each conversation whole
+whenever something new is said in it and decides what is owed, by whom, which list it
+belongs in (Replies ready, Quick answers, Yours to do, Waiting on) and whether it is
+already done (here, in another conversation, on your calendar, or by a signing service's
+"Completed" notice). The one assistant (`act.py`) then gets each card ready ahead: a
+drafted reply or nudge, an intro email, an event to offer, and the next few options.
+Nothing is ever sent until you press Send, and every Send waits ten seconds for Undo.
 
-Finishing or dropping an item archives its email (with Undo); items carry due dates
-(due soon rises to the top, far-off sinks with a quiet date); tasks can be grouped
-into projects you define; and each goal says what you're trying to do and where it
-stands, re-read whenever a linked conversation, meeting or your note on it changes.
+The page has five tabs: Inbox (quick captures, filed for you), Today (Now, your lists, this
+week's priorities), Week (your mornings and what you planned for the week), Projects (your
+projects, sorted by what is due, plus groupings Today suggests) and Someday (an outline).
+Each task opens as a card with its whole conversation, its checklist and notes, the one
+assistant box, and a date picker. It works on a phone too, and opens on the Inbox.
 
 ## Settings
 
@@ -29,11 +33,17 @@ optional), and each key can be overridden by an environment variable:
 | `email_accounts` | `TODAY_EMAIL_ACCOUNTS` | Inboxes Today reads and sends from; the first sends new emails |
 | `email_aliases` | `TODAY_EMAIL_ALIASES` | Other addresses that are also you |
 | `email_digests` | `TODAY_EMAIL_DIGESTS` | One digest file per inbox (`[{"account", "path"}]`, or `account=path,...`) |
-| `slack_users` | `TODAY_SLACK_USERS` | A JSON file mapping Slack user ids to names |
-| `slack_captures_dir` | `TODAY_GTD_ITEMS_DIR` | The folder of Slack captures |
-| `email_voice` | `TODAY_EMAIL_VOICE` | A file of your own emails that email drafts copy the voice of (none: no voice examples) |
-| `chat_voice` | `TODAY_CHAT_VOICE` | The same for Slack drafts |
-| `projects` | `TODAY_PROJECTS` | Your projects, `[{"id", "title", "about"}]` (or the path of a JSON file holding it); none by default |
+| `slack_users` | `TODAY_SLACK_USERS` | Optional JSON file mapping Slack user ids to names (without it, names are looked up in Slack and kept) |
+| `voice_file` | `TODAY_VOICE_FILE` | One file of your own messages that every draft copies the voice of: standing rules on top, then "Part 1" (emails) and "Part 2" (chat messages); none: no voice examples |
+| `email_voice` | `TODAY_EMAIL_VOICE` | Used only without `voice_file`: a file of your own emails for email drafts |
+| `chat_voice` | `TODAY_CHAT_VOICE` | Used only without `voice_file`: the same for Slack drafts |
+| `projects` | `TODAY_PROJECTS` | Your projects, `[{"id", "title", "about"}]` (optional `short`, `folder`, `agent`; or the path of a JSON file holding the list); none by default. Each becomes a project on the Projects tab; you can also make them there |
+| `weekly_dir` | `TODAY_WEEKLY_DIR` | Where your weekly priorities notes are kept, one file per week (default `data/Today/Weekly priorities`) |
+| `someday_file` | `TODAY_SOMEDAY_FILE` | The Someday outline, a markdown file (default `data/Today/Someday.md`) |
+| `projects_dir` | `TODAY_PROJECTS_DIR` | One folder per project; its `Goal.md` is your words on what the project is for (default `data/Today/Projects`) |
+| `agents_dir` | `TODAY_AGENTS_DIR` | Optional notes another agent keeps per project, `<agent>/playbook.md` (default `data/agents`) |
+| `writing_dir` | `TODAY_WRITING_DIR` | Optional folder of markdown drafts, so a weekly writing goal can open the draft it names |
+| `writing_url` | `TODAY_WRITING_URL` | The link a draft opens at (its file name is appended) |
 
 ```json
 {
@@ -43,18 +53,17 @@ optional), and each key can be overridden by an environment variable:
   "timezone": "America/New_York",
   "email_accounts": ["alex@acme.example"],
   "email_digests": [{"account": "alex@acme.example", "path": "data/.apps/email-digest/data.json"}],
-  "slack_users": "data/.apps/slack-scan/users.json",
-  "slack_captures_dir": "data/.apps/slack-scan/items"
+  "voice_file": "data/.apps/today/voice.md"
 }
 ```
 
-Relative paths are relative to the repo root. With no sources set up, or none of
-their files on disk, the page says so and shows an empty list.
+Relative paths are relative to the repo root. Until a digest file is there or Slack has
+been read once, the page says so and shows an empty list.
 
 ## Input formats
 
-Today does not read your inbox or Slack history wholesale. It works from two kinds
-of input that something else produces:
+Slack needs no input file: Today reads it through your connected Slack account. Email
+works from a digest that something else produces:
 
 **Email digest** (one JSON file per inbox): `{"messages": [...]}`, one entry per
 message, each with `threadId` (Gmail thread id), `final_bucket` (`"1"` Reply needed,
@@ -63,27 +72,22 @@ header), `from_addr`, `date` (RFC 2822), `subject` and `snippet`. Every thread w
 message in an owed bucket becomes an item; Today then reads the whole thread from
 Gmail itself.
 
-**Slack captures** (one markdown file per ask, named `gtd-<id>.md`): flat YAML front
-matter with `id`, `title`, `status` (`inbox`, `done`, `trashed`, ...),
-`source: slack`, `source_url` (the message permalink), `source_kind` (`asked` or
-`promised`), `source_person` and `created_at`. The body's first paragraph may end
-with the quoted message, like `Sam asked: "Can you send the deck?" (#general)`.
-When an item is finished in Today, its capture's `status` is set to `done` with a
-dated note. A capture with `is_project: true` is offered to the goal grouping as an
-existing project.
-
 **Slack users** (optional): `{"U012ABC": "Sam Lee", ...}`, so messages show names
 instead of ids.
 
 ## Data
 
-State lives in `data/.apps/today/state.json`; the raw conversation each item came
-from is kept under `data/.apps/today/raw/` and is one click away on every item
-("See the conversation").
+The tasks, their history, the saved conversations and the raw records each item came
+from, and the page's own state (table `today_state`), all live in one SQLite file,
+`data/.apps/today/today.db`, which the app creates the first time it starts. The whole
+conversation is one click away on every task ("See the whole conversation"). Data from a
+version before the task list can be brought over once with `python -m today.commitments_import`.
 
 ## Changing how Today reads conversations
 
-Mistakes you correct can be kept as cases in `data/.apps/today/cases/` (each a snapshot
-of the item and its conversation, plus the right reading). After any change to the
-reader's prompts or rules, re-check them with `uv run python -m today.casebook`; add one
-with `uv run python -m today.casebook add NAME KEY --why ... --expect ...`.
+Whether something is owed, done, or in which list is decided by the judge
+(`conversation_judge.py`, with the rules in `user_rules.py`, which every AI that decides
+about a commitment reads word for word); replies, nudges, intro emails and the card's
+options are written by the one assistant (`act.py`, its actions in `assistant_actions.py`),
+ahead of time on each refresh (`act.write_ahead_due`) and when you ask. Who you are
+(`user_name`, `user_org`, `user_role`) goes into every prompt where it says `{ABOUT}`.

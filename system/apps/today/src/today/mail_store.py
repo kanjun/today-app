@@ -17,8 +17,10 @@ from typing import Any
 # Gmail as before.
 try:
     gmail_store: Any = importlib.import_module("people_archive.gmail_store")
+    gmail_sync: Any = importlib.import_module("people_archive.gmail_sync")
 except ImportError:
     gmail_store = None
+    gmail_sync = None
 
 log = logging.getLogger(__name__)
 
@@ -53,10 +55,10 @@ def _open(account: str) -> Any:
 
 def catch_up(accounts: tuple[str, ...]) -> None:
     """Have the sync apply what changed in Gmail just now, so this update sees the latest mail."""
-    if gmail_store is None:
+    if gmail_sync is None:
         return
     for account in accounts:
-        if not gmail_store.catch_up(account):
+        if not gmail_sync.catch_up(account):
             log.info(
                 "could not catch the mail store up for %s; using it as last synced",
                 account,

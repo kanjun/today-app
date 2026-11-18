@@ -25,23 +25,23 @@ People ask things of you all day, across Slack threads and email, and the asks g
 
 Open the **Today** window. Every 30 minutes it updates itself from your inputs; you never run anything by hand.
 
-- **Owed by you** lists everything waiting on you, oldest first. Related asks are grouped into **goals** ("Q3 board deck sent") with ordered steps, so you see the next step rather than five separate pings. Each row says whether a draft is ready, it needs an answer from you, or it is yours to do.
-- **Open an item** to see who asked and their exact words, what the assistant did, and the reply it wrote in your voice. "See the conversation" shows the original thread; "Open in Slack/Gmail" jumps to it.
-- **Change the draft in plain words**: type "shorter, and offer Thursday at 2 instead" and press Redo the draft. Tick "Remember this for all drafts" to make it a standing rule.
-- **Answer its questions** when it needs a fact only you have (it offers choices), and it writes the reply from your answers.
-- **Send** posts the reply in the Slack thread or replies on the email thread, only when you press it. **Save as Gmail draft** puts it in your drafts instead. Intro emails and proposed calendar events get their own Send and Add buttons.
-- **Done already** or **No** clear an item; No writes a kind decline when one is owed, or just lets it go. Pick a few items with **Today** to build the day's list, and drag to reorder it.
+- **Today** leads with **Now**, the few things to do first, then your lists: **Replies ready** (one read and Send each), **Quick answers** (a decision only you have), **Yours to do** and **Waiting on**. Each task's list is decided by reading its whole conversation, and anything you already handled anywhere drops off.
+- **Open a task** to see its card: the whole thread, who asked and their exact words, its checklist and notes, and the reply written in your voice. "See the whole conversation" shows the original; "Open in Slack/Gmail" jumps to it.
+- **Tell the assistant what to change in plain words** in the card's box ("shorter, and offer Thursday at 2 instead"), or tap one of the options it offers. Other options takes back the last thing it did.
+- **Send** posts the reply in the Slack thread or on the email thread, only when you press it, and waits ten seconds for Undo. **Save as Gmail draft** puts it in your drafts instead. Intro emails and proposed calendar events get their own buttons.
+- **Set a date** on any task from its date spot: Today, Tomorrow, a calendar, or words like "next Friday".
+- **Inbox** takes quick captures from your phone and files each one for you, with the date and project your words give; **Week** plans your mornings; **Projects** shows your projects, soonest due first, and groupings Today suggests; **Someday** is an outline for later.
 - **Search** finds anything, open or finished, including words that only appear inside a conversation.
 
-Before it has anything to read, the page shows **Connect a source**: Today needs an email digest per inbox and a folder of Slack captures (formats in [the app's README](system/apps/today/README.md)), plus your name and inboxes in `data/.apps/today/settings.json`.
+Before it has anything to read, the page shows **Connect a source**: Today reads your connected Slack by itself on its next update, and needs an email digest per inbox (format in [the app's README](system/apps/today/README.md)), plus your name and inboxes in `data/.apps/today/settings.json`.
 
 ## Ideas for making it yours
 
 - Add a source beyond email and Slack: anything that can write a small JSON item (a CRM follow-up, a GitHub review request) can feed the same list.
-- Change the cadence: run the update hourly instead of every 30 minutes, or move the morning regrouping to the evening so tomorrow's list is ready when you sit down.
-- Give the assistant house rules up front, such as "always sign off with my first name" or "never propose meetings before 10am", as standing draft rules.
+- Change the cadence: run the update hourly instead of every 30 minutes, or once more in the evening so tomorrow's list is ready when you sit down.
+- Give the assistant house rules up front, such as "always sign off with my first name" or "never propose meetings before 10am", in the rules every AI in Today reads (`system/apps/today/src/today/user_rules.py`).
 - Send a short morning summary of the Today list to yourself in Slack or email.
-- Turn the "Waiting on them" section into automatic polite nudges after a few days of silence, still sent only on your tap.
+- Turn the "Waiting on" list into automatic polite nudges after a few days of silence, still sent only on your tap.
 
 ## What this is
 

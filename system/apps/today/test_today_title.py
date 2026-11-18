@@ -24,5 +24,4 @@ def test_a_title_set_by_hand_survives_a_reread(monkeypatch: pytest.MonkeyPatch) 
 def test_titles_are_edited_in_place() -> None:
     page = (Path(actions.__file__).parent / "assets" / "app.html").read_text()
     assert 'class="edtitle" id="ititle" contenteditable="true"' in page
-    assert 'class="edtitle" id="gtitle" contenteditable="true"' in page
     assert "prompt(" not in page

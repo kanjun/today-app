@@ -29,7 +29,7 @@ def test_new_reading_can_reopen_a_today_clear(monkeypatch) -> None:  # type: ign
     state = {"items": {"k": _cleared(cleared_reason="nothing for you to do")}}
     monkeypatch.setattr(sync.store, "mutate", lambda fn: fn(state))
     monkeypatch.setattr(sync.store, "now_iso", lambda: "2026-10-23T10:00:00")
-    sync._apply("k", {"status": "open", "title": "Send Jamie your comments"})
+    sync._apply("k", {"status": "open", "title": "Send Drew your comments"})
     assert state["items"]["k"]["status"] == "open"
 
 

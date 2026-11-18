@@ -24,9 +24,19 @@ def ids(state: dict[str, Any]) -> set[str]:
     return {p["id"] for p in all_projects(state)}
 
 
-def prompt_lines() -> str:
-    """How the model picks an item's project (the configured list, for the system prompt)."""
-    return "\n".join(f'  "{p["id"]}": {p["about"]}' for p in defined())
+# ---- Filing into the user's projects: THE one place this is decided ---------------------
+# The reader guesses a project for each item it reads (``item["project"]``, only when the item
+# is really about it). The user, 2026-11-13: when an item clearly belongs to one of the user's
+# projects (one they made or accepted), Today files it there itself, as a ``sync`` event saying
+# why, so it can be traced and moved out with one action (project_book.auto_file). Today's own
+# groupings (group_suggestions.py) stay suggestions until the user accepts one. With False, the
+# guess is only offered as a quiet "Part of <project>?" the user accepts with one tap or ignores.
+AUTO_FILE_INTO_USER_PROJECTS = True
+
+
+def file_or_suggest() -> str:
+    """"file" when the reader's guess goes straight into the user's project, else "suggest"."""
+    return "file" if AUTO_FILE_INTO_USER_PROJECTS else "suggest"
 
 
 def of_item(item: dict[str, Any]) -> str:

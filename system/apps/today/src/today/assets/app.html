@@ -1,54 +1,54 @@
 <!doctype html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Today</title>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><title>Today</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font:15px/1.45 ui-sans-serif,system-ui,sans-serif;color:#1c1b19;background:#f6f4ef;padding:32px 24px 60px}
+body{font:15px/1.55 ui-sans-serif,system-ui,sans-serif;color:#1c1b19;background:#f6f4ef;padding:32px 24px 60px}
 .wrap{max-width:680px;margin:0 auto}
 .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:22px}
-h1{font-size:22px;font-weight:600}
-.muted{color:#8a857c;font-size:13px}
-h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#8a857c;font-weight:600;margin:24px 0 8px}
+h1{font-size:15px;font-weight:600}
+.muted{color:#6b665d;font-size:15px}
+h2{font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:#6b665d;font-weight:600;margin:24px 0 8px}
 .row{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid #e7e3da;border-radius:10px;padding:12px 16px;margin-bottom:6px;cursor:pointer}
 .row:hover{border-color:#cfc9bc}
-.row .who{width:78px;color:#8a857c;font-size:13px;flex-shrink:0}
+.row .who{width:78px;color:#6b665d;font-size:15px;flex-shrink:0}
 .row .what{flex:1}
-.row .age{color:#b0aa9f;font-size:12px;width:26px;text-align:right}
+.row .age{color:#a39d92;font-size:15px;width:26px;text-align:right}
 .row.dragging{opacity:.4}
-.today-row .grip{cursor:grab;color:#c9c3b6;font-size:14px;user-select:none}
+.today-row .grip{cursor:grab;color:#c9c3b6;font-size:15px;user-select:none}
 .next{border:1.5px solid #1c1b19}
-.nextlabel{font-size:11px;font-weight:700;letter-spacing:.06em;width:38px;flex-shrink:0}
-.tag{font-size:12px;padding:3px 9px;border-radius:20px;white-space:nowrap}
+.nextlabel{font-size:15px;font-weight:700;letter-spacing:.06em;width:38px;flex-shrink:0}
+.tag{font-size:15px;padding:3px 9px;border-radius:20px;white-space:nowrap}
 .ready{background:#e6f0e6;color:#2f6b35}
 .you{background:#fbeccd;color:#8a5a00}
 .mine{background:#eeebe4;color:#6b665d}
 .working{background:#e8eef6;color:#36597f}
-.btn{font:inherit;font-size:13px;border:1px solid #d9d4c8;background:#fff;border-radius:7px;padding:5px 11px;color:#1c1b19;cursor:pointer;white-space:nowrap}
+.btn{font:inherit;font-size:15px;border:1px solid #d9d4c8;background:#fff;border-radius:7px;padding:5px 11px;color:#1c1b19;cursor:pointer;white-space:nowrap}
 .btn:hover{border-color:#a9a397}
 .btn.primary{background:#1c1b19;color:#fff;border-color:#1c1b19}
 .btn.sel{background:#1c1b19;color:#fff;border-color:#1c1b19}
 .add{width:100%;font:inherit;border:1px dashed #d9d4c8;background:transparent;border-radius:10px;padding:11px 16px;margin-bottom:6px}
 .add:focus{outline:none;border-style:solid;background:#fff}
 .search{margin:-8px 0 18px}
-.empty{color:#8a857c;font-size:14px;padding:6px 2px 10px}
-.foot{margin-top:18px;font-size:13px;color:#8a857c}
+.empty{color:#6b665d;font-size:15px;padding:6px 2px 10px}
+.foot{margin-top:18px;font-size:15px;color:#6b665d}
 .purpose{margin-top:10px;font-size:15px;line-height:1.45}
-.purpose .lab,.story .lab{color:#8a857c;font-size:12px;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:2px}
-.story{margin-top:10px;font-size:14px;line-height:1.45;color:#4a463f}
+.purpose .lab,.story .lab{color:#6b665d;font-size:15px;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:2px}
+.story{margin-top:10px;font-size:15px;line-height:1.45;color:#1c1b19}
 .intentbox{margin-top:10px}.intentbox textarea{width:100%;box-sizing:border-box;min-height:70px;padding:10px;border:1px solid #d9d4ca;border-radius:10px;font:inherit}
-.notes{margin-top:8px;font-size:13px;color:#4a463f}.notes div{margin-top:3px}
-.sources{margin-top:6px;font-size:12px;color:#8a857c;line-height:1.6}.sources a{color:#8a857c}
-.foot a{color:#8a857c;cursor:pointer}
+.notes{margin-top:8px;font-size:15px;color:#1c1b19}.notes div{margin-top:3px}
+.sources{margin-top:6px;font-size:15px;color:#6b665d;line-height:1.6}.sources a{color:#6b665d}
+.foot a{color:#6b665d;cursor:pointer}
 .cleared{margin-top:10px}
-.cleared .row{cursor:default;color:#8a857c}
-.back{font-size:13px;color:#8a857c;margin-bottom:16px;display:inline-block;cursor:pointer}
+.cleared .row{cursor:default;color:#6b665d}
+.back{font-size:15px;color:#6b665d;margin-bottom:16px;display:inline-block;cursor:pointer}
 .card{background:#fff;border:1px solid #e7e3da;border-radius:12px;padding:26px 28px}
-.title{font-size:20px;font-weight:600;margin-bottom:4px}
+.title{font-size:15px;font-weight:600;margin-bottom:4px}
 .edtitle{outline:none;cursor:text;border-radius:3px}
 .edtitle:hover{background:#f6f3ec}.edtitle:focus{background:none}
 .quote{border-left:3px solid #e7e3da;padding:2px 0 2px 12px;color:#55514a;margin:14px 0 4px}
-.src{font-size:12px;color:#8a857c}
-.src a{color:#8a857c}
-.did{font-size:13px;color:#55514a;margin:18px 0 8px}
+.src{font-size:15px;color:#6b665d}
+.src a{color:#6b665d}
+.did{font-size:15px;color:#55514a;margin:18px 0 8px}
 .draft{width:100%;font:inherit;border:1px solid #e7e3da;border-radius:8px;padding:14px 16px;background:#fbfaf7;resize:vertical;min-height:70px}
 .draft[readonly]{resize:none}
 .fb{margin-top:18px;padding-top:14px;border-top:1px solid #efece5}
@@ -57,7 +57,7 @@ h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#8a857c;fo
 .q{margin:16px 0}.q p{margin-bottom:8px}
 .opt{display:flex;gap:8px;flex-wrap:wrap}
 input.text{font:inherit;width:100%;border:1px solid #d9d4c8;border-radius:7px;padding:8px 10px}
-.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#1c1b19;color:#fff;padding:9px 16px;border-radius:8px;font-size:14px;opacity:0;transition:opacity .2s}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#1c1b19;color:#fff;padding:9px 16px;border-radius:8px;font-size:15px;opacity:0;transition:opacity .2s}
 .check{width:20px;height:20px;border:1.5px solid #c9c3b6;border-radius:50%;background:#fff;flex-shrink:0;cursor:pointer;padding:0;position:relative}
 .check:hover{border-color:#2f6b35;background:#e6f0e6}
 .check:hover::after{content:"";position:absolute;left:6px;top:2px;width:4px;height:9px;border:solid #2f6b35;border-width:0 2px 2px 0;transform:rotate(45deg)}
@@ -65,36 +65,168 @@ input.text{font:inherit;width:100%;border:1px solid #d9d4c8;border-radius:7px;pa
 .tag.due.later{background:#fbeccd;color:#8a5a00}
 .toast{pointer-events:none}.toast.on{opacity:1;pointer-events:auto}
 .toast .undo{background:none;border:0;color:#f3c77b;font:inherit;font-weight:600;margin-left:12px;cursor:pointer;padding:0}
-.mocknote{font-size:12px;color:#b0aa9f;margin-top:28px;text-align:center}
-.err{color:#a33;font-size:13px;margin-top:10px}
-.detail{font-size:12px;color:#8a857c;margin-top:8px}
-.searched{font-size:12px;color:#8a857c;margin-top:6px}
-.setup{margin:4px 0 14px}.setup p{margin-top:8px;font-size:14px}.setup ul{margin:8px 0 0 18px;font-size:13px}.setup code{font-size:12px;overflow-wrap:anywhere}
-.goal .what b{font-weight:600}
-.goal .sub,.today-row .sub{display:block;font-size:12.5px;color:#55514a;margin-top:2px}
-.goalbadge{font-size:11px;font-weight:700;letter-spacing:.06em;color:#8a857c;width:62px;flex-shrink:0}
+.mocknote{font-size:15px;color:#a39d92;margin-top:28px;text-align:center}
+.err{color:#a33;font-size:15px;margin-top:10px}
+.detail{font-size:15px;color:#6b665d;margin-top:8px}
+.searched{font-size:15px;color:#6b665d;margin-top:6px}
+.setup ul{margin:6px 0 6px 18px}.setup code{overflow-wrap:anywhere}
+.goal .what b,.move .what b{font-weight:600}
+.move .sub{display:block;font-size:15px;color:#55514a;margin-top:2px}
+.goal .sub,.today-row .sub{display:block;font-size:15px;color:#55514a;margin-top:2px}
+.goalbadge{font-size:15px;font-weight:700;letter-spacing:.06em;color:#6b665d;width:62px;flex-shrink:0}
 .step{display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-top:1px solid #eeebe4}
 .step:first-of-type{border-top:none}
-.num{width:24px;height:24px;border-radius:50%;border:1.5px solid #cfc9bc;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#8a857c}
+.num{width:24px;height:24px;border-radius:50%;border:1.5px solid #cfc9bc;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#6b665d}
 .step.nextstep .num{border-color:#1c1b19;background:#1c1b19;color:#fff}
 .step.done .num{background:#e6f0e6;border-color:#e6f0e6;color:#2f6b35}
-.step.done .stitle{color:#8a857c;text-decoration:line-through}
+.step.done .stitle{color:#6b665d;text-decoration:line-through}
 .step .body{flex:1;min-width:0}.stitle{font-weight:500}
-.step .grip{cursor:grab;color:#c9c3b6;font-size:14px;user-select:none;margin:3px -6px 0 -4px}.step.dragging{opacity:.4}.step.dropto{box-shadow:inset 0 2px 0 #1c1b19}
+.step .grip{cursor:grab;color:#c9c3b6;font-size:15px;user-select:none;margin:3px -6px 0 -4px}.step.dragging{opacity:.4}.step.dropto{box-shadow:inset 0 2px 0 #1c1b19}
 .step.later{opacity:.75}
-.member{display:flex;gap:10px;align-items:center;padding:7px 10px;margin-top:6px;border:1px solid #eeebe4;border-radius:8px;cursor:pointer;font-size:14px}
+.member{display:flex;gap:10px;align-items:center;padding:7px 10px;margin-top:6px;border:1px solid #eeebe4;border-radius:8px;cursor:pointer;font-size:15px}
 .member:hover{border-color:#cfc9bc}.member .what{flex:1}
-.partof{font-size:12px;color:#8a857c;margin-bottom:10px}.partof a{color:#8a857c;cursor:pointer}
+.partof{font-size:15px;color:#6b665d;margin-bottom:10px}.partof a{color:#6b665d;cursor:pointer}
 .emailcard{border:1px solid #e7e3da;border-radius:10px;padding:12px 14px;margin-top:12px;background:#fbfaf7}
-.emailcard label{display:block;font-size:12px;color:#8a857c;margin:6px 0 3px}
+.emailcard label{display:block;font-size:15px;color:#6b665d;margin:6px 0 3px}
 .emailcard input{font:inherit;width:100%;border:1px solid #d9d4c8;border-radius:7px;padding:6px 9px;background:#fff}
-.sent{color:#2f6b35;font-size:13px;margin-top:8px}
+.sent{color:#2f6b35;font-size:15px;margin-top:8px}
 select.btn{padding:5px 8px;max-width:100%}
-details summary{cursor:pointer;font-size:13px;color:#8a857c;margin:14px 0 6px}
-.herdraft{margin-top:16px}.hdlabel{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#7a5a1c;margin-bottom:4px}
+.prow{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid #e7e3da;border-radius:10px;padding:10px 14px;margin-bottom:6px}
+.prow .pname{font-weight:500}.prow .pbody{flex:1;min-width:0;cursor:pointer}
+.prow input[type=checkbox]{width:16px;height:16px;margin-top:3px;flex-shrink:0}
+.pmeta{font-size:15px;color:#55514a;margin-top:2px}
+.badge{font-size:15px;padding:2px 7px;border-radius:20px;background:#eeebe4;color:#6b665d;margin-left:6px;white-space:nowrap}
+.badge.main{background:#1c1b19;color:#fff}
+.pmore{margin-top:8px;font-size:15px}.pmore a{color:#55514a}
+.pmore .actions{margin-top:8px}
+.bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0 10px}
+details summary{cursor:pointer;font-size:15px;color:#6b665d;margin:14px 0 6px}
+.herdraft{margin-top:16px}.hdlabel{font-size:15px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#7a5a1c;margin-bottom:4px}
 details.alt{margin-top:18px;border-top:1px solid #efece5;padding-top:4px}
 .rowmenu{flex-shrink:0;width:46px;padding:6px 0;font-size:15px;font-weight:700;letter-spacing:.1em;text-align:center;text-align-last:center;cursor:pointer;-webkit-appearance:none;appearance:none}
+h3{font-size:15px;font-weight:600;color:#55514a;margin:14px 0 6px}
+.plan{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.pbtn{font:inherit;font-size:15px;border:1px solid #e1dccf;background:#fbfaf7;border-radius:20px;padding:2px 10px;color:#3d3a34;cursor:pointer;white-space:nowrap}
+.pbtn:hover{border-color:#a9a397;background:#fff}
+.pbtn.quiet{color:#6b665d}
+.row.task.open{border-color:#d6d0c3;border-bottom-color:transparent;border-radius:10px 10px 0 0;margin-bottom:0}
+.xp{background:#fff;border:1px solid #d6d0c3;border-top:1px solid #f1eee7;border-radius:0 0 10px 10px;padding:14px 20px 16px 50px;margin-bottom:10px;font-size:15px;line-height:1.5}
+.xsec+.xsec{margin-top:14px}
+.xlab{font-size:15px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:#6b665d;margin-bottom:4px}
+.xmeta{font-size:15px;color:#6b665d}
+.xquote{border-left:3px solid #e7e3da;padding:1px 0 1px 12px;color:#1c1b19;margin-top:8px}
+.xtext{color:#3d3a34}
+.xdraft{white-space:pre-wrap;border:1px solid #efece5;background:#fbfaf7;border-radius:8px;padding:10px 14px;max-height:240px;overflow:auto;font-size:15px;color:#3d3a34}
+textarea.xdraft{display:block;width:100%;max-height:none;font:inherit;font-size:15px;line-height:1.5;resize:vertical;outline:none}textarea.xdraft:focus{border-color:#d9d2c3;background:#fff}
+.asked{margin-bottom:8px}.asked h2{margin-top:4px}
+.via{display:block;font-size:15px;color:#a8a39a;margin-top:1px}
+.src .via{color:#6b665d}
+.dropped .fold{font-weight:600;color:#6b665d;margin-top:20px}.dropped .fold:hover{color:#1c1b19}
+.link.more{font-weight:700;letter-spacing:1px;padding:0 6px}
+.waiting .sub,.no-row .sub{display:block;font-size:15px;color:#6b665d;margin-top:3px;line-height:1.45}
+.waiting .sub,.no-row .sub{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.xcheck{font-size:15px;color:#6b665d}
+.xsendto{font-size:15px;color:#6b665d;margin-top:6px}
+.xnext{font-size:15px;font-weight:500;color:#1c1b19}.xwhy{font-size:15px;color:#6b665d;margin-top:2px}
+.xdoneline{font-size:15px;color:#55514a}.xdoneline+.xdoneline{margin-top:2px}
+.xown{font-size:15px;padding:7px 10px}
+.xbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px}
+.xmain,.xlater{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.xdate{position:relative;overflow:hidden}.xdate input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.xlinks{display:flex;gap:16px;margin-top:14px;padding-top:10px;border-top:1px solid #f3f0ea;font-size:15px}.xlinks a{color:#6b665d}
+.review .row{margin-bottom:6px}
+
+.tag.back{background:#e8eef6;color:#36597f}
+.review{background:#fffaf0;border:1px solid #f0e2c0;border-radius:12px;padding:14px 16px;margin:4px 0 18px}
+.rhead{margin-bottom:8px;font-size:15px}
+details.coming{margin-top:18px}
+details.about{margin-top:6px}details.about summary{margin:8px 0 4px}
+.stepgroup{margin-top:18px}.stepgroup>summary,.stephead{font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:#6b665d;font-weight:600;margin:0 0 4px}
+.step .members{display:none}.step.expanded .members{display:block}
+.step .count{font-size:15px;color:#6b665d;cursor:pointer;margin-top:2px}
+/* The lighter main page: one anatomy for every item (see the TIPS map in the script). */
+h2.sec{font-size:15px;letter-spacing:0;text-transform:none;color:#6b665d;font-weight:600;margin:30px 0 10px}
+.pill{font:inherit;font-size:15px;color:#1c1b19;border:1px solid #e7e3da;border-radius:20px;padding:4px 12px;background:#fff;width:150px}
+.pill:focus{outline:none;border-color:#b9a8d9;width:240px}
+.small{font-size:15px}
+.item{background:#fff;border:1px solid #e7e3da;border-radius:12px;margin-bottom:8px}
+.item .head{display:flex;gap:12px;align-items:baseline;padding:11px 16px;cursor:pointer}
+.item .words{flex:1;min-width:0;color:#1c1b19;font-size:15px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical}
+.item.open .words{-webkit-line-clamp:unset;display:block;white-space:pre-line}
+.item .when{font-size:15px;color:#a8611a;white-space:nowrap}
+.item .body{display:none;padding:0 16px 14px 154px}
+.item.todoitem .body{padding-left:46px}
+.item.open .body{display:block}
+.item.open{border-color:#d4cbe3;box-shadow:0 1px 0 #e7e3da}
+.item.dragging{opacity:.4}
+.item .src{font-size:15px;margin:-2px 0 10px}
+.item .src a,.item .src button{color:#6b665d;text-decoration:none;cursor:pointer;background:none;border:none;font:inherit;font-size:15px;padding:0;margin-right:12px}
+.item .src a:hover,.item .src button:hover{color:#4b3a72;text-decoration:underline}
+.convo{display:none;margin:0 0 12px}.convo.on{display:block}
+.convo .msg{border:none;border-left:2px solid #e7e3da;border-radius:0;padding:2px 0 2px 10px;margin-bottom:6px;font-size:15px;color:#4f4b44;background:none}
+.convo .msg.ask{border-left-color:#b9a8d9}.convo .meta{font-size:15px;color:#6b665d}.convo .text{white-space:pre-wrap;overflow-wrap:anywhere}
+.convo .thread{font-size:15px;color:#a39d92;text-transform:uppercase;letter-spacing:.04em;margin:8px 0 4px}
+.said{font-size:15px;color:#4f4b44;margin:0 0 8px;white-space:pre-line}
+.label{font-size:15px;color:#6b665d;margin:2px 0 4px}
+.rdraft{display:block;width:100%;font:inherit;font-size:15px;line-height:1.5;background:#faf8f3;border:1px solid #eee9de;border-radius:8px;padding:9px 12px;margin-bottom:10px;resize:vertical;outline:none;color:#1c1b19}
+.rdraft:focus{border-color:#b9a8d9;background:#fff}
+.item .actions{margin-top:0;align-items:center}
+.btn.primary:disabled{background:#d9d4c8;border-color:#d9d4c8;cursor:default}
+.btn.choice.on{border-color:#7b5ea7;color:#4b3a72;background:#f6f2fb}
+input.answer{font:inherit;font-size:15px;width:100%;border:1px solid #d9d4c8;border-radius:8px;padding:6px 10px}
+.ask{margin:2px 0 12px}
+.ask .askq{color:#1c1b19;margin-bottom:8px}
+.ask .askn{color:#a39d92;margin-left:8px;white-space:nowrap}
+.link{font:inherit;font-size:15px;color:#6b665d;cursor:pointer;background:none;border:none;padding:0 2px}
+.link:hover{color:#1c1b19}
+.tell{flex:1;min-width:150px;font:inherit;font-size:15px;border:1px dashed #d9d4c8;border-radius:8px;padding:5px 10px;background:transparent}
+.tell:focus{outline:none;border-style:solid;background:#fff}
+.morebox{display:none;margin-top:8px}.morebox.on{display:flex}
+.check2{width:18px;height:18px;border:1.5px solid #c9c3b6;border-radius:50%;flex-shrink:0;cursor:pointer;background:#fff;padding:0;align-self:flex-start;margin-top:2px}
+.check2:hover{border-color:#2f6b35;background:#e6f0e6}
+.gone{display:none!important}
+.fading{opacity:.35;transition:opacity .4s}
+.fold{background:none;border:none;font:inherit;font-size:15px;color:#6b665d;cursor:pointer;padding:9px 0;display:block;width:100%;text-align:left}
+.fold:hover{color:#1c1b19}
+.foldbody{display:none}.fold.open+.foldbody{display:block}
+.bottom{margin-top:34px;border-top:1px solid #e7e3da;padding-top:4px}
+.bottom>.fold{border-bottom:1px solid #eee9de}
+.bottom>.foldbody{padding:8px 0}
+.sub2{font-size:15px;color:#6b665d;margin:10px 0 6px}
+.panel{background:#fff;border:1px solid #e7e3da;border-radius:12px}
+.proj{display:flex;gap:12px;align-items:baseline;padding:9px 16px;border-bottom:1px solid #eee9de;cursor:pointer;font-size:15px}
+.proj:last-child{border-bottom:none}.proj:hover .n{text-decoration:underline}
+.proj .n{flex:1;font-weight:500;min-width:0}.proj .nx{color:#6b665d;font-size:15px;text-align:right;max-width:45%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.todo{display:flex;gap:12px;align-items:center;background:#fff;border:1px solid #e7e3da;border-radius:10px;padding:9px 16px;margin-bottom:6px;font-size:15px}
+.todo[data-hash]{cursor:pointer}
+.addtodo{width:100%;font:inherit;font-size:15px;border:1px dashed #d9d4c8;background:transparent;border-radius:10px;padding:8px 16px;margin-top:2px}
+.addtodo:focus{outline:none;border-style:solid;background:#fff}
+.pull{margin-left:auto}
+.goalsub{font-size:15px;color:#6b665d;margin:4px 0 20px}
+.about2 p{font-size:15px;color:#1c1b19;margin-bottom:8px}
 /* Phone: each row puts who it is from on top, the title on its own line, then its tag and buttons. */
+/* Round 3: one text size, hierarchy from weight and grey; the user's weekly goals lead. */
+h1{font-size:15px;font-weight:700}
+h2.sec{font-weight:600;color:#6b665d}
+.sechead{display:flex;align-items:baseline;gap:10px}.sechead .editweek{margin-left:auto}
+.week{background:#fff;border:1px solid #e7e3da;border-radius:12px;padding:12px 16px;margin-bottom:6px}
+.wk1{color:#1c1b19;margin:0 0 8px}.wk1 b{font-weight:600}
+.goals{list-style:none}
+.goals li{display:flex;gap:10px;align-items:baseline;padding:5px 0 5px 8px;margin-left:-11px;border-top:1px solid #f0ece3;border-left:3px solid transparent}
+.goals li:first-child{border-top-color:transparent}
+.goals li.innow{border-left-color:#9b84c4}
+.goals .g{flex:1}.goals .nx{color:#6b665d;white-space:nowrap}
+.goals li.stretch .g{color:#6b665d}
+.goals li .check2{width:15px;height:15px;align-self:center;margin-top:0}
+.goals li.gdone .g{text-decoration:line-through;color:#a39d92}
+.goals li.gdone .check2{background:#9b84c4;border-color:#9b84c4;box-shadow:inset 0 0 0 3px #fff}
+.weektext{min-height:220px;margin-top:4px}
+.leftoff{white-space:pre-wrap;color:#6b665d;background:#faf8f3;border:1px solid #eee9de;border-radius:8px;padding:9px 12px;margin-bottom:10px}
+a.btn{text-decoration:none;display:inline-block}
+.goals .g{cursor:pointer}.goals .g:hover{color:#4b3a72}
+.goalmove{margin:6px 0 4px}
+.item.forgoal{border-left:3px solid #9b84c4}
+.item.placeholder .head{cursor:default}.item.placeholder .words{color:#a39d92}
 @media (max-width:600px){
 body{padding:18px 12px 48px}
 .top{flex-wrap:wrap;gap:4px 12px}
@@ -105,49 +237,319 @@ body{padding:18px 12px 48px}
 .row:has(.check) .what{flex-basis:calc(100% - 40px)}
 .row .age{width:auto;text-align:left;margin-right:auto}
 .row .tag+.btn,.row .tag:last-child{margin-right:auto}
-.btn{padding:8px 14px;font-size:14px}
+.btn{padding:8px 14px;font-size:15px}
 .card{padding:18px 16px}
 .emailcard{padding:12px}
 .member{flex-wrap:wrap}.member .who{width:100%!important}
+.prow{padding:10px 12px}
+.xp{padding:12px 14px 14px}
 input,textarea,select{font-size:16px!important}
 .toast{left:12px;right:12px;transform:none;text-align:center}
+.item .head{flex-wrap:wrap;gap:4px 10px}
+.item .body{padding:0 14px 14px}.item.todoitem .body{padding-left:14px}.item.todoitem .words{flex-basis:0;order:0}
+/* Phone: two lines of each item instead of one, the circle beside the words when no name sits above them, and bigger tap targets. */
+.item .words{-webkit-line-clamp:2}
+.check2{width:22px;height:22px;margin-top:0}
+.item .src a,.item .src button{padding:8px 0;margin-right:16px}
+.link{padding:8px 6px}
+.item .actions{flex-wrap:wrap;row-gap:8px}
+.pill{width:110px}
+}
+/* ---- Tabs and planning (Inbox / Today / Week / Someday), from the approved mock ---- */
+.tabs{display:flex;gap:4px;margin:0 0 18px;position:sticky;top:0;background:#f6f4ef;padding:8px 0;z-index:5;align-items:center}
+.tabs .tabsearch{margin-left:auto;min-width:0}
+.tabs .views{display:flex;gap:4px;margin-left:8px}
+.tabs .view{color:#6b665d;padding:6px 10px;border-radius:8px;text-decoration:none;font-size:14px;white-space:nowrap}
+.tabs .view:hover{color:#1c1b19;background:#ece8df}
+.tab{font:inherit;border:0;background:none;color:#6b665d;padding:6px 12px;border-radius:8px;cursor:pointer;font-weight:600}
+.tab.on{background:#1c1b19;color:#fff}
+body.wide .wrap{max-width:none}
+.aside{text-transform:none;letter-spacing:0;font-weight:400;color:#6b665d}
+.wkfold{cursor:pointer;user-select:none}
+.goals .gcol{flex:1;min-width:0}
+.goals .g{display:block}
+/* The quiet list: space instead of lines, the user's words in black, the user's next step quieter under it. */
+.week{padding:16px 20px}
+.week .wk1{color:#1c1b19;margin:0 0 12px}
+.goals li,.goals li:first-child{border:none;padding:6px 0;margin-left:0}
+.goals li.innow,.goals li.stretch .g{border-left-color:transparent;color:inherit}
+.goals .g{color:#1c1b19}
+.gstep{color:#6b665d;margin-top:1px}
+.gstep.own{cursor:text}
+.gstep.own:hover{color:#1c1b19}
+.gstep .link{text-decoration:underline;padding:0;color:#6b665d}
+.gmeta{color:#a39d92;white-space:nowrap}
+.goals li{align-items:flex-start}
+.goals li .check2{align-self:flex-start;margin-top:4px}
+/* "+ next step" sits in a fixed right margin and fades in on hover, so nothing on the card
+   moves (the user, 2026-11-14), like the row icons in the lists below. */
+.goals li{position:relative}
+.goals li .gcol{padding-right:112px}
+.gadd{font:inherit;border:0;background:none;color:#a39d92;cursor:pointer;padding:0;white-space:nowrap;position:absolute;right:0;top:6px;opacity:0;transition:opacity .15s ease-out}
+.gadd:hover{color:#1c1b19}
+.goals li:hover .gadd,.gadd:focus{opacity:1}
+@media (pointer:coarse){.gadd{opacity:1}}
+.gdonefold{font:inherit;border:0;background:none;color:#a39d92;cursor:pointer;padding:0;margin-top:8px}
+.gdonefold:hover{color:#6b665d}
+.gdonelist li .g{color:#a39d92}
+.gstep .link{text-decoration:underline;padding:0}
+input.stepedit{font:inherit;width:100%;border:1px solid #d9d4c8;border-radius:7px;padding:5px 9px;margin:3px 0 2px}
+.intag{color:#6b665d;white-space:nowrap}
+.then{display:block;color:#6b665d}
+.item .words.stepped{display:block;-webkit-line-clamp:unset;white-space:normal}
+.yours{color:#6b665d;white-space:nowrap}
+.check.on{border-color:#2f6b35;background:#2f6b35}
+.check.on::after{content:"";position:absolute;left:6px;top:2px;width:4px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.chip{font:inherit;padding:2px 10px;border-radius:20px;white-space:nowrap;background:#eeebe4;color:#6b665d;cursor:pointer;border:0}
+.chip.today{background:#e8eef6;color:#36597f}.chip.someday{background:#efe8f6;color:#6a4f8c}.chip.week{background:#fbeccd;color:#8a5a00}
+.chip.cal{background:#e6f0e6;color:#2f6b35;cursor:default}
+.xdel{border:0;background:none;color:#a39d92;font-size:20px;line-height:1;cursor:pointer;padding:2px 6px;border-radius:6px;font-family:inherit}
+.xdel:hover{color:#a3321f}
+.xdel.armed{background:#fde2dd;color:#a3321f;font-size:15px;font-weight:600;padding:3px 9px}
+.add.big{font-size:17px;padding:16px}
+.capbox{position:relative;margin-bottom:6px}
+.capbox .add.big{padding-right:58px;margin:0}
+.capsend{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;border:0;background:#d9d4c8;color:#fff;display:flex;align-items:center;justify-content:center;cursor:default;transition:background .15s}
+.capsend.ready{background:#2b2924;cursor:pointer}
+.capsend svg{width:16px;height:16px}
+.prow2{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #e7e3da;border-radius:10px;padding:10px 14px;margin-bottom:6px}
+.prow2 .what{flex:1;min-width:0;overflow-wrap:anywhere}
+.prow2.pending{color:#6b665d}
+.menu{position:absolute;background:#fff;border:1px solid #d9d4c8;border-radius:8px;box-shadow:0 4px 18px rgba(0,0,0,.08);padding:4px;z-index:50;max-width:92vw}
+.menu button{display:block;width:100%;text-align:left;font:inherit;border:0;background:none;padding:6px 12px;border-radius:5px;cursor:pointer;color:#1c1b19}
+.menu button:hover{background:#f3f0e9}
+/* Today: the morning block */
+.block{background:#fff;border:1.5px solid #1c1b19;border-radius:12px;padding:16px 18px;margin-bottom:6px}
+.block .time{color:#2f6b35;font-weight:600}
+.block .bt{font-weight:600;margin:2px 0 6px}
+.block .mv{color:#55514a}.block .mv b{color:#1c1b19;font-weight:500}
+.block.none{border:1px dashed #d9d4c8;background:transparent;color:#6b665d}
+.block.none a{color:#6b665d;cursor:pointer;text-decoration:underline}
+.block .bbar{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
+/* A finished morning: a soft green check that blooms once, then rests */
+.block.won{border-color:#cfe0d1;background:#f4f8f3}
+.wonrow{display:flex;gap:14px;align-items:center}
+.wonmark{width:30px;height:30px;border-radius:50%;background:#8fb394;flex-shrink:0;position:relative}
+.wonmark::after{content:"";position:absolute;left:11px;top:6px;width:7px;height:13px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
+.block.won.fresh .wonmark{animation:bloom 1.6s cubic-bezier(.2,.7,.2,1) both}
+@keyframes bloom{0%{transform:scale(.4);box-shadow:0 0 0 0 rgba(143,179,148,.55)}45%{transform:scale(1.12)}70%{transform:scale(1);box-shadow:0 0 0 18px rgba(143,179,148,0)}100%{transform:scale(1)}}
+.block.won.fresh .wonlab,.block.won.fresh .bt,.block.won.fresh .wonsteps,.block.won.fresh .wonrest{animation:rise .9s ease .35s both}
+.wonlab{color:#2f6b35;font-weight:600}
+.block.won .bt{margin:0}
+.wonsteps{color:#6b665d;margin:10px 0 0 44px}
+.wonrest{color:#6b665d;margin:8px 0 0 44px}
+@media (prefers-reduced-motion: reduce){ .block.won *{animation:none !important} }
+#focus .fwon{text-align:center;padding-top:12vh}
+#focus .fwon .wonmark{width:64px;height:64px;margin:0 auto 22px;animation:bloom 1.8s cubic-bezier(.2,.7,.2,1) both}
+#focus .fwon .wonmark::after{left:24px;top:12px;width:14px;height:28px;border-width:0 4px 4px 0}
+#focus .fwon .fgoal{margin:6px auto 0;max-width:520px;animation:rise .9s ease .4s both}
+#focus .fwon .wonsteps,#focus .fwon .wonrest{margin:16px 0 0;animation:rise .9s ease .6s both}
+#focus .ffinish{font:inherit;border:0;background:none;color:#6b665d;text-decoration:underline;cursor:pointer;padding:0;margin-top:14px}
+/* Focus mode: calm motion, slow, low contrast, one thing moving at a time */
+body.focusing{overflow:hidden}
+#focus{position:fixed;inset:0;background:#f6f4ef;z-index:40;overflow:auto}
+#focus.entering{animation:veil .6s ease both}
+#focus.settle .breath{animation:fadeout .7s ease both}
+#focus.leaving{animation:fadeout .6s ease both}
+#focus .fwrap{animation:rise .9s cubic-bezier(.2,.7,.2,1) both}
+@keyframes veil{from{opacity:0}to{opacity:1}}
+@keyframes fadeout{to{opacity:0}}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+#focus .breath{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px}
+#focus .orb{width:220px;height:220px;border-radius:50%;background:radial-gradient(circle at 50% 45%,#dfeadf 0%,#c9dccb 45%,rgba(201,220,203,.35) 70%,rgba(201,220,203,0) 72%);animation:breathe 9s ease-in-out both;filter:blur(.3px)}
+@keyframes breathe{0%{transform:scale(.55);opacity:0}8%{opacity:.9}44%{transform:scale(1.08);opacity:1}50%{transform:scale(1.08)}100%{transform:scale(.62);opacity:.55}}
+#focus .bword{color:#6f8a72;font-size:16px;letter-spacing:.04em;transition:opacity .4s ease;margin-top:-6px}
+#focus .bword.swap{opacity:0}
+#focus .bgoal{color:#6b665d;max-width:440px;text-align:center;padding:0 24px;line-height:1.45;animation:veil 2.5s ease 1.2s both}
+#focus .bskip{position:absolute;bottom:28px;font:inherit;color:#a39d92;background:none;border:0;cursor:pointer}
+#focus .ftimewrap{display:inline-flex;align-items:center;gap:8px}
+#focus .bdot{width:8px;height:8px;border-radius:50%;background:#8fb394;display:inline-block;animation:dot 6s ease-in-out infinite}
+@keyframes dot{0%,100%{transform:scale(.8);opacity:.45}50%{transform:scale(1.25);opacity:.9}}
+#focus .fwrap{max-width:620px;margin:0 auto;padding:28px 24px 60px}
+#focus .ftop{display:flex;justify-content:space-between;align-items:center;margin-bottom:48px}
+#focus .ftime{color:#2f6b35;font-weight:600}
+#focus .flabel{letter-spacing:.08em;text-transform:uppercase;color:#6b665d;font-weight:600}
+#focus .fgoal{font-size:24px;font-weight:600;line-height:1.3;margin-top:6px}
+#focus .fstep{display:flex;gap:14px;align-items:flex-start;background:#fff;border:1.5px solid #1c1b19;border-radius:12px;padding:16px 18px;margin:8px 0;font-size:18px;line-height:1.4;transition:opacity .5s ease,transform .5s ease}
+#focus .fstep.checked{opacity:.35;transform:translateY(-4px)}
+#focus .fstep.checked span{text-decoration:line-through}
+#focus .fstep.checked .fcheck{border-color:#2f6b35;background:#2f6b35;box-shadow:0 0 0 0 rgba(143,179,148,.6);animation:ripple .65s ease-out}
+@keyframes ripple{to{box-shadow:0 0 0 14px rgba(143,179,148,0)}}
+#focus .fstep.arrive{animation:rise .7s ease both}
+#focus .fcheck{width:24px;height:24px;margin-top:1px}
+#focus .fcheck:hover::after{display:none}
+#focus .fadd{margin-top:8px}
+#focus .fqueue{color:#6b665d;padding:4px 0 4px 40px}
+#focus .fdone{color:#6b665d;text-decoration:line-through;padding:4px 0}
+#focus .fsug{color:#6b665d;margin:6px 0}#focus .fsug a{cursor:pointer;text-decoration:underline}
+@media (prefers-reduced-motion: reduce){ #focus *, #focus{animation:none !important;transition:none !important} }
+/* Week */
+.weekhead{display:flex;align-items:baseline;gap:12px;margin-bottom:10px}
+.weekhead h1{margin:0}
+.weekgrid{display:grid;grid-template-columns:230px 1fr;gap:16px;align-items:start}
+.rail{position:sticky;top:64px}
+.rail h2.sec{margin:0 0 8px}.rail h2.sec+*{margin-top:0}
+.rail .r2{margin-top:22px}
+.rail .src{background:#fff;border:1px solid #e7e3da;border-radius:10px;padding:8px 12px;margin:0 0 6px;cursor:grab;color:#1c1b19;font-size:15px}
+.rail .src.goal{border:1.5px solid #1c1b19;border-left:5px solid #1c1b19;font-weight:600}
+.rail .src.task,.rail .src.someday{border-style:dashed}
+.rail .src.someday{border-color:#cdbfe0}
+.rail .src.stretch{color:#6b665d;border-color:#cfc9bc}
+.rail .src.placed{opacity:.45}
+.rail .src .mv{display:block;color:#6b665d;margin-top:2px;font-weight:400}
+.railnote{color:#6b665d;margin-top:8px}
+#rail-drop.over{outline:2px dashed #2f6b35;outline-offset:6px;border-radius:10px}
+.days{display:grid;grid-template-columns:repeat(5,minmax(132px,1fr)) repeat(2,minmax(112px,.85fr));gap:10px;overflow-x:auto}
+.day{min-width:0}
+.day .dayname{font-weight:600;margin-bottom:6px}
+.day .dayname .d{color:#6b665d;font-weight:400}
+.day.weekend .dayname{color:#6b665d}
+.day.past{opacity:.55}
+.day.istoday .dayname{color:#2f6b35}
+.slot{min-height:118px;border:1.5px dashed #d9d4c8;border-radius:10px;padding:8px 10px;background:rgba(255,255,255,.4);transition:background .15s}
+.slot.over{background:#fff;border-color:#2f6b35}
+.slot .lab{color:#a39d92;text-transform:uppercase;letter-spacing:.06em;display:flex;justify-content:space-between;align-items:center}
+.slot .lab button{border:0;background:none;font-size:18px;line-height:1;color:#6b665d;cursor:pointer}
+.slot.filled{border:1.5px solid #1c1b19;background:#fff;cursor:grab}
+.slot.filled.goal{border-left-width:5px}
+.slot.filled.isdone{border-color:#cfe0d1;background:#f4f8f3}
+.slot.filled.stacked{margin-top:6px}
+.block.next{margin-top:10px}
+.slot.filled.task,.slot.filled.someday{border:1.5px dashed #a9a397}
+.slot .bt{font-weight:600;line-height:1.35;margin:2px 0 6px;cursor:pointer}
+.slot.filled.task .bt,.slot.filled.someday .bt{font-weight:500}
+.slot .tm{color:#2f6b35;display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.slot .tm select{font:inherit;border:1px solid #d9d4c8;border-radius:5px;background:#fff;color:#2f6b35;padding:0 2px}
+.slot .room{margin-top:4px;color:#2f6b35}.slot.soft{background:#f0ede6}.slot.soft .room.short{color:#6b665d}
+.slot .flag{color:#6b665d;margin-top:4px}
+.ev{color:#6b665d;padding:3px 6px;border-left:2px solid #d9d4c8;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev.am{border-left-color:#e3a64a}
+.pmhead{margin-top:8px;color:#a39d92;text-transform:uppercase;letter-spacing:.06em}
+/* Someday: one outline */
+.outline{background:#fff;border:1px solid #e7e3da;border-radius:12px;padding:12px 10px 16px}
+.crumbs{color:#6b665d;margin-bottom:10px}
+.crumbs a{color:#6b665d;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.zoomtitle{font-weight:600;font-size:17px;margin:0 0 8px 8px;outline:none}
+.onode{position:relative}
+.oline{display:flex;align-items:flex-start;gap:2px;border-radius:6px;padding:1px 0}
+.oline:hover{background:#faf8f3}
+.tri{width:18px;height:26px;border:0;background:none;color:#a39d92;cursor:pointer;font-size:10px;flex-shrink:0;visibility:hidden}
+.tri.has{visibility:visible}
+.odot{width:18px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.odot i{width:6px;height:6px;border-radius:50%;background:#6b665d;display:block}
+.odot.closed i{box-shadow:0 0 0 4px #e7e3da}
+.odot:hover i{background:#1c1b19}
+.otxt{flex:1;outline:none;padding:1px 4px;min-height:26px;line-height:24px;word-break:break-word}
+.onote{outline:none;color:#6b665d;padding:0 4px 4px 42px;white-space:pre-wrap;line-height:1.45}
+.zoomnote{padding-left:8px}
+.onote:empty::before{content:attr(data-ph);color:#cfc9bc}
+.kids{margin-left:22px;border-left:1px solid #efece5}
+.lnk{padding:1px 8px;border-radius:20px;background:#e8eef6;color:#36597f;margin-left:6px;white-space:nowrap;line-height:22px;cursor:pointer}
+.toweek{opacity:0;font:inherit;border:1px solid #d9d4c8;background:#fff;border-radius:6px;padding:0 7px;cursor:pointer;color:#6b665d;margin:2px 4px 0;height:24px;flex-shrink:0}
+.oline:hover .toweek,.oline:focus-within .toweek{opacity:1}
+.toweek.on{opacity:1;background:#fbeccd;border-color:#f0d9a6;color:#8a5a00}
+.keys{color:#a39d92;margin-top:10px}
+.somehead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;gap:12px}
+.saved{color:#a39d92;white-space:nowrap}
+.obar{display:none}
+@media (max-width:760px), (pointer:coarse){
+  .obar.on{display:flex;position:fixed;left:0;right:0;bottom:0;gap:6px;padding:8px 10px calc(8px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid #e7e3da;overflow-x:auto;z-index:15}
+  .obar button{font:inherit;border:1px solid #d9d4c8;background:#fff;border-radius:8px;padding:6px 10px;white-space:nowrap;color:#1c1b19}
+  .keys,.toweek{display:none}
+}
+@media (max-width:760px){
+  .tabs{justify-content:space-between;margin:0 0 14px;flex-wrap:wrap}
+  .tab{flex:1;padding:8px 4px}
+  .tabs .tabsearch{flex-basis:100%;width:auto;margin:6px 0 0}
+  .block{padding:14px}.block .btn{flex:1}
+  .weekgrid{display:flex;flex-direction:column}
+  .rail{order:2;width:100%;position:static}
+  .days{order:1;width:100%;grid-template-columns:1fr !important;overflow:visible}
+  .day{display:grid;grid-template-columns:54px 1fr;column-gap:10px;border-top:1px solid #e7e3da;padding-top:10px}
+  .day .dayname{grid-row:span 3}
+  .day .ev,.day .pmhead{display:none}
+  .slot{min-height:0}
+  .outline{padding:8px 4px 12px}
+  .oline{flex-wrap:wrap}
+  .otxt{flex:1 1 calc(100% - 44px)}
+  .lnk{margin:0 0 4px 40px}
+  .kids{margin-left:14px}
+  .onote{padding-left:36px}
+  body{padding-bottom:120px}
+  .menu button{padding:10px 12px}
+  #focus .fwrap{padding:18px 16px 60px}#focus .ftop{margin-bottom:28px}#focus .fgoal{font-size:20px}#focus .fstep{font-size:16px}
 }
 </style></head>
 <body><div class="wrap" id="app"></div><div class="toast" id="toast"></div>
+<script src="/assets/projects.js"></script>
+<script src="/assets/today_list.js"></script>
+<script src="/assets/card.js"></script>
+<script src="/assets/due_picker.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const TAGS = {ready:["ready","Draft ready"], you:["you","Needs you"], mine:["mine","Yours to do"], working:["working","Working on it"], waiting:["mine","Waiting on them"]};
 let S = null, view = {page:"list"}, showCleared = false, showRules = false, pollTimer = null, searchQ = "", searchRes = null, searchTimer = null;
+// Project and goal pages open at once from their last copy, then update in place
+// when the fresh copy differs. The main list fetches them ahead so the first open is instant too.
+const pageCache = {};
+function fetchPage(url){
+  return api(url).then(d=>{const str=JSON.stringify(d), changed=(pageCache[url]||{}).s!==str; pageCache[url]={d,s:str,at:Date.now()}; return changed});
+}
+async function pageData(url, rerender){
+  const hit=pageCache[url], here=location.hash;
+  if(!hit){ await fetchPage(url); return pageCache[url].d; }
+  if(Date.now()-hit.at>1500) fetchPage(url).then(changed=>{
+    if(changed && location.hash===here && !document.activeElement?.closest?.("#app input,#app textarea,#app select,.xp")) rerender();
+  }).catch(()=>{});
+  return hit.d;
+}
+function prefetchPages(){
+  // The Projects tab, fetched ahead so its first open is instant too.
+  if(!PJ.list) setTimeout(()=>api("/api/projects").then(d=>{ if(!PJ.list) PJ.list=d; }).catch(()=>{}), 1500);
+}
 const api = async (path, body) => {
+  if (body !== undefined) for (const k in pageCache) delete pageCache[k];  // a change: pages read fresh
   const r = await fetch(path, body === undefined ? {} : {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
   const data = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(data.error || ("Something went wrong (" + r.status + ")"));
   return data;
 };
 // A sent message can't be unsent, so its Undo only puts the email back in the inbox.
-function archivedKey(r,i){return /archived$/.test(r.message||"")?i.key:null}
 function toast(t, undoKey){const e=$("toast");e.textContent=t;
   if(undoKey){const u=document.createElement("button");u.className="undo";u.textContent="Undo";
     u.onclick=async()=>{e.classList.remove("on");try{const r=await api("/api/undo-finish",{key:undoKey});toast(r.message)}catch(err){toast(err.message)}route()};e.appendChild(u)}
   e.classList.add("on");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("on"),undoKey?7000:2400)}
 function tag(state){const [c,l]=TAGS[state]||TAGS.mine;return `<span class="tag ${c}">${l}</span>`}
 function fmtTime(iso){ if(!iso) return "not yet"; return new Date(iso).toLocaleTimeString([], {hour:"numeric", minute:"2-digit"}).toLowerCase(); }
-const goalFrom = {};  // goal id -> the page it was opened from ("" for the main list)
-function go(hash){ history.pushState({}, "", hash || location.pathname); route(); }
+function go(hash){ history.pushState({}, "", hash || (location.pathname + location.search)); route(); savePlace(); }
+// Scroll only once the new page is drawn (pages load their data first), so a click never
+// flashes the top of the old page. Back to the main list returns to where the user was on it.
+let scrollTarget=null, listY=0;
+new MutationObserver(()=>{ if(scrollTarget!==null){ scrollTo(0,scrollTarget); scrollTarget=null; } }).observe(document.getElementById("app"),{childList:true});
 function route(){
   clearTimeout(pollTimer);
+  if(view.page==="list") listY=scrollY;
   const h = decodeURIComponent(location.hash.slice(1));
-  if (h.startsWith("project:")) { view = {page:"project", id:h.slice(8)}; renderProject(); }
-  else if (h.startsWith("goal:")) { const id=h.slice(5); if(view.page==="project"||view.page==="list") goalFrom[id]=view.page==="project"?"project:"+view.id:""; view = {page:"goal", id}; renderGoal(); }
-  else if (h) { view = {page:"item", key:h, from:(view.page==="goal"?"goal:"+view.id:view.page==="project"?"project:"+view.id:view.page==="item"?view.from:"")}; renderItem(); }
-  else { view = {page:"list"}; loadList(); }
-  scrollTo(0,0);
+  if (h.startsWith("p:")) { view = {page:"proj", id:h.slice(2)}; TAB="projects"; renderProjectPage(); }
+  else if (h) { view = {page:"item", key:h, from:(view.page==="proj"?"p:"+view.id:view.page==="item"?view.from:"")}; renderItem(); }
+  else { view = {page:"list"}; scrollTarget=listY; loadList(); return; }
+  scrollTarget=0;
 }
 window.onpopstate = route;
 
+let searchOpen = false;
+function bindSearch(){
+  const btn=$("searchbtn"); if(btn) btn.onclick=()=>openSearch();
+  const sb=$("search"); if(!sb) return;
+  sb.oninput=()=>{searchQ=sb.value;clearTimeout(searchTimer);searchTimer=setTimeout(runSearch,250)};
+  sb.onkeydown=e=>{if(e.key==="Escape"){searchQ="";searchRes=null;searchOpen=false;drawnTab=null;renderList()}};
+  sb.onblur=()=>{ if(!searchQ) setTimeout(()=>{ if(!searchQ && searchOpen && document.activeElement?.id!=="search"){ searchOpen=false; drawnTab=null; renderList(); } },150); };
+}
+function openSearch(){ searchOpen=true; drawnTab=null; renderList(); const sb=$("search"); if(sb){ sb.focus(); sb.setSelectionRange(sb.value.length,sb.value.length); } }
+document.addEventListener("keydown",e=>{ if(e.key==="/" && view.page==="list" && !e.target.closest("input,textarea,[contenteditable]")){ e.preventDefault(); openSearch(); } });
 async function runSearch(){
-  if(!searchQ.trim()){ searchRes=null; renderList(); $("search").focus(); return; }
+  if(!searchQ.trim()){ searchRes=null; drawnTab=null; renderList(); const sb=$("search"); if(sb) sb.focus(); return; }
   const q=searchQ; const r=await api("/api/search?q="+encodeURIComponent(q));
   if(q!==searchQ) return;
   searchRes=r; renderSearch();
@@ -156,317 +558,1016 @@ function renderSearch(){
   const main=$("main"); if(!main) return;
   if(!searchRes){ main.innerHTML=`<div class="empty">Searching…</div>`; return; }
   const n=searchRes.items.length+searchRes.goals.length;
-  let h=`<h2>${n?`${n} found`:"Nothing found"}</h2>`;
-  searchRes.goals.forEach(g=>{h+=`<div class="row goal" data-key="${esc(g.key)}"><span class="goalbadge">GOAL</span><span class="what"><b>${esc(g.title)}</b></span><span class="tag">${g.status==="open"?"open":"done"}</span></div>`});
-  searchRes.items.forEach(i=>{h+=`<div class="row" data-key="${esc(i.key)}"><span class="who">${esc(i.who)}</span><span class="what">${esc(i.title)}${i.reason?`<div class="muted">${esc(i.reason)}</div>`:""}${i.only_in_conversation?`<div class="muted">mentioned in the conversation</div>`:""}</span>${i.status==="open"?tag(i.state):`<span class="tag">${esc(i.status)}</span>`}<span class="age">${esc(i.age)}</span>${i.status==="open"?"":`<button class="btn" data-back="${esc(i.key)}">Bring back</button>`}</div>`});
+  // Open things first; finished ones fold away below (the user, 2026-11-14: search was noisy).
+  const open=searchRes.items.filter(i=>i.status==="open"), done=searchRes.items.filter(i=>i.status!=="open");
+  let h=`<h2>${n?`${open.length} open`:"Nothing found"}</h2>`;
+  searchRes.goals.filter(g=>g.status==="open").forEach(g=>{h+=`<div class="row goal" data-key="${esc(g.key)}"><span class="goalbadge">GOAL</span><span class="what"><b>${esc(g.title)}</b></span></div>`});
+  const one=i=>`<div class="row" data-key="${esc(i.key)}">${whoCell(i)}<span class="what">${esc(i.title)}${i.reason?`<div class="muted">${esc(i.reason)}</div>`:""}${i.only_in_conversation?`<div class="muted">mentioned in the conversation</div>`:""}</span>${i.status==="open"?"":`<span class="muted">${esc(i.status)}</span><button class="btn" data-back="${esc(i.key)}" title="Put it back on your list. Nothing is sent.">Bring back</button>`}</div>`;
+  h+=open.map(one).join("");
+  if(done.length) h+=foldHtml("search-done", `Finished · ${done.length}`, done.map(one).join(""));
   main.innerHTML=h;
+  main.querySelectorAll("[data-fold]").forEach(f=>f.onclick=()=>{ openFolds.has(f.dataset.fold)?openFolds.delete(f.dataset.fold):openFolds.add(f.dataset.fold); renderSearch(); });
   main.querySelectorAll(".row[data-key]").forEach(r=>r.onclick=e=>{if(e.target.dataset.back)return;go("#"+encodeURIComponent(r.dataset.key))});
   main.querySelectorAll("[data-back]").forEach(b=>b.onclick=async()=>{await api("/api/bring-back",{key:b.dataset.back});toast("Moved back to Owed by you");runSearch()});
 }
-async function loadList(){ S = await api("/api/state"); if(view.page==="list") renderList(); }
-function setupNote(){
-  // Nothing to read yet: say which inputs Today looks for and where to set them.
-  const rows=(S.sources||[]).map(s=>`<li>${esc(s.label)}: <code>${esc(s.path)}</code> ${s.found?"(found)":"(not there yet)"}</li>`).join("");
-  return `<div class="card setup"><div class="title">Connect a source</div><p>Today builds its list from what you owe people in your email and Slack. It reads an email digest file for each inbox and a folder of Slack captures, and none are there yet.</p>`
-    + (rows?`<ul>${rows}</ul>`:`<p>No sources are set up. Add them to <code>${esc(S.settings_path)}</code>.</p>`)
-    + `<p class="muted">The app's README describes each file's format. The list fills in on the next update, every 30 minutes.</p></div>`;
-}
 function dueTag(x){return x&&x.due_label?`<span class="tag due${x.due_days>0?" later":""}">${esc(x.due_label)}</span>`:x&&x.due_on?`<span class="tag">${esc(x.due_on)}</span>`:""}
-function goalRow(g,todayBtn){return `<div class="row goal" data-key="${esc(g.key)}"><span class="goalbadge">GOAL</span><span class="what"><b>${esc(g.title)}</b><span class="sub">Next: ${esc(g.next)} · step ${g.step_n} of ${g.steps}${g.waiting>1?` · ${g.waiting} people waiting`:""}</span></span>${dueTag(g)}${tag(g.state)}<span class="age">${esc(g.age)}</span>${todayBtn?`<button class="btn" data-today="${esc(g.key)}">Today</button>`:""}</div>`}
 function checkBtn(key){return `<button class="check" data-check="${esc(key)}" title="Done, or not relevant"></button>`}
 // Checking a task off from a list: done (its email is archived), with Undo in the message.
 function bindChecks(root, reload){root.querySelectorAll("[data-check]").forEach(b=>b.onclick=async e=>{e.stopPropagation();b.disabled=true;
   try{const r=await api("/api/done",{key:b.dataset.check});toast(r.message,b.dataset.check)}catch(err){toast(err.message)}reload()})}
-function taskRow(i,todayBtn){return `<div class="row" data-key="${esc(i.key)}">${checkBtn(i.key)}<span class="who">${esc(i.who)}</span><span class="what">${esc(i.title)}</span>${dueTag(i)}${tag(i.state)}<span class="age">${esc(i.age)}</span>${todayBtn?`${rowMenu(i.key,[["today","Do today"],["later","Later"],["ignore","Ignore"]])}`:""}</div>`}
-// One small menu per row instead of a button for each choice; a phone shows its own picker.
-function rowMenu(key,opts){return `<select class="btn rowmenu" data-menu="${esc(key)}" title="Today, later or ignore"><option value="" selected disabled hidden>&middot;&middot;&middot;</option>${opts.map(([v,l])=>`<option value="${v}">${l}</option>`).join("")}</select>`}
+// The user's four choices on anything the user owes, right on the row.
+const PLAN = [["today","Today"],["tomorrow","Tomorrow"],["notmine","Not mine"],["drop","Drop"]];
+function planBar(key,opts=PLAN){return `<span class="plan">${opts.map(([v,l])=>`<button class="pbtn${v==="drop"||v==="notmine"?" quiet":""}" data-plan="${v}" data-pkey="${esc(key)}">${l}</button>`).join("")}</span>`}
+function backTag(i){return i.back_from?`<span class="tag back">Back from ${esc(fmtWeekday(i.back_from,-1))}</span>`:""}
+function fmtWeekday(iso,shift=0){if(!iso)return"";const d=new Date(iso+"T12:00");d.setDate(d.getDate()+shift);return d.toLocaleDateString([], {weekday:"short", month:"short", day:"numeric"})}
+function whoCell(i){return `<span class="who">${esc(i.who)}${i.platform?`<span class="via">${esc(i.platform)}</span>`:""}</span>`}
+function taskRow(i,plan){return `<div class="row task" data-key="${esc(i.key)}">${checkBtn(i.key)}${whoCell(i)}<span class="what">${esc(i.title)}${plan?planBar(i.key,plan===true?PLAN:plan):""}</span>${backTag(i)}${dueTag(i)}${tag(i.state)}<span class="age">${esc(i.age)}</span></div><div class="xp" data-xp="${esc(i.key)}" hidden></div>`}
 // A title edited where it sits: Enter or clicking away saves, Esc puts it back.
 function editInPlace(el, save){ if(!el) return; let was=el.textContent;
   el.onkeydown=e=>{ if(e.key==="Enter"){e.preventDefault();el.blur()} if(e.key==="Escape"){el.textContent=was;el.blur()} };
-function projectSub(p){return p.tasks?`${p.tasks} ${p.tasks===1?"task":"tasks"}`:""}
-function projectRow(p){return `<div class="row goal" data-project="${esc(p.key)}"><span class="goalbadge">PROJECT</span><span class="what"><b>${esc(p.title)}</b><span class="sub">${projectSub(p)}</span></span>${dueTag(p)}<button class="btn" data-today="${esc(p.key)}">Today</button></div>`}
+  el.onblur=async()=>{const t=el.textContent.replace(/\s+/g," ").trim(); if(!t){el.textContent=was;return} if(t===was) return;
+    try{await save(t);was=t;el.textContent=t;toast("Title saved")}catch(err){el.textContent=was;toast(err.message)}};
+  el.onpaste=e=>{e.preventDefault();document.execCommand("insertText",false,(e.clipboardData||window.clipboardData).getData("text/plain").replace(/\s+/g," "))};
+}
 function projectHash(key){return "#"+encodeURIComponent(key)}
-function renderList(){
-  const app=$("app");
-  let h=`<div class="top"><h1>${esc(S.date)}</h1><span class="muted" title="${esc(S.sync_error||"")}">${S.sync_error?"Couldn't update at ":"Updated "}${fmtTime(S.last_sync)}${S.pending?` · reading ${S.pending} more`:""}</span></div><input class="add search" id="search" placeholder="Search everything, open or finished" value="${esc(searchQ)}"><div id="main"><h2>Today</h2>`;
-  if(!S.has_source) h+=setupNote();
-  h+=`<input class="add" id="add" placeholder="Add something for today">`;
-  if(!S.today.length) h+=`<div class="empty">Nothing picked yet. Tap Today on anything below.</div>`;
-  S.today.forEach((i,n)=>{
-    const label = i.project ? `<b>${esc(i.title)}</b><span class="sub">${projectSub(i)}</span>` : i.goal ? `${esc(i.next)}<span class="sub">${esc(i.title)} · step ${i.step_n} of ${i.steps}</span>` : esc(i.title);
-    h+=`<div class="row today-row ${n===0?"next":""}" draggable="true" data-key="${esc(i.key)}"><span class="grip">&equiv;</span>${i.project||i.goal?"":checkBtn(i.key)}<span class="nextlabel">${n===0?"NEXT":""}</span><span class="what">${label}</span>${dueTag(i)}${tag(i.state)}</div>`});
-  h+=`<h2>Owed by you · ${S.projects.length+S.goals.length+S.owed.length}</h2>`;
-  if(!S.projects.length && !S.goals.length && !S.owed.length) h+=`<div class="empty">${S.has_source?"You're all caught up.":"Nothing yet: connect a source above."}</div>`;
-  // Anything due within two days first (a project rises by its soonest task), then the rest.
-  const soon = x => !!x.due_label;
-  S.projects.filter(soon).map(p=>[p.due_days,projectRow(p)]).concat(S.goals.filter(soon).map(g=>[g.due_days,goalRow(g,true)]), S.owed.filter(soon).map(i=>[i.due_days,taskRow(i,true)]))
-    .sort((a,b)=>a[0]-b[0]).forEach(r=>h+=r[1]);
-  // Then everything with no date, and last whatever is due further out, soonest first.
-  const far = x => !soon(x) && x.due_days!=null && x.due_days>2;
-  S.projects.filter(p=>!soon(p)&&!far(p)).forEach(p=>h+=projectRow(p));
-  S.goals.filter(g=>!soon(g)&&!far(g)).forEach(g=>h+=goalRow(g,true));
-  S.owed.filter(i=>!soon(i)&&!far(i)).forEach(i=>h+=taskRow(i,true));
-  S.projects.filter(far).map(p=>[p.due_days,projectRow(p)]).concat(S.goals.filter(far).map(g=>[g.due_days,goalRow(g,true)]), S.owed.filter(far).map(i=>[i.due_days,taskRow(i,true)]))
-    .sort((a,b)=>a[0]-b[0]).forEach(r=>h+=r[1]);
-  if(S.later&&S.later.length){
-    h+=`<h2>Later · ${S.later.length}</h2>`;
-    S.later.forEach(i=>{h+=`<div class="row" data-key="${esc(i.key)}">${checkBtn(i.key)}<span class="who">${esc(i.who)}</span><span class="what">${esc(i.title)}</span>${dueTag(i)}<span class="age">${esc(i.age)}</span>${rowMenu(i.key,[["today","Do today"],["unlater","Bring back"],["ignore","Ignore"]])}</div>`});
+
+// When Today last looked for signs this is already done, where, and what it found.
+function doneLook(i){
+  const l=i.done_look||(i.done_checked_at?{at:i.done_checked_at,found:(i.sent_found||[]).length,inbox:!!i.received_checked_at}:null);
+  if(!l) return "";
+  const where = l.inbox||i.received_checked_at ? "your sent mail, Slack and inbox" : "your sent mail and Slack";
+  const n=(i.sent_found||[]).length+(i.received_found||[]).length;
+  return `<div class="xsec"><div class="xcheck">Checked ${esc(fmtDay(l.at))} at ${esc(fmtTime(l.at))} whether it's done: looked in ${where}. ${n?`${n} possibly related ${n===1?"message":"messages"}, none showing it's done.`:"Nothing shows it's done yet."}</div></div>`;
+}
+// Click a task to open it in place: what was asked, what's been done, the draft, and the choices.
+const openRows = new Set();
+let lowOpen = false;
+const xpEdits = {};  // the user's edits to an opened draft, kept while the list refreshes
+async function fillXp(box, reload){
+  const key=box.dataset.xp; let i;
+  try{ i=await api("/api/item?key="+encodeURIComponent(key)); }catch(e){ box.innerHTML=`<div class="err">${esc(e.message)}</div>`; return; }
+  const sec=(label,body,cls="")=>`<div class="xsec ${cls}">${label?`<div class="xlab">${label}</div>`:""}${body}</div>`;
+  const later=`<span class="xlater"><button class="pbtn" data-plan="nextweek" data-pkey="${esc(key)}">Next week</button><label class="pbtn xdate">Pick a day<input type="date" data-until></label></span>`;
+  let h="";
+  if(i.manual){
+    if(i.goal||i.project) h+=sec("",`<div class="xmeta">Filed under ${esc(i.goal?i.goal.title:((i.projects||[]).find(p=>p.id===i.project)||{title:i.project}).title)}${i.filed&&i.filed.why?` · ${esc(i.filed.why)}`:""}</div>`);
+    if((i.steps_done||[]).length) h+=sec("Done so far",i.steps_done.map(s=>`<div class="xdoneline">&#10003; ${esc(s.text)} <span class="muted">${esc(fmtDay(s.at))}</span></div>`).join(""));
+    h+=`<div class="xbar"><span class="xmain"><button class="btn" data-xdone>Whole thing done</button></span>${later}</div>`;
+  } else {
+    const name=esc(i.who_full||i.who), on=i.platform?` on ${esc(i.platform)}`:"";
+    const who = i.kind==="promised"?`You told ${name}${on}`:i.kind==="handed"?`You asked ${name}${on}`:`${name} asked${on}`;
+    h+=sec("",`<div class="xmeta">${who}${i.age?` · ${esc(i.age)} ago`:""}</div>${i.ask_text?`<div class="xquote">${esc(i.ask_text)}</div>`:""}`);
+    if(i.did) h+=sec("Where it stands",`<div class="xtext">${esc(i.did)}</div>`);
+    h+=doneLook(i);
+    const t=i.target||{}, emails=i.emails||[];
+    // A single reply is edited and sent right here; emails (several fields each) open the full page.
+    const inline = !!i.draft && !emails.length && i.status!=="working";
+    if(inline){
+      const txt = xpEdits[key] ?? i.draft;
+      h+=sec("Draft",`<textarea class="xdraft" data-xdraft rows="${Math.min(14,Math.max(3,txt.split("\n").length+1))}">${esc(txt)}</textarea>${t.can_send?`<div class="xsendto">${esc(t.detail||"")}</div>`:`<div class="xsendto">${i.source==="text"&&!i.elsewhere?`Copy it and send it to ${esc(i.who||"them")} in your chat app.`:`This goes to ${esc(i.to||"someone else")}, so copy it and send it there.`}</div>`}`);
+    } else if(emails.length) h+=sec("Draft",`<div class="xdraft">${esc(emails[0].body||"")}</div>`);
+    if(i.status==="working") h+=sec("",`<div class="xtext muted">Writing it now&hellip;</div>`);
+    if(i.error) h+=sec("",`<div class="err">${esc(i.error)}</div>`);
+    if(i.questions&&i.questions.length&&i.state==="you") h+=sec("Needs your answer",`<div class="xtext">${esc(i.questions[0].q)}</div>`);
+    const main = inline ? (t.can_send?`<button class="btn primary" data-xsend>${esc(t.label)}</button>${i.source==="text"?`<button class="btn" data-xcopy>Copy</button>`:""}`:`<button class="btn primary" data-xcopy>Copy</button>`)
+      : emails.length ? `<button class="btn primary" data-open-full>Review and send</button>` : (i.questions||[]).length ? `<button class="btn primary" data-open-full>Open</button>` : "";
+    h+=`<div class="xbar"><span class="xmain">${main}<button class="btn" data-xdone>Done already</button>${main&&!inline?"":`<button class="btn" data-open-full>Open</button>`}</span>${later}</div>`;
+    h+=`<div class="xlinks"><a href="/raw?key=${encodeURIComponent(key)}">See the conversation</a>${i.url?`<a href="${esc(i.url)}" target="_blank">Open in ${i.source==="slack"?"Slack":i.source==="email"?"Gmail":"the original"}</a>`:""}</div>`;
   }
-  if(S.no&&S.no.length){
-    h+=`<h2>Saying no · ${S.no.length}</h2>`;
-    S.no.forEach(i=>{h+=`<div class="row" data-key="${esc(i.key)}"><span class="who">${esc(i.who)}</span><span class="what">${esc(i.title)}${i.draft?`<span class="sub">${esc(i.draft)}</span>`:""}</span>${i.state==="working"?`<span class="tag">Writing a no…</span>`:tag(i.state)}<span class="age">${esc(i.age)}</span></div>`});
-  }
-  if(S.waiting&&S.waiting.length){
-    h+=`<h2>Waiting on them · ${S.waiting.length}</h2>`;
-    S.waiting.forEach(i=>{h+=`<div class="row" data-key="${esc(i.key)}"><span class="who">${esc(i.who)}</span><span class="what">${esc(i.title)}${i.did?`<span class="sub">${esc(i.did)}</span>`:""}</span>${tag(i.state)}<span class="age">${esc(i.age)}</span></div>`});
-  }
-  if(S.cleared.length) h+=`<div class="foot"><a id="clr">Cleared ${S.cleared.length} since yesterday</a></div>`;
-  if(S.rules&&S.rules.length) h+=`<div class="foot"><a id="rls">Rules for drafts · ${S.rules.length}</a></div>`;
-  if(showRules) h+=`<div class="cleared">`+S.rules.map((r,n)=>`<div class="row"><span class="what">${esc(r)}</span><button class="btn" data-rule="${n}">Remove</button></div>`).join("")+`</div>`;
-  if(showCleared) h+=`<div class="cleared">`+S.cleared.map(c=>`<div class="row"><span class="who">${esc(c.who)}</span><span class="what">${esc(c.title)}<div class="muted">${esc(c.reason)}</div></span>${c.source==="goal"?"":`<a class="muted" href="/raw?key=${encodeURIComponent(c.key)}">Original</a><button class="btn" data-back="${esc(c.key)}">Bring back</button>`}</div>`).join("")+`</div>`;
-  h+=`</div>`;
-  app.innerHTML=h;
-  const sb=$("search");
-  sb.oninput=()=>{searchQ=sb.value;clearTimeout(searchTimer);searchTimer=setTimeout(runSearch,250)};
-  sb.onkeydown=e=>{if(e.key==="Escape"){searchQ="";searchRes=null;renderList()}};
-  if(searchQ){ renderSearch(); return; }
-  app.querySelectorAll(".row[data-key]").forEach(r=>r.onclick=e=>{if(e.target.dataset.today||e.target.dataset.menu||e.target.closest("[data-menu]"))return;go("#"+encodeURIComponent(r.dataset.key))});
-  app.querySelectorAll("[data-today]").forEach(b=>b.onclick=async e=>{e.stopPropagation();await api("/api/today",{key:b.dataset.today,on:true});toast("Added to Today");loadList()});
-  app.querySelectorAll("[data-menu]").forEach(m=>{m.onclick=e=>e.stopPropagation();m.onchange=async()=>{const key=m.dataset.menu,v=m.value;m.disabled=true;
-    try{
-      if(v==="today"){await api("/api/today",{key,on:true});toast("Added to Today")}
-      else if(v==="later"){await api("/api/later",{key,on:true});toast("Moved to Later")}
-      else if(v==="unlater"){await api("/api/later",{key,on:false});toast("Back in Owed by you")}
-      else if(v==="ignore"){const r=await api("/api/ignore",{key});toast(r.message,key)}
-    }catch(err){toast(err.message)}
-    loadList()}});
-  app.querySelectorAll("[data-back]").forEach(b=>b.onclick=async()=>{await api("/api/bring-back",{key:b.dataset.back});toast("Moved back to Owed by you");loadList()});
-  bindChecks(app, loadList);
-  app.querySelectorAll("[data-project]").forEach(r=>r.onclick=e=>{if(e.target.dataset.today)return;go(projectHash(r.dataset.project))});
-  if($("clr")) $("clr").onclick=()=>{showCleared=!showCleared;renderList()};
-  if($("rls")) $("rls").onclick=()=>{showRules=!showRules;renderList()};
-  app.querySelectorAll("[data-rule]").forEach(b=>b.onclick=async()=>{await api("/api/rule/remove",{index:+b.dataset.rule});toast("Rule removed");loadList()});
-  const add=$("add");
-  add.onkeydown=async e=>{if(e.key==="Enter"&&add.value.trim()){await api("/api/add",{text:add.value.trim()});await loadList();$("add").focus()}};
-  let drag=null;
-  app.querySelectorAll(".today-row").forEach(r=>{
-    r.ondragstart=()=>{drag=r.dataset.key;r.classList.add("dragging")};
-    r.ondragend=()=>r.classList.remove("dragging");
-    r.ondragover=e=>e.preventDefault();
-    r.ondrop=async e=>{e.preventDefault();if(!drag||drag===r.dataset.key)return;const order=S.today.map(i=>i.key);order.splice(order.indexOf(drag),1);order.splice(order.indexOf(r.dataset.key),0,drag);await api("/api/order",{order});loadList()};
+  box.innerHTML=h;
+  const q=s=>box.querySelector(s);
+  box.querySelectorAll("[data-open-full]").forEach(b=>b.onclick=()=>go("#"+encodeURIComponent(key)));
+  const ta=q("[data-xdraft]");
+  if(ta) ta.oninput=()=>{xpEdits[key]=ta.value};
+  if(q("[data-xcopy]")) q("[data-xcopy]").onclick=async()=>{await navigator.clipboard.writeText(ta.value);toast("Copied")};
+  if(q("[data-xsend]")) q("[data-xsend]").onclick=async()=>{const b=q("[data-xsend]"), label=b.textContent;
+    if(!ta.value.trim()){toast("The message is empty");return}
+    b.disabled=true;b.textContent="Sending…";
+    const text=ta.value;
+    try{await sendSoon({key, text, who:(rowsByKey[key]||{}).who||"them", gone:()=>{delete xpEdits[key];openRows.delete(key);reload()}, undone:()=>{xpEdits[key]=text;reload()}, after:reload})}
+    catch(e){b.disabled=false;b.textContent=label;toast(e.message)}};
+  if(q("[data-xdone]")) q("[data-xdone]").onclick=async()=>{const r=await api("/api/done",{key});toast(r.message,key);openRows.delete(key);reload()};
+  if(q("[data-until]")) q("[data-until]").onchange=async e=>{if(!e.target.value)return;const r=await api("/api/plan",{key,choice:"nextweek",until:e.target.value});toast(r.message);openRows.delete(key);reload()};
+  bindPlans(box, reload);
+}
+function bindPlans(root, reload){root.querySelectorAll("[data-plan]").forEach(b=>b.onclick=async e=>{e.stopPropagation();const key=b.dataset.pkey;b.disabled=true;
+  if(b.dataset.plan==="keep"){try{await api("/api/old/keep",{key});toast("Kept")}catch(err){toast(err.message)}reload();return}
+  try{const r=await api("/api/plan",{key,choice:b.dataset.plan});toast(r.message,["drop","notmine"].includes(b.dataset.plan)?key:null);openRows.delete(key)}catch(err){toast(err.message)}reload()})}
+function bindRows(root, reload){
+  root.querySelectorAll(".row.task[data-key]").forEach(r=>{
+    const box=root.querySelector(`.xp[data-xp="${CSS.escape(r.dataset.key)}"]`);
+    if(box&&openRows.has(r.dataset.key)){box.hidden=false;r.classList.add("open");fillXp(box,reload)}
+    r.onclick=e=>{if(e.target.closest("button,a,input,select,label"))return; if(!box){go("#"+encodeURIComponent(r.dataset.key));return}
+      const k=r.dataset.key; if(openRows.has(k)){openRows.delete(k);box.hidden=true;r.classList.remove("open")} else {openRows.add(k);box.hidden=false;r.classList.add("open");box.innerHTML=`<span class="muted">Opening&hellip;</span>`;fillXp(box,reload)}};
   });
+  bindPlans(root, reload); bindChecks(root, reload);
 }
 
-async function renderGoal(){
-  let g; try { g = await api("/api/goal?id="+encodeURIComponent(view.id)); } catch(e) { go(""); return; }
-  const app=$("app");
-  // Back returns to the page the goal was opened from; else to its project, else Today.
-  const from = view.id in goalFrom ? goalFrom[view.id] : (g.project ? g.project.key : "");
-  const back = from.startsWith("project:") ? {label:(g.project&&g.project.key===from?g.project.title:"Project"), hash:projectHash(from)} : {label:"Today", hash:""};
-  let h=`<span class="back" id="back">&larr; ${esc(back.label)}</span><div class="card"><div class="title"><span class="edtitle" id="gtitle" contenteditable="true" spellcheck="true">${esc(g.title)}</span></div>`;
-  h+=`<div class="purpose" id="purpose"><span class="lab">What you're trying to do</span>${g.purpose?esc(g.purpose):`<span class="muted">Not worked out yet.</span>`} <a class="muted" id="fixintent" style="white-space:nowrap">${g.purpose?"Not quite right?":"Say what it's for"}</a></div>`;
-  if(g.notes.length) h+=`<div class="notes"><span class="muted">Your notes on it:</span>${g.notes.map(n=>`<div>&ldquo;${esc(n.text)}&rdquo; <a class="muted" data-unnote="${esc(n.at)}">remove</a></div>`).join("")}</div>`;
-  h+=`<div class="intentbox" id="intentbox" style="display:none"><textarea id="intenttext" placeholder="What are you actually trying to do here? Say it however it comes, like: Jordan's leaving town; I want to stay close and hear how Monday's dinner lands for them."></textarea><div class="actions"><button class="btn primary" id="intentsave">Rethink this goal</button><button class="btn" id="intentcancel">Cancel</button></div></div>`;
-  if(g.rethinking) h+=`<div class="story" id="rethinking"><span class="muted">Rethinking this goal with your note&hellip;</span></div>`;
-  else if(g.story) h+=`<div class="story"><span class="lab">Where it stands</span>${esc(g.story)}</div>`;
-  h+=`<div class="muted" style="margin-top:10px">Done when: ${esc(g.done_when)}${g.by?` By ${esc(g.by)}.`:""}${g.waiting.length?` Waiting on you: ${esc(g.waiting.join(", "))}.`:""}</div><div style="margin-top:16px">`;
-  g.steps.forEach((s,n)=>{
-    const cls = s.done ? "done" : (s.next ? "nextstep" : "later");
-    const sendable = s.members.filter(m=>m.can_send && !["sent","done","cleared","skipped"].includes(m.status));
-    h+=`<div class="step ${cls}" draggable="true" data-step="${esc(s.id)}"><span class="grip" title="Drag to reorder">&equiv;</span><span class="num">${s.done?"&#10003;":n+1}</span><div class="body"><div class="stitle">${esc(s.step)}${s.who&&s.who!=="you"?` <span class="muted">(${esc(s.who)})</span>`:""}</div>`;
-    if(!s.done){
-      s.members.filter(m=>!["sent","done","cleared","skipped"].includes(m.status)).forEach(m=>{h+=`<div class="member" data-key="${esc(m.key)}"><span class="who" style="width:70px">${esc(m.who)}</span><span class="what">${esc(m.title)}${m.draft?`<div class="muted" style="margin-top:2px">${esc(m.draft.split("\n")[0])}</div>`:""}</span>${tag(m.state)}</div>`});
-      if(s.next){
-        h+=`<div class="actions">${sendable.length>1?`<button class="btn primary" data-sendall="${esc(s.id)}">Send all ${sendable.length} drafts</button>`:""}<button class="btn" data-stepdone="${esc(s.id)}">Mark step done</button></div>`;
-      }
+// ---- The main page: one anatomy for every message item, everywhere ------------------
+// A row is [name | their own words, one line, verbatim | a real deadline]; opened, it shows
+// their words in full, the original and the whole thread, any choices, the reply, and
+// Send / change it / Not now / More. One item open at a time in each view.
+const TIPS = {
+  send: "Sends exactly the reply above, as you. You get 10 seconds to undo.",
+  notnow: "Moves it to Slipped. Nothing is sent. It comes back if it gets urgent or they follow up.",
+  notnowNow: "Takes it out of Now, back to its list or its project. Nothing is sent.",
+  more: "Save as draft, not mine, drop, or open the full page.",
+  gdraft: "Puts this reply in your Gmail drafts instead of sending.",
+  notmine: "Someone else owns this. Today stops showing it and learns from it.",
+  drop: "Removes it. Nothing is sent.",
+  Slack: "Open this conversation in Slack.",
+  Gmail: "Open this email thread in Gmail.",
+  thread: "Show the whole conversation here, in their words.",
+  pitch: "Move it to your list so you can reply.",
+  not_yours: "Move it to your list as yours to do.",
+  remark: "Add it to your to-dos.",
+  choice: "Writes a reply saying this, for you to read and change. Nothing is sent until you press Send.",
+  tell: "Say what to change in plain words. The reply is rewritten for you to read again.",
+  check: "Mark done. Nothing is sent.",
+  head: "Open to read, reply, or see the thread.",
+  proj: "Open this project at its next step.",
+  copy: "Copies the reply so you can paste it where it goes. Nothing is sent.",
+  emails: "Open the emails written for this, to read and send each one.",
+  nudge: "Sends this nudge, as you. You get 10 seconds to undo.",
+  add: "Adds a to-do of your own. Nothing is sent.",
+  drag: "Drag to change the order. Today keeps your order.",
+  step: "Mark this step done. Nothing is sent.",
+  handled: "Already handled it? Mark it done. Nothing is sent.",
+  backdone: "They got back to you, or it's settled? Mark it done. Nothing is sent.",
+  ttw: "Open this draft in your writing app.",
+  ttwstart: "Open your writing app to start this piece.",
+  continue: "Opens your draft in your writing app, where you left off. Nothing is sent.",
+  goalopen: "Open this goal's next move.",
+  notes: "Your notes, kept as you type, in a file beside your weekly priorities.",
+  movedone: "You did this. Today works out the next move for this goal. Nothing is sent.",
+  goaldone: "Mark this goal done. It stays on the list, crossed out.",
+  weekedit: "Paste or write your priorities for the week, however you write them. They stay until you change them.",
+  weeksave: "Saves this as this week's priorities, word for word. Nothing is sent.",
+};
+// Message rows that carry the "already handled" check (not waiting or filed-away rows).
+const CHECKABLE = v => ["now","answers","replies","later","waiting"].includes(v) || /^(goal|project|proj):/.test(v);
+const openIn = {};          // view -> the key open in it
+let nowTouched = false;     // the user opened or closed something in Now themselves
+const rowsByKey = {};       // key -> its row, for the handlers
+const PICK_LIMIT = 3;
+const oneLine = s => String(s||"").replace(/\s+/g," ").trim();
+
+// A name on a row always means a person is waiting: the user's own work shows none.
+// A real deadline, quietly: only "today" is coloured (the user, 2026-11-13).
+function whenHtml(w){ return `<span class="when${w==="today"?" hot":""}">${esc(w)}</span>`; }
+function whoOf(r){ return r.own ? "" : (r.who || ""); }
+// A long message shows its first dozen lines; "Show all" opens the rest in place (the user, 2026-11-14).
+function msgHtml(inner){
+  const lines = inner.split("\n").length + Math.floor(inner.length / 70);
+  return lines > 14 ? `<div class="msg long">${inner}</div><button class="link showall" onclick="event.stopPropagation();this.previousElementSibling.classList.remove('long');this.remove()" title="Show the rest of their message">Show all</button>` : `<div class="msg">${inner}</div>`;
+}
+function wordsOf(r){ const w = r.words || r.title; return r.mine_words && !r.own && r.who ? `You: ${w}` : w; }
+function goalTip(r, base){ return r.goal ? `For your goal: ${r.goal}` : base; }
+function itemHtml(r, viewName, right=""){
+  rowsByKey[r.key]=r;
+  const open = openIn[viewName]===r.key;
+  const words = wordsOf(r);
+  return `<div class="item${open?" open":""}${r.goal?" forgoal":""}${rowMarks(r, viewName)}" data-item="${esc(r.key)}" data-view="${esc(viewName)}">`
+    + `<div class="head" title="${esc(goalTip(r, viewName==="now"?TIPS.head+" "+TIPS.drag:TIPS.head))}">${CHECKABLE(viewName)?`<button class="check2" data-done="${esc(r.key)}" title="${esc(viewName==="waiting"?TIPS.backdone:TIPS.handled)}"></button>`:`<span class="ckslot"></span>`}<span class="words">${whoOf(r)?`<span class="whobefore">${esc(whoOf(r))}</span>`:""}${esc((LIST_VIEWS.concat(["filed"]).includes(viewName)||isProjView(viewName))&&r.title?r.title:words)}</span><span class="st">${right}${rowRight(r, viewName)}${viewName!=="filed"&&r.when?`<span class="stdue">${dueHtml(r, viewName)}</span>`:""}</span><span class="dueslot">${viewName!=="filed"?dueHtml(r, viewName):""}</span>${rowAsk(r, viewName)}</div>`
+    + `<div class="body">${open?bodyHtml(r, viewName):""}</div></div>`;
+}
+function todoHtml(r, viewName){
+  rowsByKey[r.key]=r;
+  const open = openIn[viewName]===r.key;
+  return `<div class="item todoitem${open?" open":""}${r.goal?" forgoal":""}${rowMarks(r, viewName)}" data-item="${esc(r.key)}" data-view="${esc(viewName)}">`
+    + `<div class="head" title="${esc(goalTip(r, TIPS.head))}">${todoStepHead(r)&&!r.step_total?`<button class="check2" data-stepdone="${esc("todo:"+r.key)}" title="Next step done. Nothing is sent."></button><span class="words t stepped">${todoStepHead(r)}</span>`:`<button class="check2" data-done="${esc(r.key)}" title="${esc(TIPS.check)}"></button><span class="words t">${esc(r.title||oneLine(r.words))}</span>`}<span class="st">${(S.plan.in_week||{})[r.key]?`<span class="intag" title="On Week's list">in Week</span>`:""}${rowRight(r, viewName)}${r.when?`<span class="stdue">${dueHtml(r, viewName)}</span>`:""}</span><span class="dueslot">${dueHtml(r, viewName)}</span>${rowAsk(r, viewName)}</div>`
+    + `<div class="body">${open?bodyHtml(r, viewName):""}</div></div>`;
+}
+// A goal's place in Now while its next move is worked out: quiet, grey, nothing to press.
+function placeholderHtml(r){
+  return `<div class="item placeholder forgoal" data-placeholder="${esc(r.key)}" title="${esc(goalTip(r, ""))}"><div class="head"><span class="ckslot"></span><span class="words">${esc(r.title)}</span><span class="st"></span><span class="dueslot"></span><span class="askslot"></span></div></div>`;
+}
+function srcHtml(r){
+  if(r.move) return "";
+  const lab = r.open_label || (r.url ? "Open" : "");
+  const via = r.via && r.via!==r.open_label && !(r.via==="Email" && r.open_label==="Gmail") ? `<span class="via" title="Where this conversation is">${esc(r.via)}</span>` : "";
+  return `<div class="src">${via}${r.url?`<a href="${esc(r.url)}" target="_blank" title="${esc(TIPS[lab]||"Open the original.")}">${esc(lab)}</a>`:""}${r.manual?"":`<button class="conv" title="${esc(TIPS.thread)}">Whole thread</button>`}</div><div class="convo"></div>`;
+}
+// A move toward a weekly goal: links and a notes box for "go do", the draft in Talk to
+// Write for "write", and for "message" the usual choices (who to ask) and reply.
+function moveBody(r, viewName){
+  const m=r.move||{}; let h="";
+  const links=(m.links||[]).map(l=>`<a href="${esc(l.url)}" target="_blank" title="Open ${esc(l.label)}.">${esc(l.label)}</a>`).join("");
+  const doc=m.doc&&m.doc.url?`<a href="${esc(m.doc.url)}" target="_blank" title="${esc(TIPS.ttw)}">Open the draft</a>`
+    : m.start_url?`<a href="${esc(m.start_url)}" target="_blank" title="${esc(TIPS.ttwstart)}">Start it in your writing app</a>`:"";
+  if(links||doc) h+=`<div class="src">${doc}${links}</div>`;
+  if(m.kind==="write"){
+    if(r.left_off) h+=`<div class="label">Where you left off</div><div class="leftoff">${esc(r.left_off)}</div>`;
+    const url = m.doc ? m.doc.url : m.start_url;
+    h+=`<div class="actions">${url?`<a class="btn primary" href="${esc(url)}" target="_blank" title="${esc(TIPS.continue)}">${m.doc?"Continue writing":"Start writing"}</a>`:""}<button class="link" data-notnow title="${esc(TIPS.notnow)}">Not now</button></div>`;
+    return h;
+  }
+  if(m.kind==="go_do"){
+    h+=`<div class="label">Your notes</div><textarea class="rdraft" data-notes rows="4" title="${esc(TIPS.notes)}">${esc(xpEdits["notes:"+r.key] ?? r.notes ?? "")}</textarea>`;
+  }
+  h+=`<div class="actions"><button class="btn primary" data-movedone title="${esc(TIPS.movedone)}">Done</button><button class="link" data-notnow title="${esc(TIPS.notnow)}">Not now</button></div>`;
+  return h;
+}
+function bodyHtml(r, viewName){
+  if(usesCard(r, viewName)) return cardShell(r, viewName);  // the one card, on every list and project page
+  // Left outside the card: a weekly priority's own move (This week stays as it is) and Filed away,
+  // which shows their words and where they are, to pull back.
+  if(r.move && r.move.kind!=="message") return moveBody(r, viewName);
+  let h = guessHtml(r, viewName);
+  if(String(wordsOf(r)).trim()!==String(r.title||"").trim()) h+=msgHtml(askWords(r, wordsOf(r)));
+  return h+srcHtml(r);
+}
+function foldHtml(id, label, inner, tip){
+  const on = openFolds.has(id);
+  return `<button class="fold${on?" open":""}" data-fold="${esc(id)}"${tip?` title="${esc(tip)}"`:""}>${label}</button><div class="foldbody">${inner}</div>`;
+}
+const openFolds = new Set();
+function names(rows){ const n=[...new Set(rows.map(r=>r.who||oneLine(r.title).split(" ").slice(0,3).join(" ")).filter(Boolean))]; return n.slice(0,6).join(", ")+(n.length>6?", ...":""); }
+// One rounded list per section, thin lines between rows; no name column in a list of the user's own
+// tasks (the user, 2026-11-13).
+function listHtml(rows, viewName, render, extraClass=""){
+  // A name shows only on message rows (a to-do of the user's never shows one, nor a placeholder).
+  const named = render!==todoHtml && rows.some(r=>whoOf(r) && r.kind!=="todo" && !r.manual && !r.placeholder);
+  return `<div class="list${named?"":" noname"}${extraClass}" data-list="${esc(viewName)}">${rows.map(r=>render(r, viewName)).join("")}</div>`;
+}
+function section(title, rows, viewName, render=itemHtml, head=true){
+  if(!rows.length) return "";
+  const all = openFolds.has("more-"+viewName) || openIn[viewName] && rows.slice(PICK_LIMIT).some(r=>r.key===openIn[viewName]);
+  const shown = all ? rows : rows.slice(0, PICK_LIMIT), more = rows.slice(shown.length);
+  let h = head ? `<h2 class="sec">${esc(title)}</h2>` : "";
+  h += listHtml(shown, viewName, render);
+  if(more.length) h+=`<button class="more" data-moresec="${esc(viewName)}">+ ${more.length} more${render===todoHtml?"":`: ${esc(names(more))}`}</button>`;
+  return h;
+}
+
+// ---- This week: the user's priorities in the user's own words, each goal with a done circle ---------
+let doneOpen = false, sugOpen = null;
+let weekEditing = false, weekOpen = null, weekFolded = localStorage.getItem("todayWeekFolded")==="1";
+function weekHtml(w){
+  const edit = `<button class="link editweek" id="weekedit" title="${esc(TIPS.weekedit)}" aria-label="Edit"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>`;
+  const folded = weekFolded && !weekEditing;
+  let h = `<h2 class="sec sechead"><span class="wkfold" id="wkfold" title="Fold or unfold your priorities">${folded?"&#9656;":"&#9662;"} This week</span>${folded&&w?`<span class="aside">${esc(w.focus||"")}</span>`:""}${edit}</h2>`;
+  if((!w && !weekEditing) || folded) return h;
+  h += `<div class="week">`;
+  if(w && !weekEditing){
+    if(w.priority){
+      const f = w.focus && w.priority.includes(w.focus) ? w.priority.replace(w.focus, "\u0000") : null;
+      h += `<div class="wk1">${f ? f.split("\u0000").map(esc).join(`<b>${esc(w.focus)}</b>`) : esc(w.priority)}</div>`;
     }
-    h+=`</div></div>`;
+    // The quiet list (the user chose it 2026-11-13): the user's priorities and the user's own next steps only.
+    // No lines, bars or arrows; a suggestion shows only when the user asks for one ("+ next step");
+    // finished ones fold into one line at the bottom.
+    const open=w.goals.filter(g=>!g.done), done=w.goals.filter(g=>g.done);
+    h += `<ul class="goals">` + open.map(g=>{ const ref="goal:"+g.id, mine=!!stepOf(ref).text, asking=editingStep===ref||sugOpen===ref;
+      return `<li title="${esc(g.away?"Away today, so not in Now.":"")}"><button class="check2" data-goal="${esc(g.id)}" data-on="1" title="${esc(TIPS.goaldone)}"></button><div class="gcol"><span class="g" data-goalopen="${esc(g.id)}" title="${esc(TIPS.goalopen)}">${esc(g.text)}</span>${g.status?` <span class="gmeta">${esc(g.status)}</span>`:""}${mine||asking?"":` <button class="gadd" data-addstep="${esc(ref)}" title="Write a next step, or see a suggestion">+ next step</button>`}${stepLine(g)}</div></li>${weekOpen===g.id&&g.move&&!g.in_now?`<li class="goalmove">${g.move.kind==="todo"?todoHtml(g.move,"week"):itemHtml(g.move,"week")}</li>`:""}`; }).join("") + `</ul>`;
+    if(done.length) h += `<button class="gdonefold${doneOpen?" on":""}" id="gdonefold" title="Show what you finished this week">${done.length} done this week</button>` + (doneOpen?`<ul class="goals gdonelist">${done.map(g=>`<li class="gdone"><button class="check2" data-goal="${esc(g.id)}" data-on="0" title="Done. Click to undo."></button><div class="gcol"><span class="g">${esc(g.text)}</span></div></li>`).join("")}</ul>`:"");
+  }
+  if(weekEditing){
+    h += `<textarea class="rdraft weektext" id="weektext" rows="12" title="${esc(TIPS.weekedit)}">${esc(w?w.text:"")}</textarea><div class="actions"><button class="btn primary" id="weeksave" title="${esc(TIPS.weeksave)}">Save</button><button class="link" id="weekcancel">Cancel</button></div>`;
+  }
+  return h + `</div>`;
+}
+function bindWeek(root){
+  const e=$("weekedit"); if(e) e.onclick=ev=>{ev.stopPropagation(); weekEditing=!weekEditing; renderList(); if(weekEditing) $("weektext").focus()};
+  const fd=$("wkfold"); if(fd) fd.onclick=()=>{weekFolded=!weekFolded; localStorage.setItem("todayWeekFolded",weekFolded?"1":"0"); renderList()};
+  bindSteps(root.querySelector(".week")||document.createElement("div"), renderList);
+  const df=$("gdonefold"); if(df) df.onclick=()=>{doneOpen=!doneOpen; renderList()};
+  root.querySelectorAll("[data-addstep]").forEach(b=>b.onclick=e=>{e.stopPropagation(); const ref=b.dataset.addstep;
+    const g=(S.page.week.goals||[]).find(x=>"goal:"+x.id===ref); const sug=g&&g.move&&!g.move.placeholder?g.move.title:"";
+    if(sug) sugOpen=ref; else editingStep=ref; renderList();
+    const ed=document.querySelector("[data-stepedit]"); if(ed) ed.focus(); });
+  const c=$("weekcancel"); if(c) c.onclick=()=>{weekEditing=false; renderList()};
+  const sv=$("weeksave"); if(sv) sv.onclick=async()=>{const text=$("weektext").value; if(!text.trim()) return; sv.disabled=true;
+    try{const r=await api("/api/weekly",{text}); weekEditing=false; toast(r.message); loadList()}catch(err){sv.disabled=false; toast(err.message)}};
+  // A goal opens its next move: the Now item if it is there, else in place under the goal.
+  root.querySelectorAll("[data-goalopen]").forEach(t=>t.onclick=()=>{
+    const g=(S.page.week.goals||[]).find(x=>x.id===t.dataset.goalopen); if(!g) return;
+    if(!g.move){ toast(g.done?"This goal is done.":"Working out its next move"); return; }
+    if(g.in_now){ openIn.now=g.move.key; nowTouched=true; weekOpen=null; renderList();
+      const el=document.querySelector(`#now .item[data-item="${CSS.escape(g.move.key)}"]`); if(el) el.scrollIntoView({behavior:"smooth",block:"center"}); return; }
+    weekOpen = weekOpen===g.id ? null : g.id; openIn.week = weekOpen ? g.move.key : null; renderList();
   });
-  h+=`</div><div class="actions" style="margin-top:14px">${g.in_today?`<button class="btn" id="gl">Not today</button>`:`<button class="btn primary" id="gt">Do the next step today</button>`}</div>`;
-  h+=`<div class="foot" style="margin-top:14px">Open an item to move it out of this goal</div>`;
-  if(g.sources.length) h+=`<div class="sources">Read from: ${g.sources.map(s=>s.url?`<a href="${esc(s.url)}" target="_blank">${esc(s.label)}</a>`:esc(s.label)).join(" · ")}</div>`;
-  h+=`</div>`;
-  app.innerHTML=h;
-  $("back").onclick=()=>go(back.hash);
-  app.querySelectorAll(".member").forEach(r=>r.onclick=()=>go("#"+encodeURIComponent(r.dataset.key)));
-  app.querySelectorAll("[data-stepdone]").forEach(b=>b.onclick=async()=>{await api("/api/step-done",{goal:g.id,step:b.dataset.stepdone});toast("Step done");renderGoal()});
-  app.querySelectorAll("[data-sendall]").forEach(b=>b.onclick=async()=>{
-    const s=g.steps.find(x=>x.id===b.dataset.sendall); const ms=s.members.filter(m=>m.can_send);
-    if(!confirm(`Send ${ms.length} replies as you?\n\n`+ms.map(m=>"- "+m.who+": "+(m.draft||"").split("\n")[0]).join("\n"))) return;
-    b.disabled=true; b.textContent="Sending…";
-    const items=[]; for(const m of ms){ const d=await api("/api/item?key="+encodeURIComponent(m.key)); items.push({key:m.key,text:d.draft}); }
-    const r=await api("/api/send-many",{items}); const bad=r.results.filter(x=>!x.ok);
-    toast(`Sent ${r.results.length-bad.length}`+(bad.length?`, ${bad.length} not sent`:"")); if(bad.length) alert(bad.map(x=>x.error).join("\n")); renderGoal()});
-  if($("gt")) $("gt").onclick=async()=>{await api("/api/today",{key:"goal:"+g.id,on:true});toast("Added to Today");renderGoal()};
-  if($("gl")) $("gl").onclick=async()=>{await api("/api/today",{key:"goal:"+g.id,on:false});toast("Moved back to Owed by you");renderGoal()};
-  editInPlace($("gtitle"), t=>api("/api/goal/rename",{goal:g.id,title:t}));
-  $("fixintent").onclick=()=>{$("intentbox").style.display="block";$("intenttext").focus()};
-  $("intentcancel").onclick=()=>{$("intentbox").style.display="none"};
-  $("intentsave").onclick=async()=>{const t=$("intenttext").value.trim(); if(!t) return; $("intentsave").disabled=true; await api("/api/goal/note",{goal:g.id,text:t}); toast("Rethinking this goal"); renderGoal()};
-  // Drag a step onto another to put it there, as on the main list.
-  let dragStep=null;
-  app.querySelectorAll(".step[data-step]").forEach(r=>{
-    r.ondragstart=()=>{dragStep=r.dataset.step;r.classList.add("dragging");clearTimeout(pollTimer)};
-    r.ondragend=()=>{r.classList.remove("dragging");app.querySelectorAll(".dropto").forEach(x=>x.classList.remove("dropto"))};
-    r.ondragover=e=>{e.preventDefault();r.classList.add("dropto")};
-    r.ondragleave=()=>r.classList.remove("dropto");
-    r.ondrop=async e=>{e.preventDefault();r.classList.remove("dropto");if(!dragStep||dragStep===r.dataset.step)return;const ids=g.steps.map(s=>s.id);ids.splice(ids.indexOf(dragStep),1);ids.splice(ids.indexOf(r.dataset.step),0,dragStep);await api("/api/goal/reorder",{goal:g.id,order:ids});renderGoal()};
+  root.querySelectorAll("[data-goal]").forEach(b=>b.onclick=async()=>{const on=b.dataset.on==="1";
+    await api("/api/weekly/goal",{id:b.dataset.goal,on}); if(on) toastUndo("Goal done", async()=>{await api("/api/weekly/goal",{id:b.dataset.goal,on:false}); loadList()}); loadList()});
+}
+
+// A click must never land on an element that a refresh just replaced (the user, 2026-11-14: tabs
+// "not catching the click"). Refreshes in the background wait while a pointer is down or was
+// pressed a moment ago, and redraw only when what they fetched differs from what is shown.
+let pointerDown = false, lastPointer = 0, drawnPrint = "";
+document.addEventListener("pointerdown", ()=>{ pointerDown = true; lastPointer = Date.now(); }, true);
+document.addEventListener("pointerup", ()=>{ pointerDown = false; lastPointer = Date.now(); }, true);
+const pointerBusy = () => pointerDown || Date.now() - lastPointer < 500;
+function whenPointerFree(fn){ if(!pointerBusy()) { fn(); return; } setTimeout(()=>whenPointerFree(fn), 200); }
+async function loadList(opts={}){
+  const wk = api("/api/week").catch(()=>null);
+  const fresh = await api("/api/state");
+  const week = await wk;
+  const print = JSON.stringify([fresh, week]);
+  const changed = print !== drawnPrint;
+  nowCheck(S, fresh);
+  S = fresh; WK = week;
+  const P = S.page;
+  // Now opens with its first item expanded, so the user can flow through the three.
+  const nowKeys = P.now.map(r=>r.key);
+  if(!nowTouched && !nowKeys.includes(openIn.now)) openIn.now = nowKeys[0];
+  await whenFinished();
+  if(view.page==="list" && (changed || !opts.background || !$("main"))){
+    if(opts.background) whenPointerFree(()=>{ if(view.page==="list"){ drawnPrint = print; renderList(); } });
+    else { drawnPrint = print; renderList(); }
+  }
+  prefetchPages();
+  const busy = [...P.now, ...P.answers, ...P.replies].some(r=>r.status==="working"||r.placeholder);
+  clearTimeout(askedTimer);
+  if(busy) askedTimer=setTimeout(()=>{ if(view.page==="list" && !document.activeElement?.closest?.("#app textarea,#app input")) loadList({background:true}); },4000);
+}
+let askedTimer=null;
+
+// A redraw keeps what the user is looking at still: the first row or heading at the top of the
+// screen stays at the same height, whatever changed above it (the user, 2026-11-14).
+function keepPlace(draw){
+  const marks=[...document.querySelectorAll("#app .item[data-item], #app h2.sec")];
+  const anchor=marks.find(e=>e.getBoundingClientRect().bottom>0);
+  const id=anchor && (anchor.dataset.item ? `.item[data-item="${CSS.escape(anchor.dataset.item)}"]` : null);
+  const label=anchor && !id ? anchor.textContent : null, before=anchor ? anchor.getBoundingClientRect().top : 0;
+  draw();
+  if(!anchor || window.scrollY===0) return;
+  const again=id ? document.querySelector("#app "+id) : [...document.querySelectorAll("#app h2.sec")].find(e=>e.textContent===label);
+  if(again) window.scrollBy(0, again.getBoundingClientRect().top-before);
+}
+function renderList(){ keepPlace(drawList); }
+function setupNote(){
+  // Nothing to read yet: say which inputs Today looks for and where to set them.
+  const rows=(S.sources||[]).map(s=>`<li>${esc(s.label)}${s.path?`: <code>${esc(s.path)}</code>`:""} ${s.found?"(found)":"(not there yet)"}</li>`).join("");
+  return `<div class="card setup"><div class="title">Connect a source</div><p>Today builds its list from what you owe people in your email and Slack. It reads an email digest file for each inbox and your connected Slack account, and neither has given it anything yet.</p>`
+    + (rows?`<ul>${rows}</ul>`:`<p>No sources are set up. Add them to <code>${esc(S.settings_path)}</code>.</p>`)
+    + `<p class="muted">The app's README describes each file's format. The list fills in on the next update, every 30 minutes. You can still add your own to-dos in the Inbox.</p></div>`;
+}
+function drawList(){
+  const app=$("app"), P=S.page;
+  const status = S.sync_error ? `<div class="muted small" title="${esc(S.sync_error)}">Couldn't update at ${fmtTime(S.last_sync)}</div>` : "";
+  document.body.classList.toggle("wide", TAB==="week" && !searchQ);
+  // No date line; search sits at the end of the tabs row (the user, 2026-11-13).
+  // Search opens from the icon at the end of the tabs row, or "/" (the user, 2026-11-13).
+  const sbox = searchOpen||searchQ ? `<span class="searchbox tabsearch"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="search" placeholder="Search everything" title="Search everything, open or finished. Last refreshed ${esc(fmtTime(S.last_sync))}. Esc closes it." value="${esc(searchQ)}"></span>`
+    : `<button class="iconbtn tabsearch" id="searchbtn" title="Search (/)" aria-label="Search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>`;
+  const head = `${tabsHtml(sbox)}${TAB==="today"?status:""}`;
+  let h=`<div id="main">`;
+  if(TAB!=="today"){
+    if(drawnTab===TAB && $("main") && !searchQ) return;
+    drawShell(app, head, h+`</div>`); drawnTab=TAB; bindTabs(app); bindSearch();
+    if(searchQ){ renderSearch(); return; }
+    ({week:drawWeek, inbox:drawInbox, someday:drawSomeday, projects:drawProjects})[TAB]();
+    return;
+  }
+  drawnTab="today";
+  if(!S.has_source) h+=setupNote();
+  h+=weekHtml(P.week);
+  h+=morningHtml();
+  if(P.now.length){ h+=`<h2 class="sec">Now</h2>`+listHtml(P.now, "now", nowRow, " dnd").replace('<div class="list', '<div id="now" data-sec="now" class="list'); }
+  else if(NOWCLEAR.list.length) h+=`<h2 class="sec">Now</h2>`+nowClearHtml();
+  // Replies ready first: one read and Send finishes each (the user, 2026-11-13).
+  h+=section("Replies ready", P.replies, "replies");
+  h+=section("Quick answers", P.answers, "answers");
+  h+=`<h2 class="sec">Yours to do</h2>`;
+  // Oldest first, so the oldest thing gets done first (the user, 2026-11-13).
+  h+=section("Yours to do", P.todos, "todos", todoHtml, false);
+  h+=`<input class="addtodo" id="add" placeholder="Add a to-do" title="${esc(TIPS.add)}">`;
+  // Slipped (once "Dropped off") sits right under Yours to do: things the user meant to do that weren't high
+  // priority, more actionable than waiting on others (the user, 2026-11-13).
+  if(P.later.length) h+=`<div class="dropped">`+foldHtml("later", `Slipped · ${P.later.length}`, listHtml(P.later, "later", (r,v)=>r.kind==="todo"?todoHtml(r,v):itemHtml(r,v)))+`</div>`;
+  // The quiet bottom: everything that never needs the user's attention today.
+  const f=P.filed, nFiled=f.pitch.length+f.not_yours.length+f.remark.length;
+  const pull=(kind,label)=>r=>itemHtml(r,"filed",`<button class="link pull" data-pull="${esc(r.key)}" title="${esc(TIPS[kind])}">${label}</button>`);
+  let b="";
+  // No Projects fold here: projects have their own tab (the user, 2026-11-14).
+  if(P.waiting.length) b+=foldHtml("waiting", `Waiting on others · ${P.waiting.length}`, listHtml(P.waiting, "waiting", itemHtml));
+  const filedList=(rows,kind,label)=>listHtml(rows, "filed", r=>pull(kind,label)(r));
+  if(nFiled) b+=foldHtml("filed", `Filed away · ${nFiled}`,
+    (f.pitch.length?`<div class="sub2">Pitches</div>`+filedList(f.pitch,"pitch","Reply"):"")
+    +(f.not_yours.length?`<div class="sub2">Someone else's</div>`+filedList(f.not_yours,"not_yours","Mine"):"")
+    +(f.remark.length?`<div class="sub2">Said in passing</div>`+filedList(f.remark,"remark","To do"):""));
+  if(b) h+=`<div class="bottom">${b}</div>`;
+  h+=learnedHtml()+`</div>`+dockHtml();
+  const y=scrollY; drawShell(app, head, h); scrollTo(0,y);
+  bindSearch();
+  if(searchQ){ renderSearch(); return; }
+  bindItems(app, loadList);
+  bindDock(app);
+  nowAfterRender();
+  bindWeek(app);
+  bindTabs(app);
+  bindMorning(app);
+  bindSteps(app.querySelector("#now")||document.createElement("div"), renderList);
+  app.querySelectorAll(".item.todoitem [data-stepdone]").forEach(b=>{ if(!b.onclick) bindSteps(b.closest(".item"), renderList); });
+  app.querySelectorAll("[data-hash]").forEach(p=>p.onclick=()=>go(p.dataset.hash));
+  const add=$("add");
+  add.onkeydown=async e=>{if(e.key==="Enter"&&add.value.trim()){await api("/api/add",{text:add.value.trim()});toast("Added");await loadList();$("add").focus()}};
+  // Drag to reorder Now: the user's order becomes the user's own picks for today (the same drag as project pages).
+  dragSort(app, async ({key, before}) => {
+    const {now: order} = movedOrder({now: S.page.now.map(i => i.key)}, key, "now", before);
+    await api("/api/order", {order}); loadList();
   });
-  app.querySelectorAll("[data-unnote]").forEach(a=>a.onclick=async()=>{await api("/api/goal/note/remove",{goal:g.id,at:a.dataset.unnote}); renderGoal()});
-  pollTimer=setTimeout(()=>{ if(view.page==="goal" && $("intentbox").style.display!=="block" && document.activeElement?.id!=="gtitle") renderGoal(); }, g.rethinking?4000:30000);
 }
 
-
-function fmtDay(iso){ if(!iso) return ""; return new Date(iso).toLocaleDateString([], {month:"short", day:"numeric"}); }
-async function renderProject(){
-  let d; try { d = await api("/api/project?id="+encodeURIComponent(view.id)); } catch(e) { go(""); return; }
-  const app=$("app"), key="project:"+d.id;
-  let h=`<span class="back" id="back">&larr; Today</span><div class="card"><div class="title">${esc(d.title)}</div>`;
-  h+=`<div class="actions" style="margin:6px 0 10px">${d.in_today?`<button class="btn" id="ptoday" data-on="0">Not today</button>`:`<button class="btn" id="ptoday" data-on="1">Do today</button>`}</div>`;
-  if(!d.goals.length&&!d.tasks.length) h+=`<div class="empty">Nothing open in ${esc(d.title)}.</div>`;
-  if(d.goals.length){ h+=`<h2>Goals · ${d.goals.length}</h2>`; d.goals.forEach(g=>h+=goalRow(g)); }
-  if(d.tasks.length){ h+=`<h2>Tasks · ${d.tasks.length}</h2>`; d.tasks.forEach(t=>h+=taskRow(t)); }
-  h+=`</div>`;
-  app.innerHTML=h;
-  $("back").onclick=()=>go("");
-  bindChecks(app, renderProject);
-  $("ptoday").onclick=async()=>{const on=$("ptoday").dataset.on==="1";await api("/api/today",{key,on});toast(on?"Added to Today":"Moved back to Owed by you");renderProject()};
-  app.querySelectorAll(".row[data-key]").forEach(r=>r.onclick=()=>go("#"+encodeURIComponent(r.dataset.key)));
+// The page's top (tabs, search) is kept as it is when unchanged, so a click on a tab is never lost
+// to a redraw of the list below it.
+function drawShell(app, head, body){
+  const top = $("shelltop"), rest = $("shellbody");
+  if(top && rest && top.parentElement===app && top.dataset.html===head){ rest.innerHTML = body; return; }
+  app.innerHTML = `<div id="shelltop"></div><div id="shellbody">${body}</div>`;
+  const t = $("shelltop"); t.innerHTML = head; t.dataset.html = head;
+}
+// One handler set for every item, wherever it is drawn. ``reload`` redraws that page.
+function bindItems(root, reload){
+  root.querySelectorAll("[data-fold]").forEach(b=>b.onclick=()=>{b.classList.toggle("open");b.classList.contains("open")?openFolds.add(b.dataset.fold):openFolds.delete(b.dataset.fold)});
+  root.querySelectorAll("[data-moresec]").forEach(b=>b.onclick=()=>{openFolds.add("more-"+b.dataset.moresec); renderList();});
+  root.querySelectorAll(".item[data-item]").forEach(el=>bindItem(el, reload));
+}
+function bindItem(el, reload){
+  const key=el.dataset.item, viewName=el.dataset.view, r=rowsByKey[key];
+  const head=el.querySelector(".head");
+  head.onclick=e=>{
+    if(e.target.closest("button,a,input")) return;
+    if(viewName==="now") nowTouched=true;
+    const was=el.classList.contains("open");
+    document.querySelectorAll(`.item.open[data-view="${CSS.escape(viewName)}"]`).forEach(x=>{x.classList.remove("open");x.querySelector(".body").innerHTML=""});
+    openIn[viewName] = was ? null : key;
+    if(!was){ el.classList.add("open"); el.querySelector(".body").innerHTML=bodyHtml(r, viewName); bindBody(el, reload); }
+  };
+  const done=el.querySelector("[data-done]");
+  // Done (or "already handled"): recorded like Done already, nothing is sent, with Undo.
+  // Checking a row that isn't open never moves what is open.
+  if(done) done.onclick=async e=>{e.stopPropagation(); finishRow(el);
+    try{ if(key.startsWith("c:")){ const res=await api("/api/projects/task",{id:view.id,key,action:"done"}); toastUndo(res.message, async()=>{await api("/api/undo",{batch:res.batch}); reload()}); }
+      else { await api("/api/done",{key}); toastUndo("Marked done. Nothing sent", async()=>{const u=await api("/api/undo-finish",{key}); toast(u.message); reload()}); } }
+    catch(err){toast(err.message)} reload()};
+  // A dated row carries its date twice: in the icon's slot on a computer, under the title on a phone.
+  el.querySelectorAll(".head [data-due]").forEach(due => due.onclick=e=>{e.stopPropagation(); openDuePicker(due, r, reload)});
+  const pull=el.querySelector("[data-pull]");
+  if(pull) pull.onclick=async e=>{e.stopPropagation();const res=await api("/api/pull-back",{key});toast(res.message);reload()};
+  if(el.classList.contains("open")) bindBody(el, reload);
+  bindRowExtras(el, reload);
+}
+// A redraw waits for rows still finishing, so the fill and fold are seen through (the user, 2026-11-14).
+let finishing = 0, afterFinish = [];
+const whenFinished = () => finishing ? new Promise(res => afterFinish.push(res)) : Promise.resolve();
+// After Send or Not now in Now, the next one opens by itself.
+function finishRow(el, tick=true){
+  if(el.dataset.finishing) return; el.dataset.finishing="1"; finishing++;
+  // The check fills, then the row fades and folds away as one smooth motion, no pause (the user, 2026-11-13).
+  const viewName=el.dataset.view, wasOpen=el.classList.contains("open");
+  if(viewName==="now") nowFinished(el);
+  // Not now isn't done: that row just fades away, with no tick and no beat to see one (the user, 2026-11-16).
+  const ck=el.querySelector(".check2"); if(ck&&tick) ck.classList.add("ticked");
+  const big=wasOpen, h=el.offsetHeight, cs=getComputedStyle(el);
+  let ended=false;
+  const done=()=>{ if(ended) return; ended=true; el.classList.add("gone");
+    finishing=Math.max(0,finishing-1); if(!finishing){ const w=afterFinish; afterFinish=[]; w.forEach(f=>f()); }
+    if((viewName==="now"||isProjView(viewName))&&wasOpen){ const scope=viewName==="now"?'#now .item[data-item]:not(.gone):not(.placeholder)':`.item[data-view="${CSS.escape(viewName)}"]:not(.gone)`;
+      const nxt=[...document.querySelectorAll(scope)].find(x=>x!==el); openIn[viewName]=nxt?nxt.dataset.item:null;
+      if(nxt){nxt.classList.add("open");nxt.querySelector(".body").innerHTML=bodyHtml(rowsByKey[nxt.dataset.item],viewName);bindBody(nxt, viewName==="now"?()=>loadList():reloadProj)}} };
+  // Timing (the user, 2026-11-14: "tactile, satisfying"): the press squeezes the circle, it fills
+  // with a small spring and the tick draws (~300 ms); the row holds, done, for a beat so the eye
+  // registers it (to ~550 ms); then it fades and drifts right (220 ms, ease-in) and the rows
+  // below close the gap at once and settle softly (380 ms, ease-out). About 1.1 s in all; nothing waits on it.
+  if(tick) el.classList.add("finishing");
+  setTimeout(()=>{
+    if(!el.animate||matchMedia("(prefers-reduced-motion: reduce)").matches){ done(); return; }
+    el.style.overflow="hidden";
+    const fade=220, fold=big?460:380;
+    el.animate([
+      {height:h+"px",marginBottom:cs.marginBottom,opacity:1,transform:"translateX(0)",easing:"cubic-bezier(.4,0,1,1)"},
+      {height:h+"px",marginBottom:cs.marginBottom,opacity:0,transform:"translateX(10px)",offset:fade/(fade+fold),easing:"cubic-bezier(.22,1,.36,1)"},
+      {height:"0px",marginBottom:"0px",opacity:0,transform:"translateX(10px)",borderTopWidth:"0px",borderBottomWidth:"0px",paddingTop:"0px",paddingBottom:"0px"}],
+      {duration:fade+fold,fill:"forwards"}).onfinish=done;
+  }, !tick?0:big?600:550);
+  setTimeout(done, 2400);  // never hold redraws if the row was removed mid-motion
+}
+function bindBody(el, reload){
+  const key=el.dataset.item, q=s=>el.querySelector(s);
+  if(el.querySelector("[data-card]")){ drawCard(el, reload); bindRowExtras(el, reload); return; }
+  // A weekly priority's move, or a Filed away row.
+  const conv=q(".conv");
+  if(conv) conv.onclick=async e=>{e.stopPropagation(); const box=q(".convo"); if(box.classList.toggle("on")){conv.textContent="Hide thread"; if(!box.innerHTML) box.innerHTML=await (await fetch("/raw?part=1&key="+encodeURIComponent(key))).text()||`<span class="muted">Nothing saved.</span>`} else conv.textContent="Whole thread"};
+  const md=q("[data-movedone]");
+  if(md) md.onclick=async()=>{finishRow(el); await api("/api/done",{key}); toastUndo("Done. Working out the next move", async()=>{const u=await api("/api/undo-finish",{key}); toast(u.message); reload()}); reload()};
+  const notes=q("[data-notes]");
+  if(notes){ let t=null; notes.oninput=()=>{xpEdits["notes:"+key]=notes.value; clearTimeout(t); t=setTimeout(()=>api("/api/move/notes",{key,text:notes.value}).catch(err=>toast(err.message)),800)}; }
+  const nn=q("[data-notnow]");
+  if(nn) nn.onclick=async()=>{finishRow(el, false); await api("/api/not-now",{key}); toastUndo("Moved to Slipped", async()=>{await api("/api/not-now",{key,on:false}); reload()}); reload()};
+  bindRowExtras(el, reload);
+}
+// Every Send in Today: it goes in a few seconds unless Undo is pressed (the user, 2026-11-14: one
+// send, always on the thread). what: "reply" | "email" | "user_draft"; fields: its addressing.
+async function sendSoon({key, text, what="reply", fields={}, who="them", gone=()=>{}, undone=()=>{}, after=()=>{}}){
+  const res = await api("/api/send-soon", {key, text, what, fields});
+  gone();
+  toastUndo(`Sending to ${who} in ${Math.round(res.seconds)} seconds`, async()=>{const c=await api("/api/send-cancel",{token:res.token}); toast(c.ok?"Not sent":"Already sent"); undone()}, res.seconds*1000);
+  setTimeout(async()=>{const st=await api("/api/send-status?token="+encodeURIComponent(res.token)); if(st.state==="failed") toast("Not sent: "+st.error); else if(st.state==="sent") toast(st.message); else if(st.state==="unknown") toast("Today lost track of this send. Check your sent messages before sending again."); after(st)}, res.seconds*1000+2500);
+  return res;
+}
+function toastUndo(text, undo, ms=10000){
+  const e=$("toast"); e.textContent=text;
+  const u=document.createElement("button"); u.className="undo"; u.textContent="Undo"; u.title="Stop it. Nothing is sent.";
+  u.onclick=async()=>{e.classList.remove("on"); await undo()};
+  e.appendChild(u); e.classList.add("on"); clearTimeout(e._t); e._t=setTimeout(()=>e.classList.remove("on"), ms);
 }
 
-function savedDraft(i,slot){return (i.gmail_drafts||{})[slot]}
-function savedNote(i,slot){const d=savedDraft(i,slot); return d?`<div class="detail">In your Gmail drafts since ${fmtTime(d.at)} · <a href="${esc(d.url)}" target="_blank">Open drafts</a></div>`:""}
-function emailCards(i){
-  return (i.emails||[]).map((e,n)=>{
-    const fmt = a => a.email ? (a.name ? `${a.name} <${a.email}>` : a.email) : "";
-    const missing = [...e.to, ...e.cc].filter(a=>!a.email).map(a=>a.name);
-    if(e.sent) return `<div class="emailcard"><b>${esc(e.subject)}</b><div class="sent">Sent to ${esc(e.sent_to)}</div></div>`;
-    return `<div class="emailcard" data-email="${n}"><label>To</label><input data-f="to" value="${esc(e.to.map(fmt).filter(Boolean).join(", "))}" placeholder="${esc(e.to.map(a=>a.name).join(", "))}">`
-      + `<label>Cc</label><input data-f="cc" value="${esc(e.cc.map(fmt).filter(Boolean).join(", "))}">`
-      + `<label>Subject</label><input data-f="subject" value="${esc(e.subject)}">`
-      + `<label>Message</label><textarea class="draft" data-f="text" rows="${Math.min(16, e.body.split("\n").length+2)}">${esc(e.body)}</textarea>`
-      + (missing.length?`<div class="detail">Couldn't find an address for ${esc(missing.join(", "))}; add it above.</div>`:"")
-      + `<div class="detail">${e.in_thread?"Goes out as a reply in the original email thread.":"Goes out as a new email."}</div>`
-      + `<div class="actions"><button class="btn primary" data-sendemail="${n}">Send this email</button><button class="btn" data-gdraft="${n}">${savedDraft(i,"email:"+n)?"Update Gmail draft":"Save as Gmail draft"}</button></div>${savedNote(i,"email:"+n)}</div>`;
-  }).join("");
-}
-
-function calendarCards(i){
-  return (i.calendar||[]).map((e,n)=>{
-    const when = e.all_day ? new Date(e.start+"T12:00").toLocaleDateString([], {weekday:"short", month:"short", day:"numeric"})
-      : new Date(e.start).toLocaleString([], {weekday:"short", month:"short", day:"numeric", hour:"numeric", minute:"2-digit"}) + (e.end?" to "+new Date(e.end).toLocaleTimeString([], {hour:"numeric", minute:"2-digit"}):"");
-    return `<div class="emailcard"><div><b>${esc(e.title)}</b></div><div class="muted">${esc(when)}${e.location?" · "+esc(e.location):""}</div>${e.notes?`<div class="muted" style="margin-top:4px">${esc(e.notes)}</div>`:""}`
-      + `<div class="actions">${e.added?`<span class="muted">On your calendar</span>${e.link?` · <a href="${esc(e.link)}" target="_blank">Open</a>`:""}`:`<button class="btn primary" data-cal="${n}">Add to my calendar</button>`}</div></div>`;
-  }).join("");
-}
-
-function feedbackBox(i){
-  const notes = (i.feedback||[]).map(f=>f.note);
-  return `<div class="fb">${notes.length?`<div class="muted">Your notes so far: ${notes.map(esc).join(" · ")}</div>`:""}`
-    + `<input class="text" id="fbnote" placeholder="${i.draft||(i.emails||[]).length?"Tell me what to change, like: shorter, warmer, or put it on my calendar":"Tell me what to do, like: put it on my calendar, or draft a reply saying yes"}">`
-    + `<div class="actions"><button class="btn" id="fbgo">${i.draft||(i.emails||[]).length?"Redo the draft":"Do it"}</button><label class="muted fbrem"><input type="checkbox" id="fbrem"> Remember this for all drafts</label></div></div>`;
-}
-
+// A task on its own page (from search, a project's task link, or "Open the full
+// page"): the same card as on every list, with its title to edit and the raw conversation linked.
 async function renderItem(){
   clearTimeout(pollTimer);
-  let i; try { i = await api("/api/item?key="+encodeURIComponent(view.key)); } catch(e) { go(""); return; }
-  const app=$("app"), t=i.target||{};
-  // Back (and after finishing) returns to the page the item was opened from.
-  const backTo = i.goal && view.from==="goal:"+i.goal.id ? {label:i.goal.title, hash:"#goal:"+encodeURIComponent(i.goal.id)}
-    : view.from&&view.from.startsWith("project:") ? {label:(i.projects.find(p=>"project:"+p.id===view.from)||{title:"Project"}).title, hash:"#"+encodeURIComponent(view.from)}
+  const key = view.key;
+  let d; try { d = await api("/api/card?key="+encodeURIComponent(key)); } catch(e) { go(""); return; }
+  CARD.data[key] = d;
+  const app=$("app");
+  const backTo = view.from&&view.from.startsWith("p:") ? {label:"Project", hash:"#"+view.from}
     : {label:"Today", hash:""};
-  const kindLine = i.no ? `You said no${i.who?` to ${esc(i.who)}`:""}` : i.manual ? "You added this" : (i.kind==="promised" ? `You told ${esc(i.who)}` : i.kind==="handed" ? `You asked ${esc(i.who)} to do this` : `${esc(i.who)} asked`) + (i.age?` · ${esc(i.age)} ago`:"");
-  let h=`<span class="back" id="back">&larr; ${esc(backTo.label)}</span><div class="card">`;
-  if(!i.manual) h+=`<div class="partof">${i.goal?`Part of <a id="gotogoal">${esc(i.goal.title)}</a> · step ${i.goal.step_n} of ${i.goal.steps} · <a id="notpart">Not part of this goal</a>`:"Not part of a goal"}${i.other_goals.length?` · <select class="btn" id="moveto"><option value="">Move to a goal…</option>${i.other_goals.map(g=>`<option value="${esc(g.id)}">${esc(g.title)}</option>`).join("")}</select>`:""}${i.projects.length?` · <select class="btn" id="proj">${[{id:"",title:"No project"}].concat(i.projects).map(p=>`<option value="${esc(p.id)}"${p.id===i.project?" selected":""}>${p.id?"Project: ":""}${esc(p.title)}</option>`).join("")}</select>`:""}</div>`;
-  h+=`<div class="title"><span class="edtitle" id="ititle" contenteditable="true" spellcheck="true">${esc(i.title)}</span>${i.due_label?` ${dueTag(i)}`:""}</div><div class="muted">${kindLine}</div>`;
-  if(!i.manual && i.ask_text) h+=`<div class="quote">${esc(i.ask_text)}</div>`;
-  if(!i.manual) h+=`<div class="src" style="margin-top:6px"><a href="/raw?key=${encodeURIComponent(i.key)}">See the conversation</a>${i.url?` · <a href="${esc(i.url)}">Open in ${i.source==="slack"?"Slack":"Gmail"}</a>`:""}</div>`;
-  if(i.status==="working"){ h+=`<div class="did">${i.no?"Writing a no…":"Working on it…"}</div></div>`; app.innerHTML=h; $("back").onclick=()=>go(backTo.hash); pollTimer=setTimeout(renderItem,2500); return; }
-  if(i.did) h+=`<div class="did">${esc(i.did)}</div>`;
-  h+=calendarCards(i);
-  const noBtn = i.no ? `<button class="btn" id="letgo">Drop it, send nothing</button><button class="btn" id="unno">Undo no</button>` : (i.manual ? "" : (i.goal||i.project ? "" : i.later ? `<button class="btn" id="unlater">Bring back from Later</button>` : `<button class="btn" id="setlater">Later</button>`) + `<button class="btn" id="ignore">Ignore</button><button class="btn" id="no">Draft a no</button>`);
-  const hd = !i.no && i.status!=="sent" ? i.user_draft : null;
-  const todayBtn = i.no ? noBtn : (i.goal ? "" : (i.in_today ? `<button class="btn" id="later">Not today</button>` : `<button class="btn" id="tdy">Do today</button>`)) + (i.no ? "" : noBtn);
-  const start = h.length;
-  if(i.state==="you" && i.questions && i.questions.length && !(i.answers&&i.answers.length&&(i.draft||(i.emails||[]).length))){
-    i.questions.forEach((q,n)=>{h+=`<div class="q"><p>${n+1}. ${esc(q.q)}</p>`;
-      h+= q.kind==="text" ? `<input class="text" data-q="${n}">` : `<div class="opt">${q.options.map(o=>`<button class="btn" data-q="${n}" data-o="${esc(o)}">${esc(o)}</button>`).join("")}</div><input class="text" data-q="${n}" data-other="1" placeholder="or type your own answer" style="margin-top:8px">`;
-      h+=`</div>`});
-    h+=`<div class="actions"><button class="btn primary" id="go">Continue</button>${todayBtn}<button class="btn" id="done">Done already</button></div>`+feedbackBox(i);
-  } else if((i.emails||[]).length){
-    h+=emailCards(i)+`<div class="actions"><button class="btn" id="done">Mark done</button>${todayBtn}</div>`+feedbackBox(i);
-  } else if(i.draft){
-    h+=`<textarea class="draft" id="draft" rows="${Math.min(14, Math.max(3, i.draft.split("\n").length + 1))}">${esc(i.draft)}</textarea>`;
-    if(t.can_send){
-      const gd = i.source==="email" ? `<button class="btn" id="gdraft">${savedDraft(i,"reply")?"Update Gmail draft":"Save as Gmail draft"}</button>` : "";
-      h+=`<div class="detail">${esc(t.detail)}</div><div class="actions"><button class="btn primary" id="send">${esc(t.label)}</button>${gd}${todayBtn}<button class="btn" id="done">Done already</button></div>${i.source==="email"?savedNote(i,"reply"):""}`;
-    } else {
-      h+=`<div class="detail">This goes to ${esc(i.to||"someone else")}, so copy it and send it there.</div><div class="actions"><button class="btn primary" id="copy">Copy</button><button class="btn" id="done">Mark done</button>${todayBtn}</div>`;
-    }
-    h+=feedbackBox(i);
-  } else {
-    h+=`<div class="actions"><button class="btn primary" id="done">Mark done</button>${todayBtn}</div>`+feedbackBox(i);
-  }
-  if(hd){
-    // The user's own unsent draft is the next step; Today's suggestion folds underneath.
-    const mine = `<div class="herdraft"><div class="hdlabel">Your unsent draft · ${esc(fmtDay(hd.date))}</div><div class="detail" style="margin:0 0 6px">To ${esc(hd.to)}${hd.cc?` · Cc ${esc(hd.cc)}`:""}</div>`
-      + `<textarea class="draft" id="hdraft" rows="${Math.min(14, Math.max(4, hd.text.split("\n").length + 1))}">${esc(hd.text)}</textarea>`
-      + `<div class="actions"><button class="btn primary" id="hsend">Send your draft</button><button class="btn" id="hsave">Save changes to Gmail draft</button>${todayBtn}<button class="btn" id="done">Done already</button></div></div>`;
-    const alt = h.slice(start).split(todayBtn).join("").replace(/<button class="btn( primary)?" id="done">[^<]*<\/button>/g, "");
-    h = h.slice(0,start) + mine + `<details class="alt"><summary>Or use my suggestion instead</summary>` + alt + `</details>`;
-  }
-  if(i.error) h+=`<div class="err">${esc(i.error)}</div>`;
-  h+=`</div>`;
-  app.innerHTML=h;
-  if($("hsend")) $("hsend").onclick=async()=>{const b=$("hsend"); if(!confirm(`Send your draft to ${hd.to} as you?`)) return; b.disabled=true;b.textContent="Sending…";
-    try{const r=await api("/api/user-draft",{key:i.key,message_id:hd.message_id,text:$("hdraft").value,send:true});after(r.message,archivedKey(r,i))}catch(e){b.disabled=false;b.textContent="Send your draft";toast(e.message)}};
-  if($("hsave")) $("hsave").onclick=async()=>{const b=$("hsave");b.disabled=true;b.textContent="Saving…";
-    try{const r=await api("/api/user-draft",{key:i.key,message_id:hd.message_id,text:$("hdraft").value});toast(r.message);renderItem()}catch(e){b.disabled=false;b.textContent="Save changes to Gmail draft";toast(e.message)}};
+  const raw = d.manual ? "" : `<a href="/raw?key=${encodeURIComponent(key)}" title="The saved conversation, as it came in">See the whole conversation</a>`;
+  app.innerHTML = `<span class="back" id="back">&larr; ${esc(backTo.label)}</span><div class="itempage">`
+    + `<div class="ititle"><span class="edtitle" id="ititle" contenteditable="true" spellcheck="true" title="Click to rename.">${esc(d.title)}</span></div>`
+    + `<div class="imeta">${d.who ? esc(d.who) + (raw ? " · " : "") : ""}${raw}</div>`
+    + `<div class="list"><div class="item open" data-item="${esc(key)}" data-view="page"><div class="body"><div class="c5" data-card="${esc(key)}"></div></div></div></div></div>`;
+  rowsByKey[key] = rowsByKey[key] || {key, who: d.who, title: d.title};
   $("back").onclick=()=>go(backTo.hash);
-  editInPlace($("ititle"), t=>api("/api/item/title",{key:i.key,title:t}));
-  const after = (msg, undoKey) => { toast(msg, undoKey); go(backTo.hash); };
-  if($("gotogoal")) $("gotogoal").onclick=()=>go(backTo.hash);
-  if($("notpart")) $("notpart").onclick=async()=>{await api("/api/goal/remove-item",{key:i.key});toast("Taken out of the goal");renderItem()};
-  if($("proj")) $("proj").onchange=async e=>{await api("/api/item/project",{key:i.key,project:e.target.value});toast(e.target.value?"Moved to "+e.target.selectedOptions[0].text.replace("Project: ",""):"Taken out of its project");renderItem()};
-  if($("moveto")) $("moveto").onchange=async e=>{ if(!e.target.value) return; await api("/api/goal/move-item",{key:i.key,goal:e.target.value}); toast("Moved"); renderItem(); };
-  const answers={};
-  if($("done")) $("done").onclick=async()=>{const r=await api("/api/done",{key:i.key});after(r.message,i.key)};
-  if($("later")) $("later").onclick=async()=>{await api("/api/today",{key:i.key,on:false});after("Moved back to Owed by you")};
-  if($("tdy")) $("tdy").onclick=async()=>{await api("/api/today",{key:i.key,on:true});toast("Added to Today");renderItem()};
-  if($("no")) $("no").onclick=async()=>{await api("/api/no",{key:i.key});toast("Saying no: writing it now");renderItem()};
-  if($("ignore")) $("ignore").onclick=async()=>{const r=await api("/api/ignore",{key:i.key});after(r.message,i.key)};
-  if($("setlater")) $("setlater").onclick=async()=>{await api("/api/later",{key:i.key,on:true});after("Moved to Later")};
-  if($("unlater")) $("unlater").onclick=async()=>{await api("/api/later",{key:i.key,on:false});toast("Back in Owed by you");renderItem()};
-  if($("letgo")) $("letgo").onclick=async()=>{const r=await api("/api/let-go",{key:i.key});after(r.message,i.key)};
-  if($("unno")) $("unno").onclick=async()=>{await api("/api/bring-back",{key:i.key});after("Back in Owed by you")};
-  if($("copy")) $("copy").onclick=async()=>{await navigator.clipboard.writeText($("draft").value);toast("Copied")};
-  if($("send")) $("send").onclick=async()=>{const b=$("send");b.disabled=true;b.textContent="Sending…";
-    try{const r=await api("/api/send",{key:i.key,text:$("draft").value});after(r.message,archivedKey(r,i))}catch(e){b.disabled=false;b.textContent=t.label;toast(e.message)}};
-  if($("gdraft")) $("gdraft").onclick=async()=>{const b=$("gdraft");b.disabled=true;b.textContent="Saving…";
-    try{const r=await api("/api/gmail-draft",{key:i.key,text:$("draft").value});toast(r.message);renderItem()}catch(e){b.disabled=false;b.textContent="Save as Gmail draft";toast(e.message)}};
-  app.querySelectorAll("[data-gdraft]").forEach(b=>b.onclick=async()=>{
-    const card=b.closest(".emailcard"); const f=n=>card.querySelector(`[data-f="${n}"]`).value;
-    b.disabled=true; b.textContent="Saving…";
-    try{const r=await api("/api/gmail-draft",{key:i.key,index:+b.dataset.gdraft,to:f("to"),cc:f("cc"),subject:f("subject"),text:f("text")});toast(r.message);renderItem()}
-    catch(e){b.disabled=false;b.textContent="Save as Gmail draft";toast(e.message)}});
-  app.querySelectorAll("[data-sendemail]").forEach(b=>b.onclick=async()=>{
-    const card=b.closest(".emailcard"); const f=n=>card.querySelector(`[data-f="${n}"]`).value;
-    if(!confirm(`Send "${f("subject")}" to ${f("to")}${f("cc")?" (cc "+f("cc")+")":""} as you?`)) return;
-    b.disabled=true; b.textContent="Sending…";
-    try{const r=await api("/api/send-email",{key:i.key,index:+b.dataset.sendemail,to:f("to"),cc:f("cc"),subject:f("subject"),text:f("text")});toast(r.message,archivedKey(r,i));renderItem()}
-    catch(e){b.disabled=false;b.textContent="Send this email";toast(e.message)}});
-  app.querySelectorAll("[data-o]").forEach(b=>b.onclick=()=>{answers[b.dataset.q]=b.dataset.o;app.querySelectorAll(`[data-o][data-q="${b.dataset.q}"]`).forEach(x=>x.classList.toggle("sel",x===b))});
-  app.querySelectorAll("input[data-q]").forEach(inp=>inp.oninput=()=>{answers[inp.dataset.q]=inp.value; if(inp.dataset.other) app.querySelectorAll(`[data-o][data-q="${inp.dataset.q}"]`).forEach(x=>x.classList.remove("sel"))});
-  if($("fbgo")) { const goFb=async()=>{const note=$("fbnote").value.trim(); if(!note){toast("Say what to change first");return}
-      await api("/api/revise",{key:i.key,note,remember:$("fbrem").checked}); if($("fbrem").checked) toast("Saved as a rule for all drafts"); renderItem()};
-  app.querySelectorAll("[data-cal]").forEach(b=>b.onclick=async()=>{b.disabled=true;b.textContent="Adding…";
-    try{await api("/api/calendar/add",{key:i.key,index:+b.dataset.cal});toast("Added to your calendar");renderItem()}catch(e){b.disabled=false;b.textContent="Add to my calendar";toast(e.message)}});
-    $("fbgo").onclick=goFb; $("fbnote").onkeydown=e=>{if(e.key==="Enter") goFb()}; }
-  if($("go")) $("go").onclick=async()=>{const vals=i.questions.map((q,n)=>(answers[n]||"").trim()); if(vals.some(v=>!v)){toast("Answer each question first");return}
-    await api("/api/answer",{key:i.key,answers:vals}); renderItem()};
+  editInPlace($("ititle"), t=>api("/api/item/title",{key,title:t}));
+  const el = app.querySelector(".item");
+  drawCard(el, () => go(backTo.hash));
+}
+
+// ---- Tabs: Inbox, Today, Week, Someday (the user, 2026-11-12) --------------------------
+// A phone opens on Inbox, a computer on Today. The tab is kept in the address (?tab=).
+const TABS = [["inbox","Inbox"],["today","Today"],["week","Week"],["projects","Projects"],["someday","Someday"]];
+const PHONE = matchMedia("(max-width:760px), (pointer:coarse)").matches;
+let TAB = new URLSearchParams(location.search).get("tab") || (PHONE ? "inbox" : "today");
+let drawnTab = null;
+// One-off management views (the user, 2026-11-14): their own pages, linked at the top right.
+const VIEWS = [];
+function tabsHtml(extra=""){ return `<div class="tabs" id="tabs"><span class="seg">${TABS.map(([k,l])=>`<button class="tab${TAB===k?" on":""}" data-tab="${k}">${l}</button>`).join("")}</span>${extra}`
+  + `<span class="views">${VIEWS.map(([href,l,tip])=>`<a class="view" href="${href}" title="${esc(tip)}">${l}</a>`).join("")}</span></div>`; }
+function bindTabs(root){ root.querySelectorAll("[data-tab]").forEach(b=>b.onclick=e=>{e.preventDefault(); switchTab(b.dataset.tab)}); }
+function switchTab(t, opts={}){
+  TAB=t; const u=new URL(location.href); u.searchParams.set("tab",t); history.replaceState(history.state,"",u.pathname+u.search+u.hash); savePlace();
+  if(opts.weekStart) weekStart=opts.weekStart;
+  drawnTab=null; searchQ=""; searchRes=null;
+  // Someday reads fresh each time (Inbox may have filed a bullet there); a pending edit saves first.
+  if(sdTimer){ clearTimeout(sdTimer); sdTimer=null; if(sdRoot) api("/api/someday",{text:serialize(sdRoot)}).catch(err=>toast(err.message)); }
+  if(t==="someday") sdRoot=null;
+  // From a page of its own (a project, a task), a tab goes back to the tabbed list on that tab;
+  // the page's address would otherwise keep drawing the page (the user, Nov 15).
+  if(view.page!=="list"){ go(""); return; }
+  if(t==="today" && S){ renderList(); loadList({background:true}); }
+  else if(t==="today") loadList(); else renderList();
+  scrollTo(0,0);
+}
+
+// ---- small helpers -------------------------------------------------------------------
+const mins = t => { const [h,m]=String(t).split(":").map(Number); return h*60+m; };
+const hhmm = n => `${String(Math.floor(n/60)).padStart(2,"0")}:${String(n%60).padStart(2,"0")}`;
+function hm(t){ if(!t) return ""; const [h,m]=t.split(":").map(Number); const ap=h>=12?"pm":"am", hh=h%12||12; return m?`${hh}:${String(m).padStart(2,"0")}${ap}`:hh+ap; }
+function dur(n){ const h=Math.floor(n/60), m=n%60; return h&&m?`${h}h ${m}m`:h?`${h}h`:`${m}m`; }
+function addDays(s,n){ const d=new Date(s+"T12:00:00"); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
+function dayName(s, opts={weekday:"long"}){ return new Date(s+"T12:00:00").toLocaleDateString("en-US", opts); }
+function shortDay(s){ return dayName(s,{weekday:"short",month:"short",day:"numeric"}); }
+function menu(anchor, items){
+  document.querySelectorAll(".menu").forEach(m=>m.remove());
+  const m=document.createElement("div"); m.className="menu";
+  items.forEach(([l,f])=>{const b=document.createElement("button"); b.textContent=l; b.onclick=()=>{m.remove(); f()}; m.appendChild(b)});
+  document.body.appendChild(m);
+  const r=anchor.getBoundingClientRect(); m.style.top=(scrollY+r.bottom+4)+"px";
+  m.style.left=Math.max(8, Math.min(innerWidth-m.offsetWidth-8, scrollX+r.left))+"px";
+  setTimeout(()=>document.addEventListener("click", function off(ev){ if(!m.contains(ev.target)){ m.remove(); document.removeEventListener("click", off) } }),0);
+}
+const planSteps = () => (S && S.plan && S.plan.steps) || {};
+const stepOf = ref => planSteps()[ref] || {};
+// What a planned thing is called: a to-do by its own words, anything else by its text.
+const bigOf = it => it.kind==="todo" ? (it.then_todo || it.text) : it.text;
+// "todo" is already a row style on this page, so a planned to-do is drawn as "task".
+const kindClass = k => k==="todo" ? "task" : k;
+const KIND_LABEL = {goal:"Priority", todo:"To-do", someday:"From Someday"};
+
+// ---- The user's next steps (planning.py): the user writes them; the AI's move is only a suggestion --
+async function saveStep(ref, text){ const r=await api("/api/step",{ref,text}); S.plan.steps[ref]=r.result; return r.result; }
+let editingStep = null;
+function stepLine(g){
+  const ref="goal:"+g.id, st=stepOf(ref), sug=g.move && !g.move.placeholder ? (g.move.title||"") : "";
+  if(editingStep===ref) return `<input class="stepedit" data-stepedit="${esc(ref)}" value="${esc(st.text||"")}" placeholder="Your next step, then Enter">`;
+  if(st.text) return `<div class="gstep own" data-stepopen="${esc(ref)}" title="Your next step. Click to rewrite">${esc(st.text)}</div>`;
+  if(sugOpen!==ref || !sug) return "";
+  return `<div class="gstep">Suggested: ${esc(sug)} &middot; <button class="link" data-usestep="${esc(ref)}" data-text="${esc(sug)}" title="Make this your next step">Use it</button> &middot; <button class="link" data-stepopen="${esc(ref)}" title="Write your own instead">Write my own</button></div>`;
+}
+function bindSteps(root, redraw){
+  root.querySelectorAll("[data-stepopen]").forEach(el=>el.onclick=e=>{e.stopPropagation(); editingStep=el.dataset.stepopen; redraw();
+    const ed=document.querySelector("[data-stepedit]"); if(ed){ ed.focus(); ed.setSelectionRange(ed.value.length, ed.value.length); }});
+  root.querySelectorAll("[data-usestep]").forEach(b=>b.onclick=async e=>{e.stopPropagation(); sugOpen=null; await saveStep(b.dataset.usestep, b.dataset.text); toast("Now it's your next step"); redraw()});
+  const ed=root.querySelector("[data-stepedit]");
+  if(ed){
+    let done=false;
+    const save=async()=>{ if(done) return; done=true; const ref=ed.dataset.stepedit, t=ed.value.trim(); editingStep=null;
+      if(t!==(stepOf(ref).text||"")){ await saveStep(ref, t); toast(t?"Next step saved":"Cleared. The suggestion is back"); } redraw(); };
+    ed.onkeydown=e=>{ if(e.key==="Enter"){ e.preventDefault(); sugOpen=null; save(); } if(e.key==="Escape"){ done=true; editingStep=null; sugOpen=null; redraw(); } };
+    ed.onblur=save;
+  }
+  root.querySelectorAll("[data-stepdone]").forEach(b=>b.onclick=async e=>{e.stopPropagation(); const ref=b.dataset.stepdone;
+    const row=b.closest(".item"); if(row) finishRow(row);
+    const r=await api("/api/step/done",{ref}); S.plan.steps[ref]=r.result;
+    toast(r.result.text?`Step done. Next: ${r.result.text}`:"Step done. Write the next one when you're ready"); loadList();});
+}
+
+// ---- Today: the morning block ---------------------------------------------------------
+let WK = null;   // this week's mornings and plan, from /api/week
+const todayDay = () => WK && WK.days.find(d=>d.date===WK.today);
+// A finished big thing stays on the morning; one dragged in after it stacks underneath
+// (the user, 2026-11-13). The block being worked on is the first unfinished one.
+const blocksOf = d => d ? [d.placed, ...(d.stacked||[])].filter(Boolean) : [];
+const curBlock = d => blocksOf(d).find(p=>!p.item.done) || null;
+function wonHtml(d, p, last){
+  const key="celebrated:"+d.date+":"+p.ref, fresh=!localStorage.getItem(key);
+  localStorage.setItem(key,"1");
+  const steps=p.item.done_steps||[];
+  return `<div class="block won${fresh?" fresh":""}"><div class="wonrow"><span class="wonmark" aria-hidden="true"></span><div><div class="wonlab">Done this morning</div><div class="bt">${esc(bigOf(p.item))}</div></div></div>${steps.length?`<div class="wonsteps">${steps.map(t=>`<div>&#10003; ${esc(t)}</div>`).join("")}</div>`:""}${last?`<div class="wonrest">The rest of the morning is yours.</div>`:""}</div>`;
+}
+function morningHtml(){
+  const d=todayDay(); if(!d) return "";
+  const m=d.morning, blocks=blocksOf(d), cur=curBlock(d);
+  const free = m.start ? `${hm(m.start)} to ${hm(m.end)} is free${m.until?`, then ${esc(m.until)}`:""}` : "no free time";
+  let h=`<h2 class="sec">This morning <span class="aside" title="${esc(WK.zone_line)}">${free}</span></h2>`;
+  blocks.filter(p=>p.item.done).forEach(p=>{ h+=wonHtml(d, p, !cur); });
+  if(cur){
+    const it=cur.item, step=stepOf(it.ref).text||"";
+    h+=`<div class="block${blocks.length>1?" next":""}"><div class="time">${hm(cur.start)} to ${hm(cur.end)} (${dur(mins(cur.end)-mins(cur.start))}) &middot; on your calendar</div><div class="bt">${esc(bigOf(it))}</div>`;
+    if(step) h+=`<div class="mv">Your next step: <b>${esc(step)}</b></div>`;
+    else if(it.suggested) h+=`<div class="mv">Suggested first move: <b>${esc(it.suggested)}</b></div>`;
+    if(m.unanswered.length) h+=`<div class="muted">Overlaps an invite you haven't answered: ${esc(m.unanswered.map(e=>hm(e.start)+" "+e.title).join(", "))}</div>`;
+    h+=`<div class="bbar"><button class="btn primary" id="startfocus" title="Clear the screen to this one thing">Start</button><button class="btn" id="moveblock" title="Open Week to move it">Move to another day</button></div></div>`;
+  } else if(!blocks.length){
+    h+=`<div class="block none">${m.away?esc(m.away)+". ":""}${m.start?`${hm(m.start)} to ${hm(m.end)} is open${m.away?" if you want to move a big thing forward":""}.`:"No open time this morning."} <a data-tab="week">Plan one in Week</a></div>`;
+  }
+  return h;
+}
+function bindMorning(root){
+  const s=root.querySelector("#startfocus"); if(s) s.onclick=()=>startFocus();
+  const mv=root.querySelector("#moveblock"); if(mv) mv.onclick=()=>switchTab("week");
+}
+// A goal move in Now shows the user's own next step when the user wrote one.
+function nowRow(r){
+  const ref = r.goal_id ? "goal:"+r.goal_id : "";
+  const st = ref ? stepOf(ref) : {};
+  if(!st.text) return r.placeholder?placeholderHtml(r):r.kind==="todo"?todoHtml(r,"now"):itemHtml(r,"now");
+  return `<div class="item todoitem forgoal" title="${esc("For your goal: "+(r.goal||""))}"><div class="head"><button class="check2" data-stepdone="${esc(ref)}" title="Step done. Nothing is sent."></button><span class="words t">${esc(st.text)}</span><span class="st"><span class="yours">yours</span></span><span class="dueslot"></span><span class="askslot"></span></div></div>`;
+}
+
+// ---- Yours to do: a next step only if the user writes one, and "Plan in Week" -----------------
+function todoStepHead(r){
+  const st=stepOf("todo:"+r.key);
+  if(!st.text) return null;
+  return `${esc(st.text)}<span class="then">then: ${esc(r.title||oneLine(r.words))}</span>`;
+}
+
+// ---- Focus mode: Start clears the screen to the one big thing ----------------------------
+let focus = null;  // {ref, end, started, done:[]}
+function focusItem(){ return blocksOf(todayDay()).find(p=>p.ref===focus.ref) || null; }
+function startFocus(){
+  const cur=curBlock(todayDay()); if(!cur) return;
+  focus={ref:cur.ref, end:cur.end, started:Date.now(), done:[]};
+  const fv=document.createElement("div"); fv.id="focus"; fv.className="entering"; document.body.appendChild(fv);
+  document.body.classList.add("focusing");
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches){ fv.className=""; drawFocus(); return; }
+  fv.innerHTML=`<div class="breath"><div class="orb"></div><div class="bword" id="bword">Breathe in</div><div class="bgoal">${esc(bigOf(cur.item))}</div><button class="bskip" id="bskip">Skip</button></div>`;
+  let over=false;
+  const finish=()=>{ if(over) return; over=true; clearTimeout(t1); clearTimeout(t2); fv.classList.add("settle"); setTimeout(()=>{ fv.className=""; focus.started=Date.now(); drawFocus(); },700); };
+  const t1=setTimeout(()=>{ const w=$("bword"); if(w){ w.classList.add("swap"); setTimeout(()=>{ w.textContent="and out"; w.classList.remove("swap"); },400); } },4000);
+  const t2=setTimeout(finish,9000);
+  $("bskip").onclick=finish;
+}
+function drawFocus(){
+  const p=focusItem(); const fv=$("focus"); if(!fv||!focus) return;
+  const it=p?p.item:{text:"",kind:""}, st=stepOf(focus.ref), step=st.text||"";
+  let h=`<div class="fwrap"><div class="ftop"><span class="ftimewrap"><i class="bdot"></i><span class="ftime" id="ftime"></span></span><button class="btn" id="fexit">Done for now</button></div>`;
+  h+=`<div class="flabel">${it.kind==="goal"?"This morning's priority":"This morning's big thing"}</div><div class="fgoal">${esc(bigOf(it))}</div>`;
+  h+=`<div class="flabel" style="margin-top:28px">Next step</div>`;
+  if(step) h+=`<div class="fstep"><button class="check fcheck" id="fcheck" title="Done. Then write the next one."></button><span>${esc(step)}</span></div>`;
+  else if(it.suggested && !focus.done.length) h+=`<div class="fsug">Suggested: ${esc(it.suggested)} <a id="fuse">Use it</a></div>`;
+  h+=(st.then||[]).map(q=>`<div class="fqueue">then: ${esc(q)}</div>`).join("");
+  h+=`<input class="add fadd" id="fadd" placeholder="${step?"Add the step after this":"Write your next step"}, then Enter" autocomplete="off">`;
+  if(focus.done.length) h+=`<div class="flabel" style="margin-top:26px">Done this morning</div>`+focus.done.map(d=>`<div class="fdone">&#10003; ${esc(d)}</div>`).join("");
+  if(it.kind!=="someday") h+=`<button class="ffinish" id="ffinish" title="The whole big thing is done, not just this step">That finishes it</button>`;
+  if(focus.won) h=`<div class="fwrap"><div class="ftop"><span></span><button class="btn" id="fexit">Back to Today</button></div><div class="fwon"><span class="wonmark" aria-hidden="true"></span><div class="flabel">Done this morning</div><div class="fgoal">${esc(bigOf(it))}</div>${focus.done.length?`<div class="wonsteps">${focus.done.map(d=>`<div>&#10003; ${esc(d)}</div>`).join("")}</div>`:""}<div class="wonrest">The rest of the morning is yours.</div></div>`;
+  fv.innerHTML=h+`</div>`;
+  const tick=()=>{ const el=$("ftime"); if(!el||!focus) return; const s=Math.floor((Date.now()-focus.started)/1000); el.textContent=`Focusing ${Math.floor(s/60)}:${String(s%60).padStart(2,"0")} · until ${hm(focus.end)}`; };
+  tick(); clearInterval(window.__ft); window.__ft=setInterval(tick,1000);
+  $("fexit").onclick=()=>{ clearInterval(window.__ft); const n=focus.done.length; focus=null; fv.classList.add("leaving"); loadList();
+    setTimeout(()=>{ fv.remove(); document.body.classList.remove("focusing"); },600); if(n) toast(`${n} step${n>1?"s":""} done this morning`); };
+  const fc=$("fcheck");
+  if(fc) fc.onclick=async()=>{ fc.disabled=true; document.querySelector("#focus .fstep").classList.add("checked");
+    const [r]=await Promise.all([api("/api/step/done",{ref:focus.ref}), new Promise(res=>setTimeout(res,650))]);
+    S.plan.steps[focus.ref]=r.result; focus.done.push(step); drawFocus();
+    const nc=document.querySelector("#focus .fstep"); if(nc) nc.classList.add("arrive"); else $("fadd").focus(); };
+  const fu=$("fuse"); if(fu) fu.onclick=async()=>{ await saveStep(focus.ref, it.suggested); drawFocus(); };
+  const ff=$("ffinish"); if(ff) ff.onclick=async()=>{ ff.disabled=true;
+    if(step){ const r=await api("/api/step/done",{ref:focus.ref}); S.plan.steps[focus.ref]=r.result; focus.done.push(step); }
+    const [kind,id]=[focus.ref.split(":")[0], focus.ref.slice(focus.ref.indexOf(":")+1)];
+    try{ if(kind==="goal") await api("/api/weekly/goal",{id,on:true}); else if(kind==="todo") await api("/api/done",{key:id}); }catch(err){ toast(err.message); }
+    localStorage.setItem("celebrated:"+(WK&&WK.today)+":"+focus.ref,"1");
+    focus.won=true; clearInterval(window.__ft); drawFocus(); };
+  const add=$("fadd"); if(!add) return; if(!step) add.focus();
+  add.onkeydown=async e=>{ if(e.key!=="Enter"||!add.value.trim()) return; const v=add.value.trim(); add.value="";
+    const r=await api("/api/step/then",{ref:focus.ref,text:v}); S.plan.steps[focus.ref]=r.result; drawFocus();
+    toast(r.result.text===v?"That's your next step":"Added after the current step"); $("fadd").focus(); };
+}
+
+// ---- Week: one big thing a morning, on the user's real calendar ---------------------------------
+let weekStart = null, WV = null, dragRef = null;
+async function drawWeek(){
+  if(!WV) $("main").innerHTML=`<div class="empty">Reading your calendar&hellip;</div>`;
+  try{ WV = await api("/api/week"+(weekStart?"?start="+weekStart:"")); }catch(e){ $("main").innerHTML=`<div class="err">${esc(e.message)}</div>`; return; }
+  weekStart = WV.start;
+  if(TAB==="week") renderWeek();
+}
+const weekItems = () => [...WV.list.goals, ...WV.list.also];
+function weekItem(ref){ return weekItems().find(i=>i.ref===ref) || (WV.days.find(d=>d.placed&&d.placed.ref===ref)||{}).placed?.item; }
+const placedDay = ref => (WV.placed_refs||{})[ref];
+function timePick(day, which, val, ref){
+  // Mornings run 6am to 3pm; a block outside that (one stacked late in the day) keeps its own time.
+  const at=val?mins(val):mins("06:00"), lo=Math.min(mins("06:00"), at-at%15), hi=Math.max(mins("15:00"), at);
+  let o=""; for(let n=lo; n<=hi; n+=15){ const v=hhmm(n); o+=`<option value="${v}"${v===val?" selected":""}>${hm(v)}</option>`; }
+  if(val && (at-lo)%15) o+=`<option value="${val}" selected>${hm(val)}</option>`;
+  return `<select data-pick="${day}:${which}" data-ref="${esc(ref||"")}" title="${which==="start"?"When the block starts":"When it ends"}">${o}</select>`;
+}
+function renderWeek(){
+  const days=WV.days, today=WV.today, thisMon=addDays(today, -((new Date(today+"T12:00").getDay()+6)%7));
+  const label = WV.start===thisMon ? "This week" : WV.start===addDays(thisMon,7) ? "Next week" : WV.start===addDays(thisMon,-7) ? "Last week" : "Week of "+dayName(WV.start,{month:"short",day:"numeric"});
+  const w=S.page.week;
+  let h=`<div class="weekhead"><button class="btn" id="prevw" title="The week before">&larr;</button><h1>${label} <span class="muted" style="font-weight:400">${dayName(days[0].date,{month:"short",day:"numeric"})} to ${dayName(days[6].date,{month:"short",day:"numeric"})}</span></h1><button class="btn" id="nextw" title="The week after">&rarr;</button></div>`;
+  if(w && w.priority) h+=`<div class="muted" style="margin:-2px 0 4px">${esc(w.priority)}</div>`;
+  h+=`<div class="muted" style="margin:0 0 14px" title="Read from your calendar at ${esc(fmtTime(WV.calendar_at))}">${esc(WV.zone_line)}</div>`;
+  const src=it=>{ const at=placedDay(it.ref); const sub = it.then_todo ? `then: ${esc(it.then_todo)}` : it.step ? `Next: ${esc(it.step)}` : it.suggested ? `Next (suggested): ${esc(it.suggested)}` : "";
+    return `<div class="src ${kindClass(it.kind)}${at?" placed":""}" draggable="true" data-src="${esc(it.ref)}" title="${at?"On "+dayName(at)+". Drag it to another morning to move it.":"Drag onto a morning, or tap to pick a day."}">${esc(it.text)}${sub?`<span class="mv">${sub}</span>`:""}</div>`; };
+  h+=`<div class="weekgrid"><div class="rail"><div id="rail-drop"><h2 class="sec">This week's priorities</h2>`;
+  h+=WV.list.goals.map(src).join("") || `<div class="muted">No priorities written for this week.</div>`;
+  h+=`<h2 class="sec r2">Also available <span class="aside">what you chose to plan</span></h2>`;
+  h+=WV.list.also.map(src).join("") || `<div class="muted">Nothing else yet.</div>`;
+  h+=`<div class="railnote">Your priorities are always here. Anything else is here because you pressed "Plan in Week" on it, in Today, Inbox or Someday. Drag one onto a morning, or tap it to pick a day. To take one off a day, drag it back here, tap its title, or press &times;.</div></div></div><div class="days">`;
+  days.forEach((d,i)=>{
+    const p=d.placed, mo=d.morning, past=d.date<today;
+    const am=d.events.filter(e=>e.start<"13:00"), pm=d.events.filter(e=>e.start>="13:00");
+    const flags=[mo.away?`<div class="flag">${esc(mo.away)}</div>`:"", mo.hold?`<div class="flag">Your hold, counted as open: ${esc(mo.hold.title)} ${hm(mo.hold.start)} to ${hm(mo.hold.end)}</div>`:"", mo.unanswered.length?`<div class="flag">Unanswered: ${esc(mo.unanswered.map(e=>hm(e.start)+" "+e.title).join(", "))}</div>`:""].join("");
+    h+=`<div class="day${i>=5?" weekend":""}${past?" past":""}${d.date===today?" istoday":""}"><div class="dayname">${dayName(d.date,{weekday:"short"})} <span class="d">${+d.date.slice(8)}</span></div>`;
+    if(p){
+      const it=p.item;
+      h+=`<div class="slot filled ${kindClass(it.kind)}${it.done?" isdone":""}" draggable="true" data-day="${d.date}" data-src="${esc(p.ref)}"><div class="lab">${KIND_LABEL[it.kind]||""}<button data-unplace="${d.date}" data-ref="${esc(p.ref)}" title="Take it off this day. Its calendar block is removed.">&times;</button></div><div class="bt" title="Move it or take it off">${it.done?"&#10003; ":""}${esc(bigOf(it))}</div><div class="tm">${timePick(d.date,"start",p.start,p.ref)} to ${timePick(d.date,"end",p.end,p.ref)}</div><div style="margin-top:4px"><span class="chip cal" title="An event on your Google Calendar">on your calendar</span></div>${flags}</div>`;
+      (d.stacked||[]).forEach(q=>{ const qi=q.item;
+        h+=`<div class="slot filled stacked ${kindClass(qi.kind)}${qi.done?" isdone":""}" draggable="true" data-day="${d.date}" data-src="${esc(q.ref)}" title="After the one you finished"><div class="lab">Then${KIND_LABEL[qi.kind]?" &middot; "+KIND_LABEL[qi.kind]:""}<button data-unplace="${d.date}" data-ref="${esc(q.ref)}" title="Take it off this day. Its calendar block is removed.">&times;</button></div><div class="bt" title="Move it or take it off">${qi.done?"&#10003; ":""}${esc(bigOf(qi))}</div><div class="tm">${timePick(d.date,"start",q.start,q.ref)} to ${timePick(d.date,"end",q.end,q.ref)}</div></div>`; });
+    } else {
+      const soft=mo.away||mo.too_short;
+      const room=mo.start?`${hm(mo.start)} to ${hm(mo.end)} free (${dur(mo.len)})${mo.until?`, then ${esc(mo.until)}`:""}`:"No free morning";
+      h+=`<div class="slot${soft?" soft":""}" data-day="${d.date}"><div class="lab">Morning</div><div class="room${mo.too_short?" short":""}">${room}</div><div class="muted">${past?"":soft?"You can still drop one here":"Drop one big thing"}</div>${flags}</div>`;
+    }
+    h+=am.slice(0,4).map(e=>`<div class="ev am" title="${esc(e.title)}">${hm(e.start)} ${esc(e.title)}</div>`).join("");
+    h+=`<div class="pmhead">Afternoon</div>`+pm.slice(0,5).map(e=>`<div class="ev" title="${esc(e.title)}">${hm(e.start)} ${esc(e.title)}</div>`).join("")+(pm.length>5?`<div class="ev muted">+${pm.length-5} more</div>`:"");
+    h+=`</div>`;
+  });
+  h+=`</div></div>`;
+  const main=$("main"); main.innerHTML=h;
+  $("prevw").onclick=()=>{ weekStart=addDays(WV.start,-7); drawWeek(); };
+  $("nextw").onclick=()=>{ weekStart=addDays(WV.start,7); drawWeek(); };
+  main.querySelectorAll("[draggable=true]").forEach(el=>el.ondragstart=e=>{ dragRef=el.dataset.src; e.dataTransfer.setData("text/plain",dragRef); e.dataTransfer.effectAllowed="move"; });
+  const future = days.map(d=>d.date).filter(d=>d>=today);
+  main.querySelectorAll(".rail .src").forEach(el=>el.onclick=()=>{
+    const ref=el.dataset.src, at=placedDay(ref);
+    menu(el, future.map(dd=>{ const d=days.find(x=>x.date===dd), m=d.morning, has=d.placed&&d.placed.ref!==ref?` (has: ${bigOf(d.placed.item).slice(0,24)}…)`:"";
+      return [`${shortDay(dd)} · ${m.start?hm(m.start)+" to "+hm(m.end):"no free time"}${m.away?" (away)":""}${has}`, ()=>drop(ref,dd)]; })
+      .concat(at?[["Take it off "+dayName(at), ()=>unplace(at, ref)]]:[]));
+  });
+  main.querySelectorAll(".slot.filled .bt").forEach(el=>el.onclick=()=>{
+    const slot=el.closest(".slot"), d=slot.dataset.day, ref=slot.dataset.src;
+    menu(el, future.filter(x=>x!==d).map(x=>["Move to "+shortDay(x), ()=>drop(ref,x)]).concat([["Take it off this day", ()=>unplace(d, ref)]]));
+  });
+  const rd=$("rail-drop");
+  rd.ondragover=e=>{ if(dragRef && placedDay(dragRef)){ e.preventDefault(); rd.classList.add("over"); } };
+  rd.ondragleave=()=>rd.classList.remove("over");
+  rd.ondrop=e=>{ e.preventDefault(); rd.classList.remove("over"); const ref=dragRef, at=placedDay(ref); dragRef=null; if(at) unplace(at, ref); };
+  main.querySelectorAll("[data-unplace]").forEach(b=>{ b.onmousedown=e=>e.stopPropagation(); b.onclick=e=>{ e.stopPropagation(); unplace(b.dataset.unplace, b.dataset.ref); }; });
+  main.querySelectorAll(".slot").forEach(s=>{
+    s.ondragover=e=>{ e.preventDefault(); s.classList.add("over"); };
+    s.ondragleave=()=>s.classList.remove("over");
+    s.ondrop=e=>{ e.preventDefault(); s.classList.remove("over"); const ref=dragRef; dragRef=null; drop(ref, s.dataset.day); };
+  });
+  main.querySelectorAll("[data-pick]").forEach(sel=>{ sel.onclick=e=>e.stopPropagation(); sel.onmousedown=e=>e.stopPropagation();
+    sel.onchange=async()=>{ const [day,which]=sel.dataset.pick.split(":"), ref=sel.dataset.ref; const p=blocksOf(WV.days.find(d=>d.date===day)).find(q=>q.ref===ref); const t={start:p.start,end:p.end,[which]:sel.value,ref};
+      if(mins(t.end)<=mins(t.start)){ toast("The block has to end after it starts"); renderWeek(); return; }
+      try{ await api("/api/week/time",{date:day,...t}); toast(`Calendar block now ${hm(t.start)} to ${hm(t.end)}`); }catch(err){ toast(err.message); } drawWeek(); }; });
+}
+async function place(ref, day, note=""){
+  const it=weekItem(ref); if(!it) return;
+  try{ const r=await api("/api/week/place",{ref,date:day,title:bigOf(it)}); toast(`${bigOf(it).slice(0,50)}: ${dayName(day)}, ${hm(r.result.start)} to ${hm(r.result.end)}${r.result.stacked?", after the one you finished":""}, added to your calendar${note}`); }
+  catch(err){ toast(err.message); }
+}
+async function drop(ref, day){
+  if(!ref||!day) return;
+  if(day<WV.today){ toast("That morning has passed"); return; }
+  if(placedDay(ref)===day) return;
+  // No question (the user, 2026-11-13): an unfinished one there is replaced and goes back to
+  // the list; a finished one stays and the new one stacks under it.
+  const cur=curBlock(WV.days.find(d=>d.date===day));
+  await place(ref, day, cur && cur.ref!==ref ? `. "${bigOf(cur.item).slice(0,40)}" is back on the list.` : "");
+  drawWeek();
+}
+async function unplace(day, ref){
+  const bl=blocksOf(WV.days.find(d=>d.date===day)), p=bl.find(q=>q.ref===ref)||bl[0]; if(!p) return;
+  try{ await api("/api/week/unplace",{date:day,ref:p.ref}); toast(`Took "${bigOf(p.item).slice(0,40)}" off ${dayName(day)}. Its calendar block is removed.`); }catch(err){ toast(err.message); }
+  drawWeek();
+}
+// ---- Inbox: the user's captures, Today files it ------------------------------------------------
+const DEST = {today:"Today", someday:"Someday", week:"Week's list"};
+let INBOX = null;
+async function drawInbox(){
+  const main=$("main");
+  main.innerHTML=`<div class="capbox"><input class="add big" id="cap" placeholder="Anything on your mind" autocomplete="off" title="Press Enter. Today files it for you."><button class="capsend" id="capsend" title="Send. Today files it for you." aria-label="Send"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5"/></svg></button></div><h2 class="sec">Just captured</h2><div id="caps"><div class="empty">Loading&hellip;</div></div>`;
+  const cap=$("cap"); if(!PHONE) cap.focus();
+  const send=$("capsend"), ready=()=>send.classList.toggle("ready", !!cap.value.trim());
+  cap.oninput=ready; send.onclick=()=>{ capture(); if(!PHONE) cap.focus(); };
+  cap.onkeydown=e=>{ if(e.key==="Enter") capture(); };
+  const capture=async()=>{ if(!cap.value.trim()) return; const text=cap.value.trim(); cap.value=""; ready();
+    const tmp={id:"tmp"+Date.now(), text, dest:"", pending:true}; INBOX.unshift(tmp); renderInbox();
+    try{ const r=await api("/api/inbox",{text}); Object.assign(tmp, r.result, {pending:false}); toast(`Filed to ${DEST[r.result.dest]}`); }
+    catch(err){ INBOX.splice(INBOX.indexOf(tmp),1); cap.value=text; ready(); toast(err.message); }
+    renderInbox(); };
+  try{ INBOX=(await api("/api/inbox")).items; }catch(e){ INBOX=[]; }
+  renderInbox();
+}
+function renderInbox(){
+  const box=$("caps"); if(!box) return;
+  box.innerHTML = INBOX.map(r=>`<div class="prow2${r.pending?" pending":""}"><div class="what">${esc(r.text)}</div>${r.pending?`<span class="muted">Filing&hellip;</span>`:`<button class="chip ${r.dest}" data-dest="${esc(r.id)}" title="Where it went. Tap to move it.">${DEST[r.dest]||r.dest}</button><button class="xdel" data-del="${esc(r.id)}" title="Delete. Tap twice.">&times;</button>`}</div>`).join("") || `<div class="empty">Nothing yet.</div>`;
+  box.querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{
+    if(!b.classList.contains("armed")){ b.classList.add("armed"); b.textContent="Delete"; setTimeout(()=>{ if(b.isConnected){ b.classList.remove("armed"); b.innerHTML="&times;"; } },2500); return; }
+    const id=b.dataset.del; INBOX=INBOX.filter(r=>r.id!==id); renderInbox();
+    try{ await api("/api/inbox/delete",{id}); toast("Deleted"); }catch(err){ toast(err.message); drawInbox(); }
+  });
+  box.querySelectorAll("[data-dest]").forEach(b=>b.onclick=()=>{
+    const r=INBOX.find(x=>x.id===b.dataset.dest);
+    const opts=[["today","Move to Today"],["someday","Move to Someday"],["week","Plan in Week"]].filter(([k])=>k!==r.dest);
+    menu(b, opts.map(([k,l])=>[l, async()=>{ try{ const res=await api("/api/inbox/move",{id:r.id,dest:k}); Object.assign(r,res.result); toast(k==="week"?"On Week's list":"Moved to "+DEST[k]); }catch(err){ toast(err.message); } renderInbox(); }]));
+  });
+}
+
+// ---- Someday: one outline, saved as Someday.md ------------------------------------------
+let SD = null, sdRoot = null, zoom = null, sdFocus = null, sdAtEnd = true, sdLast = null, sdTimer = null, sdWeek = new Set();
+let uid = 0; const nid = () => "n"+(++uid);
+const sdOpen = new Set(JSON.parse(localStorage.getItem("somedayOpen")||"[]"));
+function mkNode(t){ const links=[...t.matchAll(/\[\[([^\]]+)\]\]/g)].map(m=>m[1]); return {id:nid(), text:t.replace(/\s*\[\[[^\]]+\]\]/g,"").trim(), links, note:"", children:[]}; }
+function parseOutline(text){
+  const root={id:"root", text:"Someday", children:[], links:[], note:""}, stack=[{indent:-1,node:root}]; let last=null;
+  for(const raw of text.split("\n")){
+    if(!raw.trim()) continue;
+    const m=raw.match(/^(\s*)[-*+]\s?(.*)$/);
+    if(m){ const ind=m[1].replace(/\t/g,"  ").length, n=mkNode(m[2]);
+      while(stack.length>1 && stack[stack.length-1].indent>=ind) stack.pop();
+      stack[stack.length-1].node.children.push(n); stack.push({indent:ind,node:n}); last=n; }
+    else if(last) last.note=(last.note?last.note+"\n":"")+raw.trim();
+    else { const n=mkNode(raw.trim()); root.children.push(n); last=n; }
+  }
+  return root;
+}
+function serialize(n, depth=0){
+  let out=""; const pad="  ".repeat(depth);
+  for(const c of n.children){
+    out+=`${pad}- ${c.text}${c.links.map(l=>` [[${l}]]`).join("")}\n`;
+    if(c.note.trim()) out+=c.note.split("\n").filter(l=>l.trim()).map(l=>`${pad}  ${l.trim()}`).join("\n")+"\n";
+    out+=serialize(c, depth+1);
+  }
+  return out;
+}
+const isOpen = n => sdOpen.has(n.text);
+function setOpen(n, on){ on?sdOpen.add(n.text):sdOpen.delete(n.text); localStorage.setItem("somedayOpen", JSON.stringify([...sdOpen])); }
+function findParent(node, target){ for(const c of node.children){ if(c===target) return node; const p=findParent(c,target); if(p) return p; } return null; }
+function findById(node, id){ if(node.id===id) return node; for(const c of node.children){ const f=findById(c,id); if(f) return f; } return null; }
+function pathTo(t){ const path=[]; let n=t; while(n && n!==sdRoot){ path.unshift(n); n=findParent(sdRoot,n); } return path; }
+function sdChanged(){ clearTimeout(sdTimer); const s=$("sdsaved"); if(s) s.textContent="Saving…";
+  sdTimer=setTimeout(async()=>{ try{ await api("/api/someday",{text:serialize(sdRoot)}); const e=$("sdsaved"); if(e) e.textContent="Saved"; }catch(err){ const e=$("sdsaved"); if(e) e.textContent="Couldn't save: "+err.message; } },700); }
+async function drawSomeday(){
+  if(!sdRoot){ $("main").innerHTML=`<div class="empty">Loading&hellip;</div>`;
+    SD=await api("/api/someday"); sdRoot=parseOutline(SD.text); zoom=sdRoot; sdWeek=new Set(Object.values(SD.week||{}).map(w=>w.text)); }
+  renderSomeday();
+}
+function nodeHtml(n){
+  const has=n.children.length>0, open=isOpen(n), inw=sdWeek.has(n.text);
+  let h=`<div class="onode" data-id="${n.id}"><div class="oline"><button class="tri${has?" has":""}" data-tri="${n.id}" tabindex="-1">${open?"&#9662;":"&#9656;"}</button><span class="odot${has&&!open?" closed":""}" data-zoom="${n.id}" title="Open as its own page"><i></i></span><div class="otxt" contenteditable="true" data-txt="${n.id}">${esc(n.text)}</div>${n.links.map((l,i)=>`<span class="lnk" data-unlink="${n.id}:${i}" title="Linked. Click to remove the link.">${esc(l)}</span>`).join("")}<button class="toweek${inw?" on":""}" data-week="${n.id}" title="${inw?"On Week's list. Click to take it off.":"Put it on Week's list"}">${inw?"In Week":"Plan in Week"}</button></div>`;
+  if(n.note) h+=`<div class="onote" contenteditable="true" data-note="${n.id}">${esc(n.note)}</div>`;
+  if(has && open) h+=`<div class="kids">${n.children.map(nodeHtml).join("")}</div>`;
+  return h+`</div>`;
+}
+function renderSomeday(){
+  const main=$("main");
+  let h=`<div class="somehead"><span class="muted">Ideas for later. Nothing here has a date or asks anything of you.</span><span class="saved" id="sdsaved" title="Kept as Someday.md in your Projects folder"></span></div><div class="outline">`;
+  if(zoom!==sdRoot){ const path=pathTo(zoom);
+    h+=`<div class="crumbs"><a data-zoom="root">Someday</a>${path.slice(0,-1).map(n=>` &rsaquo; <a data-zoom="${n.id}">${esc(n.text.slice(0,40))}</a>`).join("")}</div>`;
+    h+=`<div class="zoomtitle" contenteditable="true" data-ztitle>${esc(zoom.text)}</div><div class="onote zoomnote" contenteditable="true" data-znote data-ph="Notes">${esc(zoom.note||"")}</div>`; }
+  h+=zoom.children.map(nodeHtml).join("") || `<div class="oline"><span class="tri"></span><span class="odot"><i></i></span><div class="otxt muted" data-empty>Type to add ${zoom===sdRoot?"an idea":"a sub-idea"}</div></div>`;
+  h+=`</div><div class="obar" id="obar"><button data-ob="out" title="Un-nest">&larr; Out</button><button data-ob="in" title="Nest under the one above">In &rarr;</button><button data-ob="up" title="Move up">&uarr;</button><button data-ob="down" title="Move down">&darr;</button><button data-ob="note">Note</button><button data-ob="open">Open</button><button data-ob="week">Week</button></div>`;
+  h+=`<div class="keys">Enter: new bullet &middot; Tab / Shift+Tab: nest / un-nest &middot; Shift+Enter: add a note &middot; click a bullet's dot to open it as its own page &middot; type [[ to link a project</div>`;
+  main.innerHTML=h; wireSomeday();
+}
+function placeCaret(el, atEnd){ el.focus(); const r=document.createRange(); r.selectNodeContents(el); r.collapse(!atEnd); const s=getSelection(); s.removeAllRanges(); s.addRange(r); }
+const visibleIds = () => [...$("main").querySelectorAll("[data-txt]")].map(e=>e.dataset.txt);
+async function toggleWeek(n){
+  const on=!sdWeek.has(n.text); if(!n.text.trim()) return;
+  await api("/api/someday/week",{text:n.text,on}); on?sdWeek.add(n.text):sdWeek.delete(n.text);
+  toast(on?"Available in Week now. Drag it onto a morning when you want to do it.":"Off Week's list"); renderSomeday();
+}
+function projectNames(){ return [...new Set((S.projects||[]).map(p=>p.title).filter(Boolean))]; }
+function wireSomeday(){
+  const v=$("main");
+  v.querySelectorAll("[data-zoom]").forEach(d=>d.onclick=()=>{ zoom=d.dataset.zoom==="root"?sdRoot:findById(sdRoot,d.dataset.zoom); renderSomeday(); });
+  v.querySelectorAll("[data-tri]").forEach(b=>b.onclick=()=>{ const n=findById(sdRoot,b.dataset.tri); setOpen(n,!isOpen(n)); renderSomeday(); });
+  v.querySelectorAll("[data-week]").forEach(b=>b.onclick=()=>toggleWeek(findById(sdRoot,b.dataset.week)));
+  v.querySelectorAll("[data-unlink]").forEach(l=>l.onclick=()=>{ const [id,i]=l.dataset.unlink.split(":"); const n=findById(sdRoot,id); n.links.splice(+i,1); sdChanged(); renderSomeday(); });
+  const zt=v.querySelector("[data-ztitle]"); if(zt) zt.oninput=()=>{ zoom.text=zt.textContent; sdChanged(); };
+  const zn=v.querySelector("[data-znote]"); if(zn){ zn.oninput=()=>{ zoom.note=zn.innerText; sdChanged(); };
+    zn.onkeydown=e=>{ if(e.key==="Enter"&&!e.shiftKey){ e.preventDefault(); const n=mkNode(""); zoom.children.unshift(n); sdFocus=n.id; renderSomeday(); } }; }
+  const empty=v.querySelector("[data-empty]"); if(empty) empty.onclick=()=>{ const n=mkNode(""); zoom.children.push(n); sdFocus=n.id; renderSomeday(); };
+  v.querySelectorAll("[data-note]").forEach(el=>{ const n=findById(sdRoot,el.dataset.note);
+    el.oninput=()=>{ n.note=el.innerText; sdChanged(); };
+    el.onkeydown=e=>{ if(e.key==="Backspace"&&!el.textContent){ e.preventDefault(); n.note=""; sdFocus=n.id; sdChanged(); renderSomeday(); } }; });
+  v.querySelectorAll("[data-txt]").forEach(el=>{
+    const n=findById(sdRoot,el.dataset.txt);
+    el.addEventListener("focus",()=>{ sdLast=n.id; $("obar").classList.add("on"); });
+    el.oninput=()=>{ const t=el.textContent;
+      if(t.endsWith("[[")){ n.text=t.slice(0,-2); el.textContent=n.text; placeCaret(el,true);
+        const names=projectNames(); if(names.length) menu(el, names.map(p=>["Project: "+p, ()=>{ n.links.push(p); sdChanged(); renderSomeday(); }])); }
+      else n.text=t;
+      sdChanged(); };
+    el.onkeydown=e=>{
+      const parent=findParent(sdRoot,n)||zoom, sib=parent.children, i=sib.indexOf(n);
+      if(e.key==="Enter"&&e.shiftKey){ e.preventDefault(); if(!n.note){ n.note=" "; renderSomeday(); const ne=v.querySelector(`[data-note="${n.id}"]`); ne.textContent=""; n.note=""; placeCaret(ne,true); } else placeCaret(v.querySelector(`[data-note="${n.id}"]`),true); return; }
+      if(e.key==="Enter"){ e.preventDefault(); const nn=mkNode("");
+        if(n.children.length && isOpen(n)) n.children.unshift(nn); else sib.splice(i+1,0,nn);
+        sdFocus=nn.id; sdAtEnd=true; sdChanged(); renderSomeday(); return; }
+      if(e.key==="Tab"&&!e.shiftKey){ e.preventDefault(); if(i>0){ const prev=sib[i-1]; sib.splice(i,1); prev.children.push(n); setOpen(prev,true); sdFocus=n.id; sdChanged(); renderSomeday(); } return; }
+      if(e.key==="Tab"&&e.shiftKey){ e.preventDefault(); if(parent!==zoom){ const gp=findParent(sdRoot,parent)||sdRoot; sib.splice(i,1); gp.children.splice(gp.children.indexOf(parent)+1,0,n); sdFocus=n.id; sdChanged(); renderSomeday(); } return; }
+      if(e.key==="Backspace"&&!el.textContent&&!n.children.length){ e.preventDefault(); const ids=visibleIds(), k=ids.indexOf(n.id); sib.splice(i,1); sdFocus=ids[k-1]||null; sdAtEnd=true; sdChanged(); renderSomeday(); return; }
+      if(e.key==="ArrowUp"||e.key==="ArrowDown"){ const ids=visibleIds(), k=ids.indexOf(n.id)+(e.key==="ArrowUp"?-1:1); if(ids[k]){ e.preventDefault(); placeCaret(v.querySelector(`[data-txt="${ids[k]}"]`),true); } return; }
+    };
+  });
+  v.querySelectorAll("[data-ob]").forEach(b=>{ b.onmousedown=e=>e.preventDefault(); b.onclick=()=>obarAct(b.dataset.ob); });
+  if(sdFocus){ const el=v.querySelector(`[data-txt="${sdFocus}"]`); if(el) placeCaret(el,sdAtEnd); sdFocus=null; }
+}
+function obarAct(act){
+  const n=sdLast&&findById(sdRoot,sdLast); if(!n) return;
+  const parent=findParent(sdRoot,n)||zoom, sib=parent.children, i=sib.indexOf(n);
+  if(act==="in"&&i>0){ const prev=sib[i-1]; sib.splice(i,1); prev.children.push(n); setOpen(prev,true); sdChanged(); }
+  if(act==="out"&&parent!==zoom){ const gp=findParent(sdRoot,parent)||sdRoot; sib.splice(i,1); gp.children.splice(gp.children.indexOf(parent)+1,0,n); sdChanged(); }
+  if(act==="up"&&i>0){ sib.splice(i,1); sib.splice(i-1,0,n); sdChanged(); }
+  if(act==="down"&&i<sib.length-1){ sib.splice(i,1); sib.splice(i+1,0,n); sdChanged(); }
+  if(act==="open"){ zoom=n; renderSomeday(); return; }
+  if(act==="week"){ toggleWeek(n); return; }
+  if(act==="note"){ if(!n.note) n.note=" "; renderSomeday(); const ne=$("main").querySelector(`[data-note="${n.id}"]`); if(n.note===" "){ ne.textContent=""; n.note=""; } placeCaret(ne,true); return; }
+  sdFocus=n.id; renderSomeday();
+}
+
+// Where the user was (tab, page, the open card, how far down) is kept on this device whenever Today
+// is left, and a fresh load with no page in its address goes back there (the user, Nov 15: coming
+// back to the app reloaded it onto the bare Projects list; a phone or the desktop app reopens the
+// app's plain address, and the open card was never kept anywhere).
+function savePlace(){
+  const open = document.querySelector("#app .item.open[data-item]");
+  try{ localStorage.setItem("todayPlace", JSON.stringify({search: location.search, hash: location.hash, openIn, y: scrollY,
+    open: open ? open.dataset.item : "", openTop: open ? open.getBoundingClientRect().top : 0, at: Date.now()})); }catch(e){}
+}
+addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="hidden") savePlace(); });
+addEventListener("pagehide", savePlace);
+// Opening Today after a while starts on the Inbox (the user, Nov 16); coming back within half an
+// hour (a switch to another app, a reload) still goes back to where the user was.
+const PLACE_KEPT_MS = 30*60*1000;
+const lastPlace = (()=>{ try{ return JSON.parse(localStorage.getItem("todayPlace")||"null"); }catch(e){ return null; } })();
+const freshOpen = !location.hash && !(lastPlace && Date.now() - (lastPlace.at||0) < PLACE_KEPT_MS);
+if(freshOpen){
+  TAB = "inbox"; const u = new URL(location.href); u.searchParams.set("tab", "inbox");
+  history.replaceState(history.state, "", u.pathname + u.search);
+} else if(lastPlace && !location.hash){
+  // The user's last place wins over a tab left in the address: the desktop window and a phone reopen
+  // whatever address the app had when it was first opened (the user, Nov 16: the user left Today on the
+  // Today tab and it came back on Projects).
+  history.replaceState(history.state, "", location.pathname + (lastPlace.search||location.search) + (lastPlace.hash||""));
+  TAB = new URLSearchParams(location.search).get("tab") || TAB;
+  Object.assign(openIn, lastPlace.openIn||{});
 }
 route();
-setInterval(()=>{ if(view.page==="list" && !searchQ && !["add","search"].includes(document.activeElement?.id)) loadList(); }, 60000);
+if(lastPlace && lastPlace.hash===location.hash){
+  // The open card back where it sat on the screen once the page has drawn it; else the old scroll.
+  if(lastPlace.y) scrollTarget = lastPlace.y;
+  if(lastPlace.open){
+    const until = Date.now() + 4000;
+    const settle = () => {
+      const el = [...document.querySelectorAll("#app .item.open[data-item]")].find(e => e.dataset.item === lastPlace.open);
+      if(el && el.querySelector(".c5 .c5foot")){ scrollBy(0, el.getBoundingClientRect().top - lastPlace.openTop); return; }
+      if(Date.now() < until) setTimeout(settle, 120);
+    };
+    setTimeout(settle, 120);
+  }
+}
+setInterval(()=>{ if(view.page==="list" && !searchQ && !focus && !["add","search"].includes(document.activeElement?.id) && !document.activeElement?.closest?.(".xp,#app input,#app textarea,[contenteditable]")) loadList({background:true}); }, 60000);
 </script>
 <!--SHELL-->
 </body></html>

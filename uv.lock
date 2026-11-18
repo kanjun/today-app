@@ -3660,11 +3660,13 @@ source = { editable = "system/apps/today" }
 dependencies = [
     { name = "flask" },
     { name = "flask-sock" },
+    { name = "httpx" },
     { name = "werkzeug" },
 ]
 
 [package.dev-dependencies]
 dev = [
+    { name = "imbue-common", extra = ["testing"] },
     { name = "ty" },
 ]
 
@@ -3672,11 +3674,15 @@ dev = [
 requires-dist = [
     { name = "flask", specifier = ">=3.0" },
     { name = "flask-sock", specifier = ">=0.7" },
+    { name = "httpx", specifier = ">=0.27" },
     { name = "werkzeug", specifier = ">=3.0" },
 ]
 
 [package.metadata.requires-dev]
-dev = [{ name = "ty", specifier = "==0.0.85" }]
+dev = [
+    { name = "imbue-common", extras = ["testing"], git = "https://github.com/imbue-ai/mngr?subdirectory=libs%2Fimbue_common&rev=445acdea9fbb34ce24f19e507fd0d7e1f4f7c4a0" },
+    { name = "ty", specifier = "==0.0.85" },
+]
 
 [[package]]
 name = "tokenizers"

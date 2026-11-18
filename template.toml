@@ -10,20 +10,23 @@ slug = "today"
 title = "Today"
 description = "A daily list of what you owe people from Slack and email, with replies drafted for you to send"
 thumbnail = "template.svg"
-version = "v3"
+version = "v4"
 
 # How this template is DERIVED from the workspace it came from. An
 # update re-runs this recipe rather than diffing two repos, which is what
 # keeps an exclusion excluded even though the thing still exists upstream.
 [recipe]
 include = ["system/apps/today", "system/supervisord.conf.d/today.conf"]
-data_include = ["data/.state/cron.d/today-sync", "data/.state/cron.d/today-cleanup"]
+data_include = ["data/.state/cron.d/today-sync"]
 exclude = [
     "the early-access onboarding page and its waitlist sync (studio.py, batch.py, their routes, page, prompts and tests): specific to the publisher's company",
+    "the onboarding board (studio_board.py, assets/studio_board.html) and the assistant's onboarding actions (studio_actions.py), with their tests and the onboarding projects, stages and invite templates: specific to the publisher's company",
     "the texts source (texts.py) that read chats through a desktop messaging bridge on the publisher's computer, and its dependency on the people-archive package",
     "the design mock page (assets/mock.html), which held real conversations",
+    "the internal planning notes for the task-list rebuild (PLAN-commitments.md)",
+    "the morning cleanup schedule (data/.state/cron.d/today-cleanup), whose regrouping pass the app no longer has",
     "system/apps/email_review and system/apps/email_review_personal: the inbox digest apps that produce the email input",
-    "system/apps/slack_review and system/apps/gtd: the Slack scanner and to-do app that produce the Slack captures input",
+    "system/apps/slack_review and system/apps/gtd: the Slack scanner and to-do app that earlier versions read Slack captures from (Today now searches Slack itself)",
     "system/apps/crm: the people archive the texts source read from",
     "data/.apps/today: all of the user's items, drafts, goals, rules and saved conversations",
     "every other app, skill and service in the source workspace",
@@ -39,6 +42,14 @@ modification_rules = [
     "rename the user-draft feature and its API from gendered names to neutral ones",
     "replace the publisher's own projects (her company's product and her fund) with projects the adopter defines in a settings file, shipping with none by default",
     "replace the paths to the publisher's own writing-voice files with settings; with none set, drafts use no voice examples",
+    "write the judge's rules for what is owed (user_rules.py) as neutral rules about the user: no quotes, names or dated words of the publisher",
+    "replace the publisher's weekly-priorities, Someday and project folders, project-agent names and writing app with settings (weekly_dir, someday_file, projects_dir, agents_dir, writing_dir, writing_url) that default to generic folders",
+    "replace the hardcoded home time zone of calendar reads, prompts and the date picker with the timezone setting",
+    "put who the user is into the prompts from the settings (the {ABOUT} placeholder) instead of the publisher's name, role and company",
+    "rename identifiers and stored values named after the publisher or a gendered pronoun (her_* and is_her names, the publisher's name as the actor of the user's own changes, 'hers' and 'she_*' commitment values) to neutral ones",
+    "keep the published supervisord program (today.conf) and run the app as a member of the root workspace environment, with its people-archive dependency removed and the latchkey gateway helper inlined",
+    "replace the publisher's name and the other app's Slack names file in the Slack watcher (slack_watch.py) with the user_name and slack_users settings; with no names file, names are looked up in Slack",
+    "replace the path to the publisher's shared voice file with a voice_file setting (the older per-channel files still work); with none set, drafts use no voice examples",
 ]
 
 # Everything an adopter must deal with before this is really theirs.
@@ -80,7 +91,15 @@ permission = "slack-read-all"
 
 [[requirements.permission]]
 scope = "slack-api"
+permission = "slack-search"
+
+[[requirements.permission]]
+scope = "slack-api"
 permission = "slack-chat-write"
+
+[[requirements.permission]]
+scope = "slack-api"
+permission = "slack-conversations-write"
 
 [[requirements.permission]]
 scope = "google-gmail-api"
@@ -95,6 +114,10 @@ scope = "google-gmail-api"
 permission = "google-gmail-write-drafts"
 
 [[requirements.permission]]
+scope = "google-gmail-api"
+permission = "google-gmail-write-threads"
+
+[[requirements.permission]]
 scope = "google-calendar-api"
 permission = "google-calendar-read-events"
 
@@ -102,13 +125,21 @@ permission = "google-calendar-read-events"
 scope = "google-calendar-api"
 permission = "google-calendar-write-events"
 
+[[requirements.permission]]
+scope = "google-calendar-api"
+permission = "google-calendar-read-settings"
+
+[[requirements.permission]]
+scope = "notion-mcp-api"
+permission = "notion-mcp-read-all"
+
 [requirements.llm]
 method = "keyless"
 note = "ai.py calls claude -p (model sonnet); an adopter on the keyed litellm path (ANTHROPIC_API_KEY) must switch ai.complete per the use-ai-integration skill"
 
 [[requirements.adaptation]]
-summary = "the email digest and Slack captures inputs are not included"
-resolution = "build or connect a producer for each, in the formats system/apps/today/README.md documents, and point email_digests and slack_captures_dir at them in data/.apps/today/settings.json"
+summary = "the email digest input is not included (Slack is searched directly)"
+resolution = "build or connect a producer, in the format system/apps/today/README.md documents, and point email_digests at it in data/.apps/today/settings.json"
 
 [[requirements.adaptation]]
 summary = "who the user is (name, organization, role, timezone) is unset"
@@ -119,8 +150,20 @@ summary = "the user's inboxes and other addresses are unset"
 resolution = "set email_accounts (the first sends new emails) and email_aliases in data/.apps/today/settings.json"
 
 [[requirements.adaptation]]
-summary = "Slack user names show as ids without a users file"
+summary = "Slack user names are looked up one by one without a users file"
 resolution = "optionally point slack_users at a JSON map of Slack user id to display name"
+
+[[requirements.adaptation]]
+summary = "drafts have no voice examples until a voice file is set"
+resolution = "optionally point voice_file at one file of the user's own messages (standing rules on top, Part 1 emails, Part 2 chat messages)"
+
+[[requirements.adaptation]]
+summary = "no projects ship"
+resolution = "make projects on the Projects tab, or list them in the projects setting (id, title, about; optionally short, folder, agent) so they exist from the first start"
+
+[[requirements.adaptation]]
+summary = "the weekly priorities, Someday and project folders default to data/Today/"
+resolution = "point weekly_dir, someday_file and projects_dir at the user's own files if they keep them elsewhere; writing_dir and writing_url are optional"
 
 # What the included code needs INSTALLED. apt takes bare names: versions
 # are a function of the apt snapshot timestamp, so replaying names at the
